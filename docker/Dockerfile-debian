@@ -1,0 +1,44 @@
+
+# build singularity
+
+FROM golang:1.11.2-stretch as singularity_builder 
+
+RUN apt-get update \
+    && apt-get -y install libssl-dev uuid-dev \
+    && mkdir -p $GOPATH/src/github.com/sylabs
+WORKDIR $GOPATH/src/github.com/sylabs
+RUN git clone -b v3.0.1 https://github.com/sylabs/singularity.git 
+WORKDIR $GOPATH/src/github.com/sylabs/singularity
+RUN ./mconfig -s -S -p /opt/singularity
+WORKDIR $GOPATH/src/github.com/sylabs/singularity/builddir
+RUN make \
+    && make install
+
+
+# build geneflow python wheels
+
+FROM python:3.6.7-stretch as geneflow_builder
+
+WORKDIR /src
+COPY . /src
+RUN pip install -U pip && pip wheel -w /wheels . 
+
+
+# build final container
+
+FROM python:3.6.7-slim-stretch
+
+COPY --from=singularity_builder /opt/singularity /opt/singularity
+COPY --from=geneflow_builder /wheels /wheels
+COPY --from=geneflow_builder /src/requirements.txt /wheels/requirements.txt
+    
+RUN apt-get update \
+    && apt-get -y install git \
+    && apt-get -y install squashfs-tools \
+    && rm -rf /var/lib/apt/lists/* \
+    && pip install -U pip \
+    && pip install -f /wheels -r /wheels/requirements.txt \
+    && rm -rf /wheels \
+    && rm -rf /root/.cache/pip/*
+
+ENV PATH /opt/singularity/bin:$PATH

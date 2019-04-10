@@ -1,0 +1,37 @@
+%YAML 1.1
+---
+gfVersion: v1.0
+class: app
+
+name: {{ name }}
+description: {{ description }}
+repo_uri: {{ repo_uri }}
+version: '{{ version }}'
+inputs:
+  {% for key, value in inputs.items() %}
+  {{ key }}:
+    label: {{ value.label }}
+    description: {{ value.description }}
+    type: {{ value.type }}
+  {% if not value.required and value.default %}
+    default: {{ value.default }}
+  {% endif %}
+  {% endfor %}
+parameters:
+  {% for key, value in parameters.items() %}
+  {{ key }}:
+    label: {{ value.label }}
+    description: {{ value.description }}
+    type: {{ value.type }}
+  {% if not value.required and value.default %}
+    default: {{ value.default }}
+  {% endif %}
+  {% endfor %}
+definition:
+{{ '{%' }} if agave {{ '%}' }}
+  agave:
+    agave_app_id: {{ '{{' }} agave.appsPrefix {{ '}}' }}-{{ name }}-{{ version }}{{ '{{' }} revision {{ '}}' }}
+{{ '{%' }} endif {{ '%}' }}
+  local:
+    script: {{ name }}.sh
+...

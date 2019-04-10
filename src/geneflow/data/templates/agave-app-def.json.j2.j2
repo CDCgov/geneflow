@@ -1,0 +1,46 @@
+{
+  "name": "{{ '{{' }} agave.appsPrefix {{ '}}' }}-{{ name }}",
+  "version": "{{ version }}",
+  "label": "{{ description }}",
+  "defaultNodeCount": 1,
+  "defaultMemoryPerNode": 1,
+  "defaultProcessorsPerNode": 1,
+  "executionType": "HPC",
+  "parallelism": "SERIAL",
+  "checkpointable": false,
+  "executionSystem": "{{ '{{' }} agave.executionSystem {{ '}}' }}",
+  "deploymentPath": "{{ '{{' }} agave.appsDir {{ '}}' }}/{{ name }}-{{ version }}",
+  "deploymentSystem": "{{ '{{' }} agave.deploymentSystem {{ '}}' }}",
+  "templatePath": "{{ name }}.sh",
+  "testPath": "test/test.sh",
+  "inputs": [
+    {% for key, value in inputs.items() %}
+    { "id": "{{ key }}",
+      "value": {
+        "required": {{ 'true' if value.required else 'false' }},
+        "default": "{% if not value.required and value.default -%}{{ value.default }}{%- endif %}"
+      }
+    }{{ ',' if not loop.last }}
+    {% endfor %}
+  ],
+  "parameters": [
+    {% for key, value in parameters.items() %}
+    { "id": "{{ key }}",
+      "value": {
+        "required": {{ 'true' if value.required else 'false' }},
+        {% if not value.required and value.default %}
+        "default": {% if value.type in ('string','File','Directory') -%}"{{ value.default }}"{%- else -%}{{ value.default }}{%- endif -%},
+        {% endif %}
+        "type": "{{ 'string' if value.type in ('string','File','Directory') else 'number' }}"
+      }
+    },
+    {% endfor %}
+    { "id": "exec_method",
+      "value": {
+        "required": true,
+        "default": "auto",
+        "type": "string"
+      }
+    }
+  ]
+}

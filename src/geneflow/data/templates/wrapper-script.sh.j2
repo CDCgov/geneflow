@@ -1,0 +1,587 @@
+#!/bin/sh
+
+# {{ description }} wrapper script
+
+{%- macro conditional(if_block) -%}
+    {%- set keys = [] -%}
+    {%- for if_item in if_block recursive -%}
+        {%- set parent_key = keys[keys|length-1] -%}
+        {%- if not loop.first -%}
+            {%- if parent_key == 'any' -%}
+                {{ ' || ' }}
+            {%- else -%}
+                {{ ' && ' }}
+            {%- endif -%} 
+        {%- endif -%}
+        {%- if if_item.all or if_item.any or if_item.none %}
+            {%- if if_item.all -%}
+                {%- set tmp = keys.append('all') -%}
+                { {{ loop(if_item.all) }}; }
+            {%- elif if_item.any -%}
+                {%- set tmp = keys.append('any') -%}
+                { {{ loop(if_item.any) }}; }
+            {%- elif if_item.none -%}
+                {%- set tmp = keys.append('none') -%}
+                {{ '! ' }}{ {{ loop(if_item.none) }}; }
+            {%- endif -%}
+            {%- set tmp = keys.pop() -%}
+        {%- else -%}
+            {%- if if_item.defined -%}
+                [ -n "{{ if_item.defined }}" ]
+            {%- elif if_item.not_defined -%}
+                [ -z "{{ if_item.not_defined }}" ]
+            {%- elif if_item.str_equal -%}
+                [ "{{ if_item.str_equal[0] }}" = "{{ if_item.str_equal[1] }}" ]
+            {%- elif if_item.not_str_equal -%}
+                [ "{{ if_item.not_str_equal[0] }}" != "{{ if_item.not_str_equal[1] }}" ]
+            {%- elif if_item.equal -%}
+                [ "{{ if_item.equal[0] }}" -eq "{{ if_item.equal[1] }}" ]
+            {%- elif if_item.not_equal -%}
+                [ "{{ if_item.not_equal[0] }}" -ne "{{ if_item.not_equal[1] }}" ]
+            {%- elif if_item.less -%}
+                [ "{{ if_item.less[0] }}" -lt "{{ if_item.less[1] }}" ]
+            {%- elif if_item.greater -%}
+                [ "{{ if_item.greater[0] }}" -gt "{{ if_item.greater[1] }}" ]
+            {%- elif if_item.less_equal -%}
+                [ "{{ if_item.less_equal[0] }}" -le "{{ if_item.less_equal[1] }}" ]
+            {%- elif if_item.greater_equal -%}
+                [ "{{ if_item.greater_equal[0] }}" -ge "{{ if_item.greater_equal[1] }}" ]
+            {%- elif if_item.file_exist -%}
+                [ -f "{{ if_item.file_exist }}" ]
+            {%- elif if_item.not_file_exist -%}
+                [ ! -f "{{ if_item.not_file_exist }}" ]
+            {%- elif if_item.dir_exist -%}
+                [ -d "{{ if_item.dir_exist }}" ]
+            {%- elif if_item.not_dir_exist -%}
+                [ ! -d "{{ if_item.not_dir_exist }}" ]
+            {%- elif if_item.exist -%}
+                [ -e "{{ if_item.exist }}" ]
+            {%- elif if_item.not_exist -%}
+                [ ! -e "{{ if_item.not_exist }}" ]
+            {%- elif if_item.in_path -%}
+                command -v {{ if_item.in_path }} >/dev/null 2>&1
+            {%- endif -%}
+        {%- endif -%}
+    {%- endfor -%}
+{%- endmacro -%}
+
+{%- macro exec(run) -%}
+    {%- if run.if -%}
+        if {{ conditional(run.if) }}; then{{ ' ' }}
+    {%- endif -%}
+    {%- if run.pipe -%}
+        CMD="";{{ ' ' }}
+        {%- for pipe_item in run.pipe -%}
+            {{- exec_item(pipe_item, loop.index, true, loop.last) -}}
+            CMD="${CMD}{{- '|' if not loop.first -}}
+                {{- '${' -}}CMD{{ loop.index }}{{ '}' }}";{{ ' ' }}
+        {%- endfor -%}
+        echo "CMD=${CMD}"; safeRunCommand "${CMD}";{{ ' ' }}
+    {%- else -%}
+        {{- exec_item(run, 0, false, true) -}}
+        CMD="${CMD0}"; echo "CMD=${CMD}"; safeRunCommand "${CMD}";{{ ' ' }}
+    {%- endif -%}
+    {%- if run.if -%}
+        fi;{{ ' ' }}
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro exec_item(run, loop_index, pipe, loop_last) -%}
+    MNT=""; ARG="";{{ ' ' }}
+    {%- set run_type = run.type -%}
+    {%- if run_type not in ['singularity','docker'] -%}
+        {%- set run_type = 'shell' -%}
+    {%- endif -%}
+    {%- if run.args -%}
+        {%- for arg in run.args -%}
+            {%- if arg.if -%}
+                if {{ conditional(arg.if) }}; then{{ ' ' }}
+            {%- endif -%}
+            {%- if arg.flag -%}
+                ARG="${ARG} {{ arg.flag }}";{{ ' ' }}
+            {%- endif -%}
+            {%- if arg.mount -%}
+                {%- if run_type in ['singularity','docker'] -%}
+                    {%- set mount_var = arg.mount[2:-1] -%}
+                    {%- if run_type == 'singularity' -%}
+                        MNT="${MNT} -B ";{{ ' ' }}
+                    {%- else -%}
+                        MNT="${MNT} -v ";{{ ' ' }}
+                    {%- endif -%}
+                    MNT="${MNT}\"{{ '${' }}{{ mount_var }}_DIR{{ '}' -}}
+                        :/data{{ loop.index }}\"";{{ ' ' }}
+                    {%- if arg.value -%}
+                        ARG="${ARG} \"/data{{ loop.index -}}
+                            /{{ arg.value }}\"";{{ ' ' }}
+                    {%- else -%}
+                        ARG="${ARG} \"/data{{ loop.index }}/{{ '${' -}}
+                            {{- mount_var }}_BASE{{ '}' }}\"";{{ ' ' }}
+                    {%- endif -%}
+                {%- endif -%}
+            {%- else -%}
+                {%- if arg.value -%}
+                    ARG="${ARG} \"{{ arg.value }}\"";{{ ' ' }}
+                {%- endif -%}
+            {%- endif -%}
+            {%- if arg.if -%}
+                fi;{{ ' ' }}
+            {%- endif -%}
+        {%- endfor -%}
+    {%- endif -%}
+    {%- if run_type == 'singularity' -%}
+        CMD{{ loop_index }}="singularity run ${MNT} {{ run.image }}{{ ' ' -}}
+            {{- run.run }} ${ARG}";{{ ' ' }}
+    {%- elif run_type == 'docker' -%}
+        CMD{{ loop_index }}="docker run --rm ${MNT} {{ run.image }}{{ ' ' -}}
+            {{- run.run }} ${ARG}";{{ ' ' }}
+    {%- else -%}
+        CMD{{ loop_index }}="{{ run.run }} ${ARG}";{{ ' ' }}
+    {%- endif -%}
+    {%- if not pipe or loop_last -%}
+        {%- if run.stdout -%}
+            CMD{{ loop_index }}="{{ '${' }}CMD{{ loop_index }}{{ '} >' -}}
+                \"{{ run.stdout }}\"";{{ ' ' }}
+        {%- endif -%}
+    {%- endif -%}
+    {%- if run.stderr -%}
+        CMD{{ loop_index }}="{{ '${' }}CMD{{ loop_index }}{{ '} 2>' -}}
+            \"{{ run.stderr }}\"";{{ ' ' }}
+    {%- endif -%}
+{%- endmacro %}
+
+
+
+###############################################################################
+#### Helper Functions ####
+###############################################################################
+
+## MODIFY >>> *****************************************************************
+## Usage description should match command line arguments defined below
+usage () {
+    echo "Usage: $(basename "$0")"
+    {% for key, value in inputs.items() %}
+    echo "  --{{ key }} => {{ value.label }}"
+    {% endfor %}
+    {% for key, value in parameters.items() %}
+    echo "  --{{ key }} => {{ value.label }}"
+    {% endfor %}
+    echo "  --exec_method => Execution method (
+        {%- for exec_method in exec_methods -%}
+            {{- exec_method.name -}},{{- ' ' -}}
+        {%- endfor %}auto)"
+    echo "  --help => Display this help message"
+}
+## ***************************************************************** <<< MODIFY
+
+# report error code for command
+safeRunCommand() {
+    cmd="$@"
+    eval "$cmd"
+    ERROR_CODE=$?
+    if [ ${ERROR_CODE} -ne 0 ]; then
+        echo "Error when executing command '${cmd}'"
+        exit ${ERROR_CODE}
+    fi
+}
+
+# print message and exit
+fail() {
+    msg="$@"
+    echo "${msg}"
+    usage
+    exit 1
+}
+
+# always report exit code
+reportExit() {
+    rv=$?
+    echo "Exit code: ${rv}"
+    exit $rv
+}
+
+trap "reportExit" EXIT
+
+# check if string contains another string
+contains() {
+    string="$1"
+    substring="$2"
+
+    if test "${string#*$substring}" != "$string"; then
+        return 0    # $substring is in $string
+    else
+        return 1    # $substring is not in $string
+    fi
+}
+
+
+
+###############################################################################
+## SCRIPT_DIR: directory of current script, depends on execution
+## environment, which may be detectable using environment variables
+###############################################################################
+if [ -z "${AGAVE_JOB_ID}" ]; then
+    # not an agave job
+    SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
+else
+    echo "Agave job detected"
+    SCRIPT_DIR=$(pwd)
+fi
+## ****************************************************************************
+
+
+
+###############################################################################
+#### Parse Command-Line Arguments ####
+###############################################################################
+
+getopt --test > /dev/null
+if [ $? -ne 4 ]; then
+    echo "`getopt --test` failed in this environment."
+    exit 1
+fi
+
+## MODIFY >>> *****************************************************************
+## Command line options should match usage description
+OPTIONS=
+LONGOPTIONS=help,exec_method:,
+{%- for key, value in inputs.items() -%}
+    {{- key -}}:,
+{%- endfor -%}
+{%- for key, value in parameters.items() -%}
+    {{- key -}}:,
+{%- endfor %}
+
+## ***************************************************************** <<< MODIFY
+
+# -temporarily store output to be able to check for errors
+# -e.g. use "--options" parameter by name to activate quoting/enhanced mode
+# -pass arguments only via   -- "$@"   to separate them correctly
+PARSED=$(\
+    getopt --options=$OPTIONS --longoptions=$LONGOPTIONS --name "$0" -- "$@"\
+)
+if [ $? -ne 0 ]; then
+    # e.g. $? == 1
+    #  then getopt has complained about wrong arguments to stdout
+    usage
+    exit 2
+fi
+
+# read getopt's output this way to handle the quoting right:
+eval set -- "$PARSED"
+
+## MODIFY >>> *****************************************************************
+## Set any defaults for command line options
+{% for key, value in inputs.items() %}
+{% if not value.required %}
+{% if value.script_default %}
+{{ key|upper }}={{ value.script_default }}    
+{% endif %}
+{% endif %}
+{% endfor %}
+{% for key, value in parameters.items() %}
+{% if not value.required %}
+{% if value.default %}
+{{ key|upper }}={{ value.default }}    
+{% endif %}
+{% endif %}
+{% endfor %}
+EXEC_METHOD={{ default_exec_method }}
+## ***************************************************************** <<< MODIFY
+
+## MODIFY >>> *****************************************************************
+## Handle each command line option. Lower-case variables, e.g., ${file}, only
+## exist if they are set as environment variables before script execution.
+## Environment variables are used by Agave. If the environment variable is not
+## set, the Upper-case variable, e.g., ${FILE}, is assigned from the command
+## line parameter.
+while true; do
+    case "$1" in
+        --help)
+            usage
+            exit 0
+            ;;
+        {% for key, value in inputs.items() %}
+        --{{ key }})
+            if [ -z "${{ '{' }}{{ key }}{{ '}' }}" ]; then
+                {{ key|upper }}=$2
+            else
+                {{ key|upper }}=${{ '{' }}{{ key }}{{ '}' }}
+            fi
+            shift 2
+            ;;
+        {% endfor %}
+        {% for key, value in parameters.items() %}
+        --{{ key }})
+            if [ -z "${{ '{' }}{{ key }}{{ '}' }}" ]; then
+                {{ key|upper }}=$2
+            else
+                {{ key|upper }}=${{ '{' }}{{ key }}{{ '}' }}
+            fi
+            shift 2
+            ;;
+        {% endfor %}
+        --exec_method)
+            if [ -z "${exec_method}" ]; then
+                EXEC_METHOD=$2
+            else
+                EXEC_METHOD=${exec_method}
+            fi
+            shift 2
+            ;;
+        --)
+            shift
+            break
+            ;;
+        *)
+            echo "Invalid option"
+            usage
+            exit 3
+            ;;
+    esac
+done
+## ***************************************************************** <<< MODIFY
+
+## MODIFY >>> *****************************************************************
+## Log any variables passed as inputs
+{% for key, value in inputs.items() %}
+echo "{{ key|capitalize }}: ${{ '{' }}{{ key|upper }}{{ '}' }}"
+{% endfor %}
+{% for key, value in parameters.items() %}
+echo "{{ key|capitalize }}: ${{ '{' }}{{ key|upper }}{{ '}' }}"
+{% endfor %}
+echo "Execution Method: ${EXEC_METHOD}"
+## ***************************************************************** <<< MODIFY
+
+
+
+###############################################################################
+#### Validate and Set Variables ####
+###############################################################################
+
+## MODIFY >>> *****************************************************************
+## Add app-specific logic for handling and parsing inputs and parameters
+{% for key, value in inputs.items() %}
+
+# {{ key|upper }} input
+{% if value.required %}
+
+if [ -z "${{ '{' }}{{ key|upper }}{{ '}' }}" ]; then
+    echo "{{ value.label }} required"
+    echo
+    usage
+    exit 1
+fi
+# make sure {{ key|upper }} is staged
+count=0
+{% if value.type == 'File' %}
+while [ ! -f ${{ '{' }}{{ key|upper }}{{ '}' }} ]
+{% else %}
+while [ ! -d ${{ '{' }}{{ key|upper }}{{ '}' }} ]
+{% endif %}
+do
+    echo "${{ '{' }}{{ key|upper }}{{ '}' }} not staged, waiting..."
+    sleep 1
+    count=$((count+1))
+    if [ $count == 10 ]; then break; fi
+done
+{% if value.type == 'File' %}
+if [ ! -f ${{ '{' }}{{ key|upper }}{{ '}' }} ]; then
+{% else %}
+if [ ! -d ${{ '{' }}{{ key|upper }}{{ '}' }} ]; then
+{% endif %}
+    echo "{{ value.label }} not found: ${{ '{' }}{{ key|upper }}{{ '}' }}"
+    exit 1
+fi
+{{ key|upper }}_FULL=$(readlink -f "${{ '{' }}{{ key|upper }}{{ '}' }}")
+{{ key|upper }}_DIR=$(dirname "${{ '{' }}{{ key|upper }}_FULL{{ '}' }}")
+{{ key|upper }}_BASE=$(basename "${{ '{' }}{{ key|upper }}_FULL{{ '}' }}")
+{% for exec_item in value.post_exec %}
+{{ exec(exec_item) }}
+{% endfor %}
+{% else %}
+
+if [ -n "${{ '{' }}{{ key|upper }}{{ '}' }}" ]; then
+    # make sure ${{ '{' }}{{ key|upper }}{{ '}' }} is staged
+    count=0
+    {% if value.type == 'File' %}
+    while [ ! -f ${{ '{' }}{{ key|upper }}{{ '}' }} ]
+    {% else %}
+    while [ ! -d ${{ '{' }}{{ key|upper }}{{ '}' }} ]
+    {% endif %}
+    do
+        echo "${{ '{' }}{{ key|upper }}{{ '}' }} not staged, waiting..."
+        sleep 1
+        count=$((count+1))
+        if [ $count == 10 ]; then break; fi
+    done
+    {% if value.type == 'File' %}
+    if [ ! -f ${{ '{' }}{{ key|upper }}{{ '}' }} ]; then
+    {% else %}
+    if [ ! -d ${{ '{' }}{{ key|upper }}{{ '}' }} ]; then
+    {% endif %}
+        echo "{{ value.label }} not found: ${{ '{' }}{{ key|upper }}{{ '}' }}"
+        exit 1
+    fi
+    {{ key|upper }}_FULL=$(readlink -f "${{ '{' }}{{ key|upper }}{{ '}' }}")
+    {{ key|upper }}_DIR=$(dirname "${{ '{' }}{{ key|upper }}_FULL{{ '}' }}")
+    {{ key|upper }}_BASE=$(basename "${{ '{' }}{{ key|upper }}_FULL{{ '}' }}")
+    {% for exec_item in value.post_exec %}
+    {{ exec(exec_item) }}
+    {% endfor %}
+fi
+
+{% endif %}
+
+{% endfor %}
+
+{% for key, value in parameters.items() %}
+
+# {{ key|upper }} parameter
+if [ -n "${{ '{' }}{{ key|upper }}{{ '}' }}" ]; then
+    :
+    {% if value.type == 'File' or value.type == 'Directory' %}
+    {{ key|upper }}_FULL=$(readlink -f "${{ '{' }}{{ key|upper }}{{ '}' }}")
+    {{ key|upper }}_DIR=$(dirname "${{ '{' }}{{ key|upper }}_FULL{{ '}' }}")
+    {{ key|upper }}_BASE=$(basename "${{ '{' }}{{ key|upper }}_FULL{{ '}' }}")
+    {% endif %}
+    {% for exec_item in value.post_exec %}
+    {{ exec(exec_item) }}
+    {% endfor %}
+else
+    :
+{% if value.required %}
+    echo "{{ value.label }} required"
+    echo
+    usage
+    exit 1
+{% endif %}
+fi
+
+{% endfor %}
+
+## ***************************************************************** <<< MODIFY
+
+## EXEC_METHOD: execution method
+## Suggested possible options:
+##   auto: automatically determine execution method
+##   package: binaries packaged with the app
+##   cdc-shared-package: binaries centrally located at the CDC
+##   singularity: singularity image packaged with the app
+##   cdc-shared-singularity: singularity image centrally located at the CDC
+##   docker: docker containers from docker-hub
+##   environment: binaries available in environment path
+##   module: environment modules
+
+## MODIFY >>> *****************************************************************
+## List supported execution methods for this app (space delimited)
+exec_methods="
+    {%- for exec_method in exec_methods -%}
+        {{- exec_method.name -}}{{ ' ' }}
+    {%- endfor -%}auto"
+## ***************************************************************** <<< MODIFY
+
+# make sure the specified execution method is included in list
+if ! contains " ${exec_methods} " " ${EXEC_METHOD} "; then
+    echo "Invalid execution method: ${EXEC_METHOD}"
+    echo
+    usage
+    exit 1
+fi
+
+
+
+###############################################################################
+#### Auto-Detect Execution Method ####
+###############################################################################
+
+# assign to new variable in order to auto-detect after Agave
+# substitution of EXEC_METHOD
+AUTO_EXEC=${EXEC_METHOD}
+## MODIFY >>> *****************************************************************
+## Add app-specific paths to detect the execution method.
+if [ "${EXEC_METHOD}" = "auto" ]; then
+    # detect if singularity available
+    if command -v singularity >/dev/null 2>&1; then
+        SINGULARITY=yes
+    else
+        SINGULARITY=no
+    fi
+
+    # detect if docker available
+    if command -v docker >/dev/null 2>&1; then
+        DOCKER=yes
+    else
+        DOCKER=no
+    fi
+
+    # detect execution method
+    {% for exec_method in exec_methods %}
+    {% if loop.first %}
+    if
+    {%- else %}
+    elif
+    {%- endif -%}
+        {{ ' ' }}{{ conditional(exec_method.if) }}; then
+        AUTO_EXEC={{ exec_method.name }}
+    {% endfor %}
+    else
+        echo "Valid execution method not detected"
+        echo
+        usage
+        exit 1
+    fi
+    echo "Detected Execution Method: ${AUTO_EXEC}"
+fi
+## ****************************************************************************
+
+
+
+###############################################################################
+#### App Execution Preparation, Common to all Exec Methods ####
+###############################################################################
+
+## MODIFY >>> *****************************************************************
+## Add logic to prepare environment for execution
+{% if pre_exec %}
+{% for exec_item in pre_exec %}
+{{ exec(exec_item) }}
+{% endfor %}
+{% endif %}
+## ***************************************************************** <<< MODIFY
+
+
+
+###############################################################################
+#### App Execution, Specific to each Exec Method ####
+###############################################################################
+
+## MODIFY >>> *****************************************************************
+## Add logic to execute app
+## There should be one case statement for each item in $exec_methods
+case "${AUTO_EXEC}" in
+    {% for exec_method in exec_methods %}
+    {{ exec_method.name }})
+        {% for exec_item in exec_method.exec %}
+        {{ exec(exec_item) }}
+        {% endfor %}
+        ;;
+    {% endfor %}
+esac
+## ***************************************************************** <<< MODIFY
+
+
+
+###############################################################################
+#### Cleanup, Common to All Exec Methods ####
+###############################################################################
+
+## MODIFY >>> *****************************************************************
+## Add logic to cleanup execution artifacts, if necessary
+{% if post_exec %}
+{% for exec_item in post_exec %}
+{{ exec(exec_item) }}
+{% endfor %}
+{% endif %}
+## ***************************************************************** <<< MODIFY
+
+
