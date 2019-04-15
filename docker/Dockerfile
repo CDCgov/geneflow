@@ -45,7 +45,7 @@ FROM python:3.6.7-alpine3.8
 
 COPY --from=singularity_builder /opt/singularity /opt/singularity
 COPY --from=geneflow_builder /wheels /wheels
-COPY --from=geneflow_builder /src/requirements.txt /wheels/requirements.txt
+COPY --from=geneflow_builder /src/docker/requirements-docker.txt /wheels/requirements.txt
 
 RUN apk update \
     && apk add --no-cache git squashfs-tools libseccomp sudo coreutils \
