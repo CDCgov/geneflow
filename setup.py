@@ -11,19 +11,7 @@ README = open(os.path.join(BASE_DIR, 'README.md'), encoding='utf-8').read()
 VERSION = '1.2.5'
 
 INSTALL_REQUIRES = [
-    'PyYAML>=3.12',
-    'PyMySQL>=0.8.0',
-    'python-slugify>=1.2.5',
-    'yoyo-migrations>=5.0.5',
-    'regex>=2018.02.21,<2019.02.19',
-    'sqlalchemy>=1.0.13',
-    'pytest>=2.7.0',
-    'cerberus==1.2',
-    'networkx>=2.1',
-    'behave>=1.2.6',
-    'GitPython==2.1.11',
-    'requests>=2.19.1',
-    'Jinja2>=2.7'
+    pkg for pkg in open('requirements.txt').readlines()
 ]
 
 PYTHON_REQUIRES = '>=3.5.*'
