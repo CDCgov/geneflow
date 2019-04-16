@@ -8,7 +8,7 @@ from setuptools.command.install import install
 BASE_DIR = os.path.dirname(__file__)
 README = open(os.path.join(BASE_DIR, 'README.md'), encoding='utf-8').read()
 
-VERSION = '1.2.5'
+VERSION = '1.3.0'
 
 INSTALL_REQUIRES = [
     pkg for pkg in open('requirements.txt').readlines()

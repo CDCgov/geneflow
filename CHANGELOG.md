@@ -1,6 +1,15 @@
 # Changelog
 
 
+## 2019/05/08 - v1.3.0: minor enhancement release
+
+1. Fix security vulnerability: pyyaml>=4.2b1
+
+2. Fix security vulnerability: Jinja2>=2.10.1
+
+3. Fix security vulnerability: SQLAlchemy>=1.3.0
+
+
 ## 2019/03/27 - v1.2.5: minor bug fix release
 
 1. Fix bug: shell invoke method not catching non-zero exit codes.
