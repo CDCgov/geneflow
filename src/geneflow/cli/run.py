@@ -5,7 +5,6 @@ import os
 from pathlib import Path
 from multiprocessing import Pool
 from functools import partial
-from pprint import pprint
 
 
 import geneflow.cli.common
@@ -118,9 +117,6 @@ def run(args):
         On failure: False.
 
     """
-
-    pprint(args)
-
     # get absolute path to workflow
     workflow_yaml = resolve_workflow_path(args.workflow)
     if workflow_yaml:

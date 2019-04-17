@@ -13,7 +13,7 @@
 
 5. Add "else" conditional to exec blocks.
 
-6. Add "str_contains" and "not_str_contains" tests to conditional blocks in app config.
+6. Add "str_contain" and "not_str_contain" tests to conditional blocks in app config.
 
 
 ## 2019/03/27 - v1.2.5: minor bug fix release
