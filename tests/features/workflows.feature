@@ -19,7 +19,7 @@ Feature: Workflows
         | hello world |
         | hello world |
 
-  Scenario: Apps with multi exec blocks are correctly executed locally.
+  Scenario: Apps with multi exec blocks are correctly executed in Agave.
     Given The "agave" "multi-exec" workflow has been installed
     When I run the "agave" "multi-exec" workflow with a "string" parameter of "hello world"
     Then The "agave" "multi-exec" workflow "print" step produces an output file called "output.txt" with multi-line contents
@@ -32,7 +32,14 @@ Feature: Workflows
     When I run the "local" "if-else-exec" workflow with a "string" parameter of "hello world"
     Then The "local" "if-else-exec" workflow "print" step produces an output file called "output.txt" with contents "hello world else condition"
 
-  Scenario: Apps with if-else exec blocks are correctly executed locally.
+  Scenario: Apps with if-else exec blocks are correctly executed in Agave.
     Given The "agave" "if-else-exec" workflow has been installed
     When I run the "agave" "if-else-exec" workflow with a "string" parameter of "hello world"
     Then The "agave" "if-else-exec" workflow "print" step produces an output file called "output.txt" with contents "hello world else condition"
+      
+  Scenario: Apps with str-contain if blocks are correctly executed locally.
+    Given The "local" "str-contain" workflow has been installed
+    When I run the "local" "str-contain" workflow with a "super_string" parameter of "super string"
+    Then The "local" "str-contain" workflow "contain" step produces an output file called "output.txt" with contents "string contains"
+
+

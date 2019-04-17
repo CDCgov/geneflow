@@ -109,15 +109,15 @@ SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
 CMD="${SCRIPT_DIR}/../assets/{{ name }}.sh"
     {% for key, value in inputs.items() %}
     {% if value.test_value %}
-    CMD="${CMD} --{{ key }}={{ value.test_value }}"
+    CMD="${CMD} --{{ key }}=\"{{ value.test_value }}\""
     {% endif %}
     {% endfor %}
     {% for key, value in parameters.items() %}
     {% if value.test_value %}
-    CMD="${CMD} --{{ key }}={{ value.test_value }}"
+    CMD="${CMD} --{{ key }}=\"{{ value.test_value }}\""
     {% endif %}
     {% endfor %}
-    CMD="${CMD} --exec_method=${EXEC_METHOD}"
+    CMD="${CMD} --exec_method=\"${EXEC_METHOD}\""
 echo "CMD=${CMD}"
 safeRunCommand "${CMD}"
 
