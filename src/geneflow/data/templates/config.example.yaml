@@ -190,6 +190,9 @@ exec_methods:
         mount: '${PAIR}'
       stdout: '${OUTPUT_DIR}/${OUTPUT_BASE}'
       stderr: 'log.stderr'
+    else:
+    - run: echo 'run this instead'
+    - run: echo 'and this (acts like multi block)'
 
 - name: cdc-shared-singularity
   if:
