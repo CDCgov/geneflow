@@ -77,6 +77,10 @@
                 {{- '${' -}}CMD{{ loop.index }}{{ '}' }}";{{ ' ' }}
         {%- endfor -%}
         echo "CMD=${CMD}"; safeRunCommand "${CMD}";{{ ' ' }}
+    {%- elif run.multi -%}
+        {%- for run_item in run.multi -%}
+            {{- exec(run_item) -}}
+        {%- endfor -%}
     {%- else -%}
         {{- exec_item(run, 0, false, true) -}}
         CMD="${CMD0}"; echo "CMD=${CMD}"; safeRunCommand "${CMD}";{{ ' ' }}
