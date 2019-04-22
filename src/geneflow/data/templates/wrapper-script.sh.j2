@@ -69,6 +69,12 @@
     {%- if run.if -%}
         if {{ conditional(run.if) }}; then{{ ' ' }}
     {%- endif -%}
+    {%- if run.if and run.else -%}
+        else{{ ' ' }}
+        {%- for run_item in run.else -%}
+            {{- exec(run_item) -}}
+        {%- endfor -%}
+    {%- endif -%}
     {%- if run.pipe -%}
         CMD="";{{ ' ' }}
         {%- for pipe_item in run.pipe -%}
