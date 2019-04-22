@@ -9,6 +9,10 @@
 
 3. Fix security vulnerability: SQLAlchemy>=1.3.0
 
+4. Add "multi" exec feature to app config, allowing multiple execution items in a single block.
+
+5. Add "else" conditional to exec blocks.
+
 
 ## 2019/03/27 - v1.2.5: minor bug fix release
 

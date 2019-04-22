@@ -86,6 +86,12 @@
         CMD="${CMD0}"; echo "CMD=${CMD}"; safeRunCommand "${CMD}";{{ ' ' }}
     {%- endif -%}
     {%- if run.if -%}
+        {%- if run.else -%}
+            else{{ ' ' }}
+            {%- for run_item in run.else -%}
+                {{- exec(run_item) -}}
+            {%- endfor -%}
+        {%- endif -%}
         fi;{{ ' ' }}
     {%- endif -%}
 {%- endmacro -%}

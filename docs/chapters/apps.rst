@@ -176,6 +176,9 @@ Execution blocks occur in input/parameter post processing sections (i.e., post_e
 if:
   (Optional) Condition that must be satisfied for the item to be executed. See the section "Conditional Blocks" for more information.
 
+else: 
+  (Optional) If the "if" condition is present, and "else" is present, items in the "else" block are executed only if the "if" condition is not satisfied.
+
 pipe:
   (Optional) If included, all remaining fields at this level are ignored. The pipe field is an array, with each array item containing an execution item. The order of execution items within "pipe" are piped in order of appearance. STDOUT is piped from one execution command to the next. Thus, within pipe execution items, the "stdout" field is ignored. Nested "pipe" fields are also ignored, preventing recursive piping. 
 
