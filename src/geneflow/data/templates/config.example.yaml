@@ -352,14 +352,18 @@ assets:
 #    order of appearance. STDOUT is piped from one execution command to the
 #    next. Thus, within pipe execution items, the "stdout" field is ignored. 
 #    Nested "pipe" fields are also ignored, preventing recursive piping. 
-# 3. type: (Optional) Valid values are 'shell', 'singularity', and 'docker'. If
+# 3. multi: (Optionsl) If included, all remaining fields at this level are
+#    ignored. The multi field is an array, with each array item containing an
+#    execution item. Each included execution item can be a pipe, or another 
+#    multi, allowing for nested execution.
+# 4. type: (Optional) Valid values are 'shell', 'singularity', and 'docker'. If
 #    omiitted, the default value is 'shell'. This specifies the type of
 #    execution.
-# 4. run: Command to run. If type is singularity or docker, this is the command
+# 5. run: Command to run. If type is singularity or docker, this is the command
 #    passed to the container executor after the container image is specified.
-# 5. image: If type is singularity or docker, this is the path, url , or name
+# 6. image: If type is singularity or docker, this is the path, url , or name
 #    of the container.
-# 6. args: Optional arguments to be passed to the command. This is expected to
+# 7. args: Optional arguments to be passed to the command. This is expected to
 #    be an array, which each array item defined as follows:
 #    1. flag: (Optional) If present, the argument is pre-pended with this
 #       string.
@@ -376,9 +380,9 @@ assets:
 #       also present, see above rules for "mount".
 #    Note that all "args" values are optional, and if none are specified, the
 #    argument is ignored.
-# 7. stdout: (Optional) If present, the command's standard output will be piped
+# 8. stdout: (Optional) If present, the command's standard output will be piped
 #    here.
-# 8. stderr: (Optional) If present, the command's standard error will be piped
+# 9. stderr: (Optional) If present, the command's standard error will be piped
 #    here.
 #
 # All bash/shell commands in the "exec_methods" section has access to a number
