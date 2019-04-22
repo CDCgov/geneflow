@@ -128,3 +128,28 @@ def step_impl(context, wf_context, workflow, step, output_name, output_contents)
     # compare with expected output 
     assert file_contents == output_contents
 
+@then('The "{wf_context}" "{workflow}" workflow "{step}" step produces an output file called "{output_name}" with multi-line contents')
+def step_impl(context, wf_context, workflow, step, output_name):
+
+    wf_name = '{}-{}'.format(workflow, wf_context)
+    job = context.workflows[wf_name]['result'][0]
+
+    # construct path of expected output file
+    step_output_file = '{}/{}-{}/{}/{}'.format(
+        job['output_uri'],
+        slugify(job['name']), job['job_id'][:8],
+        slugify(step),
+        output_name
+    )
+
+    # make sure it exists
+    assert Path(step_output_file).exists()
+
+    # read file
+    with open(step_output_file) as f:
+        file_contents = [line.strip() for line in f]
+
+    # convert table into list
+    expected_contents = [row['line'] for row in context.table]
+
+    assert file_contents == expected_contents
