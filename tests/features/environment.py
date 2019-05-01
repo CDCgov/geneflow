@@ -3,7 +3,10 @@
 import inspect, os, shutil, sys
 from behave import *
 from pprint import pprint
-from agavepy.agave import Agave
+
+try:
+    from agavepy.agave import Agave
+except ImportError: pass
 
 from geneflow.config import Config
 from geneflow.data import DataSource

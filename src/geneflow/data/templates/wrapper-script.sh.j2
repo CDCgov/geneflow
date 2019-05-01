@@ -60,6 +60,10 @@
                 [ ! -e "{{ if_item.not_exist }}" ]
             {%- elif if_item.in_path -%}
                 command -v {{ if_item.in_path }} >/dev/null 2>&1
+            {%- elif if_item.str_contain -%}
+                contains "{{ if_item.str_contain[0] }}" "{{ if_item.str_contain[1] }}"
+            {%- elif if_item.not_str_contain -%}
+                ! contains "{{ if_item.not_str_contain[0] }}" "{{ if_item.not_str_contain[1] }}"
             {%- endif -%}
         {%- endif -%}
     {%- endfor -%}
@@ -217,9 +221,9 @@ contains() {
     substring="$2"
 
     if test "${string#*$substring}" != "$string"; then
-        return 0    # $substring is in $string
+        return 0    # $substring is not in $string
     else
-        return 1    # $substring is not in $string
+        return 1    # $substring is in $string
     fi
 }
 
