@@ -23,35 +23,24 @@ RUN apk update \
     && make install
 
 
-# build geneflow python wheels
-
-FROM python:3.6.7-alpine3.8 as geneflow_builder
-
-RUN apk update \
-    && apk add \
-        build-base \
-        libffi-dev \
-        openssl-dev
-
-WORKDIR /src
-COPY . /src
-RUN pip install -U pip \
-    && pip wheel -w /wheels . 
-
-
 # build final container
 
 FROM python:3.6.7-alpine3.8
 
 COPY --from=singularity_builder /opt/singularity /opt/singularity
-COPY --from=geneflow_builder /wheels /wheels
-COPY --from=geneflow_builder /src/docker/requirements-docker.txt /wheels/requirements.txt
+
+WORKDIR /src
+COPY . /src/geneflow
 
 RUN apk update \
+    && apk add --no-cache --virtual .build-deps build-base libffi-dev openssl-dev \
     && apk add --no-cache git squashfs-tools libseccomp sudo coreutils \
     && pip install -U pip \
-    && pip install -f /wheels -r /wheels/requirements.txt \
-    && rm -rf /wheels \
-    && rm -rf /root/.cache/pip/*
+    && git clone -b v0.7.3 https://github.com/TACC/agavepy \
+    && pip install ./agavepy \
+    && pip install ./geneflow \
+    && rm -rf /src/* \
+    && rm -rf /root/.cache/pip/* \
+    && apk del .build-deps
     
 ENV PATH /opt/singularity/bin:$PATH
