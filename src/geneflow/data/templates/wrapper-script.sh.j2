@@ -60,6 +60,10 @@
                 [ ! -e "{{ if_item.not_exist }}" ]
             {%- elif if_item.in_path -%}
                 command -v {{ if_item.in_path }} >/dev/null 2>&1
+            {%- elif if_item.str_contain -%}
+                contains "{{ if_item.str_contain[0] }}" "{{ if_item.str_contain[1] }}"
+            {%- elif if_item.not_str_contain -%}
+                ! contains "{{ if_item.not_str_contain[0] }}" "{{ if_item.not_str_contain[1] }}"
             {%- endif -%}
         {%- endif -%}
     {%- endfor -%}
@@ -77,11 +81,21 @@
                 {{- '${' -}}CMD{{ loop.index }}{{ '}' }}";{{ ' ' }}
         {%- endfor -%}
         echo "CMD=${CMD}"; safeRunCommand "${CMD}";{{ ' ' }}
+    {%- elif run.multi -%}
+        {%- for run_item in run.multi -%}
+            {{- exec(run_item) -}}
+        {%- endfor -%}
     {%- else -%}
         {{- exec_item(run, 0, false, true) -}}
         CMD="${CMD0}"; echo "CMD=${CMD}"; safeRunCommand "${CMD}";{{ ' ' }}
     {%- endif -%}
     {%- if run.if -%}
+        {%- if run.else -%}
+            else{{ ' ' }}
+            {%- for run_item in run.else -%}
+                {{- exec(run_item) -}}
+            {%- endfor -%}
+        {%- endif -%}
         fi;{{ ' ' }}
     {%- endif -%}
 {%- endmacro -%}
@@ -207,9 +221,9 @@ contains() {
     substring="$2"
 
     if test "${string#*$substring}" != "$string"; then
-        return 0    # $substring is in $string
+        return 0    # $substring is not in $string
     else
-        return 1    # $substring is not in $string
+        return 1    # $substring is in $string
     fi
 }
 

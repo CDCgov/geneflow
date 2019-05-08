@@ -176,8 +176,14 @@ Execution blocks occur in input/parameter post processing sections (i.e., post_e
 if:
   (Optional) Condition that must be satisfied for the item to be executed. See the section "Conditional Blocks" for more information.
 
+else: 
+  (Optional) If the "if" condition is present, and "else" is present, items in the "else" block are executed only if the "if" condition is not satisfied.
+
 pipe:
   (Optional) If included, all remaining fields at this level are ignored. The pipe field is an array, with each array item containing an execution item. The order of execution items within "pipe" are piped in order of appearance. STDOUT is piped from one execution command to the next. Thus, within pipe execution items, the "stdout" field is ignored. Nested "pipe" fields are also ignored, preventing recursive piping. 
+
+multi:
+  (Optional) If included, all remaining fields at this level are ignored. The multi field is an array, with each array item containing an execution item. Each included execution item can be a pipe, or another multi, allowing for nested execution.
 
 type:
   (Optional) Valid values are 'shell', 'singularity', and 'docker'. If omiitted, the default value is 'shell'. This specifies the type of execution.
@@ -282,7 +288,13 @@ not_exist:
 in_path:
   command -v value >/dev/null 2>&1
 
-All test conditions and section keywords must be list items. For example:
+str_contain:
+  contains value[0] value[1]
+
+not_str_contain:
+  ! contains value[0] value[1]
+  
+Note that 'contains' is a function that tests for sub-strings. 'contains' evaluates to true (or 1) if value[1] is a sub-string of value[0]. All test conditions and section keywords must be list items. For example:
 
 .. code-block:: none
 

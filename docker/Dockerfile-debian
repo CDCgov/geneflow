@@ -15,30 +15,24 @@ RUN make \
     && make install
 
 
-# build geneflow python wheels
-
-FROM python:3.6.7-stretch as geneflow_builder
-
-WORKDIR /src
-COPY . /src
-RUN pip install -U pip && pip wheel -w /wheels . 
-
-
 # build final container
 
-FROM python:3.6.7-slim-stretch
+FROM python:3.6.7-stretch
 
 COPY --from=singularity_builder /opt/singularity /opt/singularity
-COPY --from=geneflow_builder /wheels /wheels
-COPY --from=geneflow_builder /src/requirements.txt /wheels/requirements.txt
+
+WORKDIR /src
+COPY . /src/geneflow
     
 RUN apt-get update \
     && apt-get -y install git \
     && apt-get -y install squashfs-tools \
     && rm -rf /var/lib/apt/lists/* \
     && pip install -U pip \
-    && pip install -f /wheels -r /wheels/requirements.txt \
-    && rm -rf /wheels \
+    && git clone -b v0.7.3 https://github.com/TACC/agavepy \
+    && pip install ./agavepy \
+    && pip install ./geneflow \
+    && rm -rf /src/* \
     && rm -rf /root/.cache/pip/*
 
 ENV PATH /opt/singularity/bin:$PATH

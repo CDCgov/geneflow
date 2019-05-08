@@ -1,6 +1,21 @@
 # Changelog
 
 
+## 2019/05/08 - v1.3.0: minor enhancement release
+
+1. Fix security vulnerability: pyyaml>=4.2b1
+
+2. Fix security vulnerability: Jinja2>=2.10.1
+
+3. Fix security vulnerability: SQLAlchemy>=1.3.0
+
+4. Add "multi" exec feature to app config, allowing multiple execution items in a single block.
+
+5. Add "else" conditional to exec blocks.
+
+6. Add "str_contain" and "not_str_contain" tests to conditional blocks in app config.
+
+
 ## 2019/03/27 - v1.2.5: minor bug fix release
 
 1. Fix bug: shell invoke method not catching non-zero exit codes.
