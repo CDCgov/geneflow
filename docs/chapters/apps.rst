@@ -111,7 +111,7 @@ test_value:
   (Optional) If specified, used as the value for this input/parameter when generating the test script.
 
 post_exec:
-  (Optional) List of shell/bash commands used for post-processing of the input/parameter value after argument parsing. Use these commands to modify or check the value of inputs/parameters; or create additional shell/bash variables for use in later parts of the script. By default, the following commands are included in the wrapper script before any items listed in post_exec. If the name of the input/parameter is 'varname', then the following lines are added to the wrapper script:
+  (Optional) List of shell/bash commands used for post-processing of the input/parameter value after argument parsing. Use these commands to modify or check the value of inputs/parameters; or create additional shell/bash variables for use in later parts of the script. By default, for 'File', 'Directory', or 'Any' types, the following commands are included in the wrapper script before any items listed in post_exec. If the name of the input/parameter is 'varname', then the following lines are added to the wrapper script:
 
     .. code-block:: bash
 
@@ -215,9 +215,9 @@ All bash/shell commands in the "exec_methods" section has access to a number of 
     2. ${DOCKER}: set to "yes" or "no" depending on whether the "docker" binary was detected.
     3. ${SCRIPT_DIR}: directory of the wrapper script, which may not be the current directory. This depends on the execution environment.
     4. ${VARNAME}: One for each input/parameter, set to value of the input/parameter.
-    5. ${VARNAME_FULL}: if input/parameter is a file or directory, this is the full path of the input/parameter. 
-    6. ${VARNAME_DIR}: if input/parameter is a file or directory, this is the parent directory of the input/parameter.
-    7. ${VARNAME_BASE}: if input/parameter is a file or directory, this is the basename of the input/parameter.
+    5. ${VARNAME_FULL}: if input/parameter is a File, Directory, or Any, this is the full path of the input/parameter. 
+    6. ${VARNAME_DIR}: if input/parameter is a File, Directory, or Any, this is the parent directory of the input/parameter.
+    7. ${VARNAME_BASE}: if input/parameter is a File, Directory, or Any, this is the basename of the input/parameter.
     
 Any additional bash/shell variables defined in the "post" section of each input/parameter, or defined in the "pre_exec" section are also available.
 
