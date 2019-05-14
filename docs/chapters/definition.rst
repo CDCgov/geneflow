@@ -1,7 +1,5 @@
 .. definition
 
-.. _definition:
-
 GeneFlow Definition Language
 ============================
 
