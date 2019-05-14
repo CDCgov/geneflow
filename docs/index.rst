@@ -15,4 +15,5 @@ GeneFlow (GF) is a light-weight platform-agnostic workflow engine for scientific
    chapters/usage
    chapters/definition
    chapters/apps
+   chapters/tutorials
 
