@@ -27,3 +27,10 @@ Feature: Workflows
     When I run the "local" "str-contain" workflow with a "super_string" parameter of "super"
     Then The "local" "str-contain" workflow "contain" step produces an output file called "output.txt" with contents "string does not contain"
 
+  Scenario: Apps with Any input or parameter types are correctly handled locally.
+    Given The "local" "any-type" workflow has been installed
+    When I run the "local" "any-type" workflow with a "param" parameter of "file.txt"
+    Then The "local" "any-type" workflow "print" step produces an output file called "output.txt" with multi-line contents
+        | line     |
+        | test.txt |
+        | file.txt |
