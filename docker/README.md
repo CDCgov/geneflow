@@ -1,6 +1,6 @@
 # Build Docker Image
 
-Use the folloiwng steps to run build a GeneFlow docker image:
+Use the following steps to run build a GeneFlow docker image:
 
 1. Change to the docker directory:
 
