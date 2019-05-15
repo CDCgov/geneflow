@@ -108,10 +108,10 @@ script_default:
     3. If required == false, and script_default is NOT specified, the input is only set if corresponding args are passed to the wrapper script.
 
 test_value:
-  (Optional) If specified, used as the value for this input/parameter when generating the test script.
+  (Optional) If specified, the input/parameter is set to this value in the test script.
 
 post_exec:
-  (Optional) List of shell/bash commands used for post-processing of the input/parameter value after argument parsing. Use these commands to modify or check the value of inputs/parameters; or create additional shell/bash variables for use in later parts of the script. By default, for 'File', 'Directory', or 'Any' types, the following commands are included in the wrapper script before any items listed in post_exec. If the name of the input/parameter is 'varname', then the following lines are added to the wrapper script:
+  (Optional) List of shell/bash commands for post-processing of the input/parameter value after argument parsing. These commands modify or check the value of inputs/parameters; or create additional shell/bash variables for use in later parts of the script. By default, for 'File', 'Directory', or 'Any' types, the following commands are included in the wrapper script before any items listed in post_exec. If the name of the input/parameter is 'varname', then the following lines are added to the wrapper script:
 
     .. code-block:: bash
 
