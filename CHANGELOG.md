@@ -1,6 +1,11 @@
 # Changelog
 
 
+## 2019/06/05 - v1.4.0: minor enhancement release
+
+1. Fix bug: "Any" datatypes for inputs or parameters should be processed similar to "File" or "Directory" datatypes.
+
+
 ## 2019/05/08 - v1.3.0: minor enhancement release
 
 1. Fix security vulnerability: pyyaml>=4.2b1

@@ -68,7 +68,6 @@ def before_feature(context, feature):
         context.workflows = {}
 
 
-
 def after_feature(context, feature):
 
     if feature.name == 'Workflows':
