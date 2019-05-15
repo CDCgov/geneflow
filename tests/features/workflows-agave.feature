@@ -27,4 +27,10 @@ Feature: Workflows
     When I run the "agave" "str-contain" workflow with a "super_string" parameter of "super"
     Then The "agave" "str-contain" workflow "contain" step produces an output file called "output.txt" with contents "string does not contain"
 
-
+  Scenario: Apps with Any input or parameter types are correctly handled in Agave.
+    Given The "agave" "any-type" workflow has been installed
+    When I run the "agave" "any-type" workflow with a "param" parameter of "file.txt"
+    Then The "agave" "any-type" workflow "print" step produces an output file called "output.txt" with multi-line contents
+        | line     |
+        | test.txt |
+        | file.txt |

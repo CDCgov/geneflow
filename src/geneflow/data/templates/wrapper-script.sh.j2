@@ -288,18 +288,18 @@ eval set -- "$PARSED"
 {% for key, value in inputs.items() %}
 {% if not value.required %}
 {% if value.script_default %}
-{{ key|upper }}={{ value.script_default }}    
+{{ key|upper }}="{{ value.script_default }}"
 {% endif %}
 {% endif %}
 {% endfor %}
 {% for key, value in parameters.items() %}
 {% if not value.required %}
 {% if value.default %}
-{{ key|upper }}={{ value.default }}    
+{{ key|upper }}="{{ value.default }}"
 {% endif %}
 {% endif %}
 {% endfor %}
-EXEC_METHOD={{ default_exec_method }}
+EXEC_METHOD="{{ default_exec_method }}"
 ## ***************************************************************** <<< MODIFY
 
 ## MODIFY >>> *****************************************************************
