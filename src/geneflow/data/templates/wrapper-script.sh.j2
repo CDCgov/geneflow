@@ -465,6 +465,10 @@ if [ -n "${{ '{' }}{{ key|upper }}{{ '}' }}" ]; then
     {{ key|upper }}_FULL=$(readlink -f "${{ '{' }}{{ key|upper }}{{ '}' }}")
     {{ key|upper }}_DIR=$(dirname "${{ '{' }}{{ key|upper }}_FULL{{ '}' }}")
     {{ key|upper }}_BASE=$(basename "${{ '{' }}{{ key|upper }}_FULL{{ '}' }}")
+    {% if key == 'output' %}
+    LOG_FULL="${OUTPUT_DIR}/_log"
+    TMP_FULL="${OUTPUT_DIR}/_tmp"
+    {% endif %}
     {% endif %}
     {% for exec_item in value.post_exec %}
     {{ exec(exec_item) }}
