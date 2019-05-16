@@ -526,6 +526,24 @@ class AgaveStep(WorkflowStep):
                 Log.an().error(msg)
                 return self._fatal(msg)
 
+        # copy _log folder if it exists
+        if not agwrap.call(
+                self._parsed_data_uris[self._source_context]['authority'],
+                '{}/{}/{}.log'.format(
+                    self._parsed_data_uris[self._source_context]\
+                        ['chopped_path'],
+                    '_log',
+                    map_item['template']['output']
+                '{}/{}/{}.log'.format(
+                    map_item['run'][map_item['attempt']]['archive_uri'],
+                    '_log',
+                    map_item['template']['output']
+                )
+        ):
+            msg = 'agave import of logs failed for step "{}"'\
+                .format(self._step['name'])
+            Log.a().warning(msg)
+
         self._update_status_db('FINISHED', '')
 
         return True
