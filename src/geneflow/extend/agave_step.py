@@ -504,7 +504,7 @@ class AgaveStep(WorkflowStep):
             On failure: False.
 
         """
-        # destination _log directory 
+        # destination _log directory, common for all map items
         dest_log_dir = '{}/{}'.format(
             self._parsed_data_uris[self._source_context]\
                 ['chopped_uri'],
@@ -520,6 +520,7 @@ class AgaveStep(WorkflowStep):
         # copy data for each map item
         for map_item in self._map:
 
+            # copy step output
             if not agwrap.call(
                     self._parsed_data_uris[self._source_context]['authority'],
                     self._parsed_data_uris[self._source_context]\
@@ -535,6 +536,7 @@ class AgaveStep(WorkflowStep):
                 Log.an().error(msg)
                 return self._fatal(msg)
            
+            # check if anything is in the _log directory
             src_log_dir = '{}/{}'.format(
                 map_item['run'][map_item['attempt']]['archive_uri'],
                 '_log'
@@ -584,7 +586,8 @@ class AgaveStep(WorkflowStep):
                 # copy each list item
                 for item in log_list:
                     if not agwrap.call(
-                        self._parsed_data_uris[self._source_context]['authority'],
+                        self._parsed_data_uris[self._source_context]\
+                            ['authority'],
                         '{}/{}'.format(
                             self._parsed_data_uris[self._source_context]\
                                 ['chopped_path'],
@@ -592,7 +595,8 @@ class AgaveStep(WorkflowStep):
                         ),
                         item,
                         '{}/{}/{}'.format(
-                            map_item['run'][map_item['attempt']]['archive_uri'],
+                            map_item['run'][map_item['attempt']]\
+                                ['archive_uri'],
                             '_log',
                             item
                         )

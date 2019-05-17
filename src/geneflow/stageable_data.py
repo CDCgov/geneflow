@@ -109,13 +109,6 @@ class StageableData:
                     # remove target URI first
                     pass
 
-                msg = 'stage data by copying from {} to {}'.format(
-                    self._parsed_data_uris[self._source_context]\
-                        ['chopped_uri'],
-                    self._parsed_data_uris[context]['chopped_uri']
-                )
-                Log.some().info(msg)
- 
                 if not DataManager.copy(
                         parsed_src_uri=self._parsed_data_uris\
                             [self._source_context],
