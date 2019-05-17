@@ -504,11 +504,20 @@ class AgaveStep(WorkflowStep):
             On failure: False.
 
         """
+        # destination _log directory 
+        dest_log_dir = '{}/{}'.format(
+            self._parsed_data_uris[self._source_context]\
+                ['chopped_uri'],
+            '_log'
+        )
+
+        # create instance of agave wrapper class for data import
         agwrap = AgaveFilesImportDataFromAgave(
             self._agave['agave'],
             self._config['agave']
         )
 
+        # copy data for each map item
         for map_item in self._map:
 
             if not agwrap.call(
@@ -525,25 +534,73 @@ class AgaveStep(WorkflowStep):
                     .format(self._step['name'])
                 Log.an().error(msg)
                 return self._fatal(msg)
+           
+            src_log_dir = '{}/{}'.format(
+                map_item['run'][map_item['attempt']]['archive_uri'],
+                '_log'
+            )
 
-        # copy _log folder if it exists
-        if not agwrap.call(
-                self._parsed_data_uris[self._source_context]['authority'],
-                '{}/{}/{}.log'.format(
-                    self._parsed_data_uris[self._source_context]\
-                        ['chopped_path'],
-                    '_log',
-                    map_item['template']['output']
-                '{}/{}/{}.log'.format(
-                    map_item['run'][map_item['attempt']]['archive_uri'],
-                    '_log',
-                    map_item['template']['output']
+            if DataManager.exists(
+                uri=src_log_dir,
+                agave={
+                    'agave': self._agave['agave'],
+                    'agave_config': self._config['agave']
+                }
+            ):
+                # create dest _log dir if it doesn't exist
+                if not DataManager.exists(
+                    uri=dest_log_dir,
+                    agave={
+                        'agave': self._agave['agave'],
+                        'agave_config': self._config['agave']
+                    }
+                ):
+                    if not DataManager.mkdir(
+                        uri=dest_log_dir,
+                        agave={
+                            'agave': self._agave['agave'],
+                            'agave_config': self._config['agave']
+                        }
+                    ):
+                        msg = 'cannot create _log directory for step "{}"'\
+                            .format(self._step['name'])
+                        Log.an().error(msg)
+                        return self._fatal(msg)
+
+                # get list of all items in src_log_dir
+                log_list = DataManager.list(
+                    uri=src_log_dir,
+                    agave={
+                        'agave': self._agave['agave'],
+                        'agave_config': self._config['agave']
+                    }
                 )
-        ):
-            msg = 'agave import of logs failed for step "{}"'\
-                .format(self._step['name'])
-            Log.a().warning(msg)
+                if not log_list:
+                    msg = 'cannot get _log list for step "{}"'\
+                        .format(self._step['name'])
+                    Log.an().error(msg)
+                    return self._fatal(msg)
 
+                # copy each list item
+                for item in log_list:
+                    if not agwrap.call(
+                        self._parsed_data_uris[self._source_context]['authority'],
+                        '{}/{}'.format(
+                            self._parsed_data_uris[self._source_context]\
+                                ['chopped_path'],
+                            '_log'
+                        ),
+                        item,
+                        '{}/{}/{}'.format(
+                            map_item['run'][map_item['attempt']]['archive_uri'],
+                            '_log',
+                            item
+                        )
+                    ):
+                        msg = 'cannot copy log item "{}"'.format(item)
+                        Log.an().error(msg)
+                        return self._fatal(msg)
+ 
         self._update_status_db('FINISHED', '')
 
         return True
