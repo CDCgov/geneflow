@@ -75,7 +75,7 @@ version:
 Inputs and Parameters
 ~~~~~~~~~~~~~~~~~~~~~
 
-Each app input and parameter item is defined in a subsection with the same name as the input/parameter, and each subsection must have the following fields:
+Each app input and parameter item is defined in a subsection with the same name as the input/parameter. The 'output' parameter is required, and must be manually included in the config file. See the following section for details about the 'output' parameter. Each input or parameter subsection must have the following fields:
 
 label:
   A title or short description of the field.
@@ -120,6 +120,20 @@ post_exec:
         VARNAME_BASE=$(basename ${VARNAME_FULL})
 
   See the section 'Execution Blocks' for information about the required format for execution blocks.
+
+App Output
+~~~~~~~~~~
+
+The app 'output' parameter is associated with two additional variables for storing logs and temporary files:
+
+    .. code-block:: bash
+
+        LOG_FULL="${OUTPUT_DIR}/_log"
+        TMP_FULL="${OUTPUT_DIR}/_tmp"
+
+The LOG_FULL variable points to a directory that, once created, persists in the workflow intermediate and final output directory. LOG_FULL is optional, and must be manually created with a 'mkdir' command within the app config file preior to use. The '_log' directory must be accounted for when executing 'map' steps that process input folders. To exclude, a look-ahead regex can be used to filter the folder.  
+
+The TMP_FULL variable must also be manually created, but also must be manually deleted within the "clean-up" section of the app configuration. The TMP_FULL directory may or may not persist in the workflow intermediate and output directory, depending on the execution context. 
 
 App Execution Methods
 ~~~~~~~~~~~~~~~~~~~~~
@@ -218,6 +232,8 @@ All bash/shell commands in the "exec_methods" section has access to a number of 
     5. ${VARNAME_FULL}: if input/parameter is a File, Directory, or Any, this is the full path of the input/parameter. 
     6. ${VARNAME_DIR}: if input/parameter is a File, Directory, or Any, this is the parent directory of the input/parameter.
     7. ${VARNAME_BASE}: if input/parameter is a File, Directory, or Any, this is the basename of the input/parameter.
+    8. ${LOG_FULL}: location to store log files.
+    9. ${TMP_FULL}: location to store temporary files.
     
 Any additional bash/shell variables defined in the "post" section of each input/parameter, or defined in the "pre_exec" section are also available.
 
