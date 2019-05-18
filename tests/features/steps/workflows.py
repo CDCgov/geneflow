@@ -65,37 +65,47 @@ def step_impl(context, wf_context, workflow):
     assert geneflow.cli.install_workflow.install_workflow(args)
 
 
-@when('I run the "{wf_context}" "{workflow}" workflow with a "{parameter_name}" parameter of "{parameter_value}"')
-def step_impl(context, wf_context, workflow, parameter_name, parameter_value):
+@when('I run the "{wf_context}" "{workflow}" workflow with the following inputs and parameters')
+def step_impl(context, wf_context, workflow):
 
     args = None
+    data = None
     if wf_context == 'local':
-        args = Namespace(
-            workflow='./data/workflows/{}-{}'.format(workflow, wf_context),
-            job_yaml=None,
-            data=[
-                'output_uri=./data/workflows/output',
-                'inputs.input=./data/workflows/{}-{}/data/test.txt'.format(workflow, wf_context),
-                'parameters.{}={}'.format(parameter_name, parameter_value)
-            ],
-            log_level='debug'
-        )
+        data = [
+            'output_uri=./data/workflows/output'
+        ]
     elif wf_context == 'agave':
-        args = Namespace(
-            workflow='./data/workflows/{}-{}'.format(workflow, wf_context),
-            job_yaml=None,
-            data=[
-                'output_uri=./data/workflows/output',
-                'inputs.input=./data/workflows/{}-{}/data/test.txt'.format(workflow, wf_context),
-                'parameters.{}={}'.format(parameter_name, parameter_value),
-                'work_uri.agave={}'.format(context.config.userdata.get('agave_work_uri')),
-                'execution.context.default=agave'
-            ],
-            log_level='debug'
-        )
+        data = [
+            'output_uri=./data/workflows/output',
+            'work_uri.agave={}'.format(context.config.userdata.get('agave_work_uri')),
+            'execution.context.default=agave'
+        ]
     else:
         print('Invalid workflow context: {}'.format(wf_context))
         assert False
+
+    for row in context.table:
+        if row['type'] == 'input':
+            data.append(
+                'inputs.{}=./data/workflows/{}-{}/{}'.format(
+                    row['name'],
+                    workflow,
+                    wf_context,
+                    row['value']
+                )
+            )
+        elif row['type'] == 'parameter':
+            data.append('parameters.{}={}'.format(row['name'], row['value']))
+        else:
+            print('Invalid input or parameter type: {}'.format(row['type']))
+            assert False
+
+    args = Namespace(
+        workflow='./data/workflows/{}-{}'.format(workflow, wf_context),
+        job_yaml=None,
+        data=data,
+        log_level='debug'
+    )
 
     result = geneflow.cli.run.run(args)
     wf_name = '{}-{}'.format(workflow, wf_context)
@@ -104,31 +114,7 @@ def step_impl(context, wf_context, workflow, parameter_name, parameter_value):
     assert all(result)
 
 
-@then('The "{wf_context}" "{workflow}" workflow "{step}" step produces an output file called "{output_name}" with contents "{output_contents}"')
-def step_impl(context, wf_context, workflow, step, output_name, output_contents):
-
-    wf_name = '{}-{}'.format(workflow, wf_context)
-    job = context.workflows[wf_name]['result'][0]
-
-    # construct path of expected output file
-    step_output_file = '{}/{}-{}/{}/{}'.format(
-        job['output_uri'],
-        slugify(job['name']), job['job_id'][:8],
-        slugify(step),
-        output_name
-    )
-
-    # make sure it exists
-    assert Path(step_output_file).exists()
-
-    # read file
-    with open(step_output_file) as f:
-        file_contents = f.read().strip()
-
-    # compare with expected output 
-    assert file_contents == output_contents
-
-@then('The "{wf_context}" "{workflow}" workflow "{step}" step produces an output file called "{output_name}" with multi-line contents')
+@then('The "{wf_context}" "{workflow}" workflow "{step}" step produces an output file called "{output_name}" with the following contents')
 def step_impl(context, wf_context, workflow, step, output_name):
 
     wf_name = '{}-{}'.format(workflow, wf_context)
