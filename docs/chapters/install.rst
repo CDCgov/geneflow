@@ -152,6 +152,8 @@ Install GeneFlow in a General Linux Environment
 
 Use the following instructions to install GeneFlow in a general Linux environment. 
 
+.. _install-geneflow-venv:
+
 Install GeneFlow using a Python Virtual Environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

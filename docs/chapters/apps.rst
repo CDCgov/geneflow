@@ -72,6 +72,9 @@ repo_uri:
 version:
   A string value that represents the app's version.
 
+
+.. _apps-inputs-parameters:
+
 Inputs and Parameters
 ~~~~~~~~~~~~~~~~~~~~~
 
@@ -134,6 +137,8 @@ The app 'output' parameter is associated with two additional variables for stori
 The LOG_FULL variable points to a directory that, once created, persists in the workflow intermediate and final output directory. LOG_FULL is optional, and must be manually created with a 'mkdir' command within the app config file preior to use. The '_log' directory must be accounted for when executing 'map' steps that process input folders. To exclude, a look-ahead regex can be used to filter the folder.  
 
 The TMP_FULL variable must also be manually created, but also must be manually deleted within the "clean-up" section of the app configuration. The TMP_FULL directory may or may not persist in the workflow intermediate and output directory, depending on the execution context. 
+
+.. _app-execution-methods:
 
 App Execution Methods
 ~~~~~~~~~~~~~~~~~~~~~
