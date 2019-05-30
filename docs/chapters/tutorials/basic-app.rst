@@ -229,7 +229,23 @@ For a more detailed explanation of each input or parameter property, see :ref:`A
 Execution Methods
 ~~~~~~~~~~~~~~~~~
 
-The "Execution Methods" section of the app configuration file defines what your app actually does when executed. Apps can be defined with multiple execution methods. The specific method that's executed when the app is invoked is either auto-detected, or specified on the command line. The choice of an execution method depends on your environment. For example, if your app dependencies are installed globally on your execution system, you should use an "environment" execution method. For a more detailed explanation of the app "Execution Methods" section, see :ref:`App Execution Methods <app-execution-methods>`.
+The "Execution Methods" section of the app configuration file defines what your app actually does when executed. Apps can be defined with multiple execution methods. The specific method executed upon app invocation is either auto-detected, or specified on the command line. Execution method names are customizable and the choice of a name should depend on your environment. For example, if your app dependencies are installed globally in your execution system, you should define an "environment" execution method. If your app dependencies are containerized with Singularity, you should define a "singularity" execution method. For a more detailed explanation of the app "Execution Methods" section, see :ref:`App Execution Methods <app-execution-methods>`.
+
+The "Execution Methods" section contains four sub-sections: "default-exec-method", "pre-exec", "exec-methods", and "post-exec". Edit the "config.yaml" file so that each corresponding sub-section looks like the following. 
+
+The "default-exec-method" sub-section is a single string value, which we'll set to "auto", indicating that the execution method should be auto-detected. 
+
+.. code-block:: yaml
+
+    default-exec-method: auto
+
+The "pre-exec" sub-section defines any execution commands that should be executed prior to any commands in the main "exec-methods" section. These usually include commands for directory or file preparation that are common for all execution methods, e.g., creating an output directory. For this tutorial, no pre-exec commands are required, so we'll leave it blank:
+
+.. code-block:: yaml
+
+    pre-exec:
+
+
 
 
 
