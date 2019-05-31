@@ -88,7 +88,7 @@ GeneFlow's public Apps and Workflows repository is located here: https://gitlab.
 
 This command downloads the app template into the "hello-world-gf" directory. "hello-world-gf" also happens to be the name of the app we're creating in this tutorial.
 
-The GeneFlow app template contains a simple, but fully functional bioinformatics application. View the contents of the app template using the following commands:
+The GeneFlow app template contains a simple, but fully functional application. View the contents of the app template using the following commands:
 
 .. code-block:: text
 
@@ -100,10 +100,8 @@ You should see the following output:
 .. code-block:: text
 
     .
-    ├── agave-app-def.json.j2
-    ├── app.yaml.j2
     ├── assets
-    │   └── bwa-mem-0.7.17-gf.sh
+    │   └── README.rst
     ├── build
     │   └── README.rst
     ├── config.yaml
@@ -112,41 +110,18 @@ You should see the following output:
     ├── README.rst
     └── test
         ├── data
-        │   ├── index
-        │   │   ├── poliovirus_strain_Sabin1.fasta.amb
-        │   │   ├── poliovirus_strain_Sabin1.fasta.ann
-        │   │   ├── poliovirus_strain_Sabin1.fasta.bwt
-        │   │   ├── poliovirus_strain_Sabin1.fasta.pac
-        │   │   └── poliovirus_strain_Sabin1.fasta.sa
-        │   └── reads
-        │       ├── polio-sample_R1.fastq
-        │       └── polio-sample_R2.fastq
-        └── test.sh
+        │   └── file.txt
+        └── README.rst
 
-    7 directories, 15 files
+    5 directories, 7 files
 
-The top-level items of the template folder that we'll be modifying in this tutorial include:
+The files we'll be modifying in the template to create the "Hello World" app are:
 
 config.yaml:
-  The main app configuration file, which defines the inputs, paramters, and execution commands of the app.
+  The main app configuration file, which defines the inputs, parameters, and execution commands of the app.
 
 README.rst:
   The main readme document for the app.
-
-test/data:
-  A small set of test data to be packaged with the app. In this tutorial, the "hello-world" app does not need any test data.
-
-Several files, including "agave-app-def.json.j2", "app.yaml.j2", "bwa-mem-0.7.17-gf.sh", and "test.sh" are auto-generated when "making" the app. We'll delete the "bwa-mem-0.7.17-gf.sh" file because, when it's auto-generated, the name of the file will be based on the configured app name:
-
-.. code-block:: text
-
-    rm ./assets/bwa-mem-0.7.17-gf.sh
-
-We also want to delete the test data, since it's not applicable to the "hello-world" app:
-
-.. code-block:: text
-
-    rm -rf ./test/data
 
 Configure the App
 -----------------
@@ -227,23 +202,39 @@ Execution Methods
 
 The "Execution Methods" section of the app configuration file defines what your app actually does when executed. Apps can be defined with multiple execution methods. The specific method executed upon app invocation is either auto-detected or specified on the command line. Execution method names are customizable and the choice of a name should depend on your environment. For example, if your app dependencies are installed globally in your execution system, you should define an "environment" execution method. If your app dependencies are containerized with Singularity, you should define a "singularity" execution method. For a more detailed explanation of the app "Execution Methods" section, see :ref:`App Execution Methods <app-execution-methods>`.
 
-The "Execution Methods" section contains four sub-sections: "default-exec-method", "pre-exec", "exec-methods", and "post-exec". Edit the "config.yaml" file so that each corresponding sub-section looks like the following. 
+The "Execution Methods" section contains four sub-sections: "default_exec_method", "pre_exec", "exec_methods", and "post_exec". Edit the "config.yaml" file so that each corresponding sub-section looks like the following. 
 
-The "default-exec-method" sub-section is a single string value, which we'll set to "auto", indicating that the execution method should be auto-detected. 
-
-.. code-block:: yaml
-
-    default-exec-method: auto
-
-The "pre-exec" sub-section defines any commands that should be executed prior to commands in the main "exec-methods" section. These usually include commands for directory or file preparation that are common for all execution methods, e.g., creating an output directory. For this tutorial, no pre-exec commands are required, so we'll leave it blank:
+The "default_exec_method" sub-section is a single string value, which we'll set to "auto", indicating that the execution method should be auto-detected. 
 
 .. code-block:: yaml
 
-    pre-exec:
+    default_exec_method: auto
 
-The 
+The "pre_exec" sub-section defines any commands that should be executed prior to commands in the main "exec_methods" section. These usually include commands for directory or file preparation that are common for all execution methods, e.g., creating an output directory. For this tutorial, no pre_exec commands are required, so we'll leave it blank:
 
+.. code-block:: yaml
 
+    pre_exec:
+
+The "Hello World" app simply prints "Hello World!" to a text file using the standard Linux "echo" command. Thus, we'll define a single execution method in the "exec_methods" sub-section called "environment", which indicates that we just need commands already available in the Linux environment. Update the "exec_methods" sub-section so that it looks like the following:
+
+.. code-block:: yaml
+
+    exec_methods:
+    - name: environment
+      if:
+      - in_path: 'echo'
+      exec:
+      - run: echo "Hello World!"
+        stdout: ${OUTPUT_FULL}
+
+The "if" block in the "exec_methods" sub-section is used for auto-detecting the execution method. If multiple execution methods are specified, the first execution method with an "if" block that evaluates to True will be selected for execution. In this example, the statement ``in_path: 'echo'`` means that the "environment" execution method will be selected if the 'echo' command is available in the environment path. The "exec" block contains a list of all commands to be executed for the "environment" execution method. The "environment" execution method contains only a single command that echos the "Hello World!" text to an output file. Here, ${OUTPUT_FULL} is the full path of the file specified by the "output" parameter.
+
+The "post-exec" sub-section defines any commands that should be executed after commands in the main "exec-methods" section. These usually include commands for cleaning up any temporary files created during app execution. For this tutorial, no clean-up commands are necessary, so we'll leave it blank:
+
+.. code-block:: yaml
+
+    post_exec:
 
 Assets
 ~~~~~~
@@ -251,11 +242,42 @@ Assets
 "Make" the App
 --------------
 
-Commit the App to a Git Repo
-----------------------------
+Now that the app has been configured, you can generate the app wrapper script, the test script, and various definition files using the following commands:
+
+First, make sure you're still in the app directory:
+
+.. code-block:: text
+
+    cd ~/geneflow_work/hello-world-gf
+
+Then run the GeneFlow "make-app" command:
+
+.. code-block:: text
+
+    geneflow make-app .
+
+You should see output similar to the following:
+
+.. code-block:: text
+
+    2019-05-31 00:21:43 INFO [app_installer.py:267:make_def()] compiling /home/[user]/geneflow_work/hello-world-gf/app.yaml.j2
+    2019-05-31 00:21:43 INFO [app_installer.py:293:make_agave()] compiling /home/[user]/geneflow_work/hello-world-gf/agave-app-def.json.j2
+    2019-05-31 00:21:43 INFO [app_installer.py:325:make_wrapper()] compiling /home/[user]/geneflow_work/hello-world-gf/assets/hello-world-gf.sh
+    2019-05-31 00:21:43 INFO [app_installer.py:357:make_test()] compiling /home/[user]/geneflow_work/hello-world-gf/test/test.sh
+
+Make the app wrapper script executable:
+
+.. code-block:: text
+
+    chmod +x ./assets/hello-world-gf.sh
 
 Test the App
 ------------
 
+Update the App README
+---------------------
+
+Commit the App to a Git Repo
+----------------------------
 
 
