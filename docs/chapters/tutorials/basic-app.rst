@@ -168,7 +168,7 @@ The "config.yaml" file contains four main sections: Metadata, Inputs and Paramet
 Metadata
 ~~~~~~~~
 
-The app metadata section contains name, description, and source information.
+The app metadata section contains the following basic information about the app:
 
 name:
   Name of the GeneFlow app. We recommend to include version information if your app is wrapping a specific binary, container, or script. The app name should also include a 'gf' suffix. For example, if the app is meant to wrap the 'mem' function in BWA version 0.7.17, the app name should be 'bwa-mem-0.7.17-gf'. For this example, we'll use "hello-world-gf" without a version number because the app does not wrap a specific binary, container, or script. 
@@ -180,15 +180,11 @@ repo_uri:
   The full URL of the app's source repository. We don't have this information yet, so we'll leave it blank for now.
 
 version:
-  A string value that represents the app's version. For this example, we'll use "0.1". We recommend to start with "0.1" for new apps and increment the number when changes are made. 
+  A string value that represents the app's version. For this example, we'll use "0.1". We recommend to start with "0.1" for new apps and increment the number when changes are made to the app. 
 
 In the "config.yaml" file, modify the "Metadata" section so that it looks like the following:
 
-
 .. code-block:: yaml
-
-    # App metadata contains name, description, and source; populates the GeneFlow
-    # definition
 
     # name: standard GeneFlow app name
     name: hello-world-gf
@@ -203,9 +199,9 @@ In the "config.yaml" file, modify the "Metadata" section so that it looks like t
 Inputs and Parameters
 ~~~~~~~~~~~~~~~~~~~~~
 
-Each app input and parameter item is defined in a subsection with the same name as the input/parameter. At least one input and one parameter is requred for each app. The 'output' parameter is required, and must be manually included in the config file.
+Each app input and parameter item is defined in a subsection with several properties. At least one input and one parameter is requred for each app. The 'output' parameter is required, and must be manually included in the config file.
 
-For this example, we'll use one "dummy", or un-used input called "file". Modify the "Inputs and Parameters" section of the "config.yaml" file so that it looks like the following:
+The example "Hello World" app doesn't need any inputs. However, because at least one input is required, we'll define a "dummy", or un-used, input called "file". Modify the "Inputs and Parameters" section of the "config.yaml" file so that it looks like the following:
 
 .. code-block:: yaml
 
@@ -229,7 +225,7 @@ For a more detailed explanation of each input or parameter property, see :ref:`A
 Execution Methods
 ~~~~~~~~~~~~~~~~~
 
-The "Execution Methods" section of the app configuration file defines what your app actually does when executed. Apps can be defined with multiple execution methods. The specific method executed upon app invocation is either auto-detected, or specified on the command line. Execution method names are customizable and the choice of a name should depend on your environment. For example, if your app dependencies are installed globally in your execution system, you should define an "environment" execution method. If your app dependencies are containerized with Singularity, you should define a "singularity" execution method. For a more detailed explanation of the app "Execution Methods" section, see :ref:`App Execution Methods <app-execution-methods>`.
+The "Execution Methods" section of the app configuration file defines what your app actually does when executed. Apps can be defined with multiple execution methods. The specific method executed upon app invocation is either auto-detected or specified on the command line. Execution method names are customizable and the choice of a name should depend on your environment. For example, if your app dependencies are installed globally in your execution system, you should define an "environment" execution method. If your app dependencies are containerized with Singularity, you should define a "singularity" execution method. For a more detailed explanation of the app "Execution Methods" section, see :ref:`App Execution Methods <app-execution-methods>`.
 
 The "Execution Methods" section contains four sub-sections: "default-exec-method", "pre-exec", "exec-methods", and "post-exec". Edit the "config.yaml" file so that each corresponding sub-section looks like the following. 
 
@@ -239,13 +235,13 @@ The "default-exec-method" sub-section is a single string value, which we'll set 
 
     default-exec-method: auto
 
-The "pre-exec" sub-section defines any execution commands that should be executed prior to any commands in the main "exec-methods" section. These usually include commands for directory or file preparation that are common for all execution methods, e.g., creating an output directory. For this tutorial, no pre-exec commands are required, so we'll leave it blank:
+The "pre-exec" sub-section defines any commands that should be executed prior to commands in the main "exec-methods" section. These usually include commands for directory or file preparation that are common for all execution methods, e.g., creating an output directory. For this tutorial, no pre-exec commands are required, so we'll leave it blank:
 
 .. code-block:: yaml
 
     pre-exec:
 
-
+The 
 
 
 
