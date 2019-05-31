@@ -115,18 +115,14 @@ You should see the following output:
 
     5 directories, 7 files
 
-The files we'll be modifying in the template to create the "Hello World" app are:
+We only need to update the "config.yaml" file to create the "Hello World" app. The "config.yaml" file is the main app configuration file, which defines the inputs, parameters, and execution commands of the app.
 
-config.yaml:
-  The main app configuration file, which defines the inputs, parameters, and execution commands of the app.
-
-README.rst:
-  The main readme document for the app.
+It's good practice to also update the main "README.rst" file to document the app. 
 
 Configure the App
 -----------------
 
-We can now proceed with configuring the app by editing the config.yaml file. This file currently contains the configuration of a fully functional app, so we'll be simplifying some of the sections to create the "hello-world" app. Open the "config.yaml" using your favorite text editor (vi and nano examples shown):
+We can now proceed with configuring the app by editing the "config.yaml" file. This file currently contains the configuration of a fully functional app, so we'll be simplifying some of the sections to create the "hello-world" app. Open the "config.yaml" file using your favorite text editor (vi and nano examples shown):
 
 .. code-block:: text
 
@@ -200,23 +196,23 @@ For a more detailed explanation of each input or parameter property, see :ref:`A
 Execution Methods
 ~~~~~~~~~~~~~~~~~
 
-The "Execution Methods" section of the app configuration file defines what your app actually does when executed. Apps can be defined with multiple execution methods. The specific method executed upon app invocation is either auto-detected or specified on the command line. Execution method names are customizable and the choice of a name should depend on your environment. For example, if your app dependencies are installed globally in your execution system, you should define an "environment" execution method. If your app dependencies are containerized with Singularity, you should define a "singularity" execution method. For a more detailed explanation of the app "Execution Methods" section, see :ref:`App Execution Methods <app-execution-methods>`.
+The "Execution Methods" section of the app configuration file defines what your app actually does when executed. Apps can be defined with multiple execution methods. The specific method executed upon app invocation is either auto-detected or specified on the command line. Execution method names are customizable and the choice of a name should depend on your execution system. For example, if your app dependencies are installed globally in your execution system, you should define an "environment" execution method (indicating that dependencies are available in the environment). If your app dependencies are containerized with Singularity, you should define a "singularity" execution method. For a more detailed explanation of the app "Execution Methods" section, see :ref:`App Execution Methods <app-execution-methods>`.
 
 The "Execution Methods" section contains four sub-sections: "default_exec_method", "pre_exec", "exec_methods", and "post_exec". Edit the "config.yaml" file so that each corresponding sub-section looks like the following. 
 
-The "default_exec_method" sub-section is a single string value, which we'll set to "auto", indicating that the execution method should be auto-detected. 
+The "default_exec_method" sub-section is a single string value, which we'll set to "auto", indicating that the execution method should be auto-detected. Alternatively, you can set it to one of the execution methods defined in the "exec_methods" sub-section, e.g., "environment". 
 
 .. code-block:: yaml
 
     default_exec_method: auto
 
-The "pre_exec" sub-section defines any commands that should be executed prior to commands in the main "exec_methods" section. These usually include commands for directory or file preparation that are common for all execution methods, e.g., creating an output directory. For this tutorial, no pre_exec commands are required, so we'll leave it blank:
+The "pre_exec" sub-section defines any commands that should be executed prior to commands in the main "exec_methods" sub-section. These usually include commands for directory or file preparation that are common for all execution methods, e.g., creating an output directory. For this tutorial, no "pre_exec" commands are required, so we'll leave it blank:
 
 .. code-block:: yaml
 
     pre_exec:
 
-The "Hello World" app simply prints "Hello World!" to a text file using the standard Linux "echo" command. Thus, we'll define a single execution method in the "exec_methods" sub-section called "environment", which indicates that we just need commands already available in the Linux environment. Update the "exec_methods" sub-section so that it looks like the following:
+The "Hello World" app simply prints "Hello World!" to a text file using the standard Linux "echo" command. Thus, we'll define a single execution method in the "exec_methods" sub-section called "environment", which indicates that we just need commands already available in Linux. Update the "exec_methods" sub-section so that it looks like the following:
 
 .. code-block:: yaml
 
@@ -225,12 +221,12 @@ The "Hello World" app simply prints "Hello World!" to a text file using the stan
       if:
       - in_path: 'echo'
       exec:
-      - run: echo "Hello World!"
+      - run: echo 'Hello World!'
         stdout: ${OUTPUT_FULL}
 
-The "if" block in the "exec_methods" sub-section is used for auto-detecting the execution method. If multiple execution methods are specified, the first execution method with an "if" block that evaluates to True will be selected for execution. In this example, the statement ``in_path: 'echo'`` means that the "environment" execution method will be selected if the 'echo' command is available in the environment path. The "exec" block contains a list of all commands to be executed for the "environment" execution method. The "environment" execution method contains only a single command that echos the "Hello World!" text to an output file. Here, ${OUTPUT_FULL} is the full path of the file specified by the "output" parameter.
+The "if" statement is used for auto-detecting the execution method. If multiple execution methods are specified, the first execution method with an "if" statement that evaluates to "True" will be selected for execution. In this example, the statement ``in_path: 'echo'`` within the "if" statement means that the "environment" execution method will be selected if the "echo" command is available in the environment path. The "exec" statement contains a list of commands to be executed for the "environment" execution method. The "environment" execution method contains only a single command that echos the "Hello World!" text to an output file. Here, ${OUTPUT_FULL} is the full path of the file specified by the "output" parameter.
 
-The "post-exec" sub-section defines any commands that should be executed after commands in the main "exec-methods" section. These usually include commands for cleaning up any temporary files created during app execution. For this tutorial, no clean-up commands are necessary, so we'll leave it blank:
+The "post_exec" sub-section defines any commands that should be executed after commands in the main "exec_methods" sub-section. These usually include commands for cleaning up any temporary files created during app execution. For this tutorial, no clean-up commands are necessary, so we'll leave it blank:
 
 .. code-block:: yaml
 
@@ -238,6 +234,15 @@ The "post-exec" sub-section defines any commands that should be executed after c
 
 Assets
 ~~~~~~
+
+The "assets" section of the "config.yaml" file specifies additional scripts, binaries, or containers that need to be cloned from a git repo, copied from another location, and/or built during app installation. In this example, the app is fully contained within the "Execution Methods" section, so no additional assets are required. We'll specify this in the assets section as follows:
+
+.. code-block:: yaml
+
+    default_asset: none
+
+    assets:
+      none: []
 
 "Make" the App
 --------------
@@ -265,7 +270,7 @@ You should see output similar to the following:
     2019-05-31 00:21:43 INFO [app_installer.py:325:make_wrapper()] compiling /home/[user]/geneflow_work/hello-world-gf/assets/hello-world-gf.sh
     2019-05-31 00:21:43 INFO [app_installer.py:357:make_test()] compiling /home/[user]/geneflow_work/hello-world-gf/test/test.sh
 
-Make the app wrapper script executable:
+Finally, make the app wrapper script executable:
 
 .. code-block:: text
 
@@ -273,6 +278,40 @@ Make the app wrapper script executable:
 
 Test the App
 ------------
+
+The GeneFlow "make-app" command generates a "test.sh" script inside the "test" folder. If your app requires test data, that data can be placed inside the "test" folder, ideally within a sub-folder called "data". In this example, no test data is required.
+
+To test the app, run the following commands:
+
+.. code-block:: text
+
+    cd test
+    sh ./test.sh
+
+You should see output similar to the following:
+
+.. code-block:: text
+
+    CMD=/home/[user]/geneflow_work/hello-world-gf/test/../assets/hello-world-gf.sh --output="output.txt" --exec_method="auto"
+    File:
+    Output: output.txt
+    Execution Method: auto
+    Detected Execution Method: environment
+    CMD=echo 'Hello World!'  >"/home/[user]/geneflow_work/hello-world-gf/test/output.txt"
+    Exit code: 0
+    Exit code: 0
+
+The "output.txt" file should also have been created in the test directory with the text "Hello World!":
+
+.. code-block:: text
+
+    cat ./output.txt
+
+.. code-block:: text
+
+    Hello World!
+
+Congratulations! You've created a basic GeneFlow app.
 
 Update the App README
 ---------------------
