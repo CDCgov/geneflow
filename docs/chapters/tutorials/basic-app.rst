@@ -3,7 +3,7 @@
 Basic App: Hello World
 ======================
 
-In this tutorial, we will create a basic GeneFlow app that prints "Hello World!" to a text file. This tutorial provides a high-level overview of the components of the app configuration file (config.yaml). However, not all of these components are required to create a functional "Hello World!" app. 
+In this tutorial, you'll create a basic GeneFlow app that prints "Hello World!" to a text file. This tutorial provides a high-level overview of the components of the app configuration file (config.yaml). However, not all of these components are required to create a functional "Hello World!" app. 
 
 Configure the Environment
 -------------------------
@@ -11,7 +11,7 @@ Configure the Environment
 Load or Install GeneFlow
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-First, we need to configure our environment by loading or installing GeneFlow. If you're using a system administered by someone else (e.g., a CDC system), GeneFlow may already be installed. 
+First, configure our environment by loading or installing GeneFlow. If you're using a system administered by someone else (e.g., a CDC system), GeneFlow may already be installed. 
 
 To check if GeneFlow is available, use the following command:
 
@@ -61,9 +61,9 @@ If this happens, try loading the GeneFlow module:
     module load geneflow/latest
     geneflow --help
 
-If GeneFlow is still not available, you'll need to install it. We recommend to install it in a Python virtual environment by using these instructions: :ref:`Install GeneFlow using a Python Virtual Environment <install-geneflow-venv>`.
+If GeneFlow is still not available, you'll need to install it. The recommended method for installation is in a Python virtual environment, as described here: :ref:`Install GeneFlow using a Python Virtual Environment <install-geneflow-venv>`.
 
-After installation, you can load GeneFlow using the following commands:
+After installation in a Python virtual environment, you can load GeneFlow using the following commands:
 
 .. code-block:: text
 
@@ -86,7 +86,7 @@ GeneFlow's public Apps and Workflows repository is located here: https://gitlab.
 
     git clone https://gitlab.com/geneflow/apps/app-template.git hello-world-gf
 
-This command downloads the app template into the "hello-world-gf" directory. "hello-world-gf" also happens to be the name of the app we're creating in this tutorial.
+This command downloads the app template into the "hello-world-gf" directory. "hello-world-gf" also happens to be the name of the app you're creating in this tutorial.
 
 The GeneFlow app template contains a simple, but fully functional application. View the contents of the app template using the following commands:
 
@@ -115,14 +115,14 @@ You should see the following output:
 
     5 directories, 7 files
 
-We only need to update the "config.yaml" file to create the "Hello World" app. The "config.yaml" file is the main app configuration file, which defines the inputs, parameters, and execution commands of the app.
+You only need to update the "config.yaml" file to create the "Hello World" app. The "config.yaml" file is the main app configuration file, which defines the inputs, parameters, and execution commands of the app.
 
 It's good practice to also update the main "README.rst" file to document the app. 
 
 Configure the App
 -----------------
 
-We can now proceed with configuring the app by editing the "config.yaml" file. This file currently contains the configuration of a fully functional app, so we'll be simplifying some of the sections to create the "hello-world" app. Open the "config.yaml" file using your favorite text editor (vi and nano examples shown):
+Proceed with configuring the app by editing the "config.yaml" file. This file currently contains the configuration of a fully functional app, so you'll be simplifying some of the sections to create the "hello-world" app. Open the "config.yaml" file using your favorite text editor (vi and nano examples shown):
 
 .. code-block:: text
 
@@ -134,24 +134,24 @@ or:
 
     nano ./config.yaml
 
-The "config.yaml" file contains four main sections: Metadata, Inputs and Parameters, Execution Methods, and Assets. We'll edit each of these sections to create the "hello-world" app.
+The "config.yaml" file contains four main sections: Metadata, Inputs and Parameters, Execution Methods, and Assets. Edit each of these sections to create the "hello-world" app.
 
 Metadata
 ~~~~~~~~
 
-The app metadata section contains the following basic information about the app:
+The app metadata section contains the following basic information:
 
 name:
-  Name of the GeneFlow app. We recommend to include version information if your app is wrapping a specific binary, container, or script. The app name should also include a 'gf' suffix. For example, if the app is meant to wrap the 'mem' function in BWA version 0.7.17, the app name should be 'bwa-mem-0.7.17-gf'. For this example, we'll use "hello-world-gf" without a version number because the app does not wrap a specific binary, container, or script. 
+  Name of the GeneFlow app. We recommend to include version information if your app is wrapping a specific binary, container, or script. The app name should also include a "gf" suffix. For example, if the app is meant to wrap the "mem" function in BWA version 0.7.17, the app name should be "bwa-mem-0.7.17-gf". For this example, we'll use "hello-world-gf" without a version number because the app does not wrap a specific binary, container, or script. 
 
 description:
-  A title or short description of the app. For this example, we'll use "Simple hello world GeneFlow app".
+  A title or short description of the app. For this example, use "Simple hello world GeneFlow app".
 
 repo_uri:
-  The full URL of the app's source repository. We don't have this information yet, so we'll leave it blank for now.
+  The full URL of the app's source repository. This information is not available yet, so leave it blank for now.
 
 version:
-  A string value that represents the app's version. For this example, we'll use "0.1". We recommend to start with "0.1" for new apps and increment the number when changes are made to the app. 
+  A string value that represents the app's version. For this example, use "0.1". We recommend to start with "0.1" for new apps and increment the number when changes are made to the app. 
 
 In the "config.yaml" file, modify the "Metadata" section so that it looks like the following:
 
@@ -170,9 +170,9 @@ In the "config.yaml" file, modify the "Metadata" section so that it looks like t
 Inputs and Parameters
 ~~~~~~~~~~~~~~~~~~~~~
 
-Each app input and parameter item is defined in a subsection with several properties. At least one input and one parameter is requred for each app. The 'output' parameter is required, and must be manually included in the config file.
+Each app input and parameter item is defined in a subsection with several properties. At least one input and one parameter is requred for each app. The "output" parameter is required, and must be manually included in the config file.
 
-The example "Hello World" app doesn't need any inputs. However, because at least one input is required, we'll define a "dummy", or un-used, input called "file". Modify the "Inputs and Parameters" section of the "config.yaml" file so that it looks like the following:
+The example "Hello World" app doesn't need any inputs. However, because at least one input is required, define a "dummy", or un-used, input called "file". Modify the "Inputs and Parameters" section of the "config.yaml" file so that it looks like the following:
 
 .. code-block:: yaml
 
@@ -200,19 +200,19 @@ The "Execution Methods" section of the app configuration file defines what your 
 
 The "Execution Methods" section contains four sub-sections: "default_exec_method", "pre_exec", "exec_methods", and "post_exec". Edit the "config.yaml" file so that each corresponding sub-section looks like the following. 
 
-The "default_exec_method" sub-section is a single string value, which we'll set to "auto", indicating that the execution method should be auto-detected. Alternatively, you can set it to one of the execution methods defined in the "exec_methods" sub-section, e.g., "environment". 
+The "default_exec_method" sub-section is a single string value. Set this to "auto", indicating that the execution method should be auto-detected. Alternatively, you can set it to one of the execution methods defined in the "exec_methods" sub-section, e.g., "environment". 
 
 .. code-block:: yaml
 
     default_exec_method: auto
 
-The "pre_exec" sub-section defines any commands that should be executed prior to commands in the main "exec_methods" sub-section. These usually include commands for directory or file preparation that are common for all execution methods, e.g., creating an output directory. For this tutorial, no "pre_exec" commands are required, so we'll leave it blank:
+The "pre_exec" sub-section defines any commands that should be executed prior to commands in the main "exec_methods" sub-section. These usually include commands for directory or file preparation that are common for all execution methods, e.g., creating an output directory. For this tutorial, no "pre_exec" commands are required, so leave it blank:
 
 .. code-block:: yaml
 
     pre_exec:
 
-The "Hello World" app simply prints "Hello World!" to a text file using the standard Linux "echo" command. Thus, we'll define a single execution method in the "exec_methods" sub-section called "environment", which indicates that we just need commands already available in Linux. Update the "exec_methods" sub-section so that it looks like the following:
+The "Hello World" app simply prints "Hello World!" to a text file using the standard Linux "echo" command. Thus, define a single execution method in the "exec_methods" sub-section called "environment", which indicates that the needed commands or tools are already available in Linux. Update the "exec_methods" sub-section so that it looks like the following:
 
 .. code-block:: yaml
 
@@ -226,7 +226,7 @@ The "Hello World" app simply prints "Hello World!" to a text file using the stan
 
 The "if" statement is used for auto-detecting the execution method. If multiple execution methods are specified, the first execution method with an "if" statement that evaluates to "True" will be selected for execution. In this example, the statement ``in_path: 'echo'`` within the "if" statement means that the "environment" execution method will be selected if the "echo" command is available in the environment path. The "exec" statement contains a list of commands to be executed for the "environment" execution method. The "environment" execution method contains only a single command that echos the "Hello World!" text to an output file. Here, ${OUTPUT_FULL} is the full path of the file specified by the "output" parameter.
 
-The "post_exec" sub-section defines any commands that should be executed after commands in the main "exec_methods" sub-section. These usually include commands for cleaning up any temporary files created during app execution. For this tutorial, no clean-up commands are necessary, so we'll leave it blank:
+The "post_exec" sub-section defines any commands that should be executed after commands in the main "exec_methods" sub-section. These usually include commands for cleaning up any temporary files created during app execution. For this tutorial, no clean-up commands are necessary, so leave it blank:
 
 .. code-block:: yaml
 
@@ -235,7 +235,7 @@ The "post_exec" sub-section defines any commands that should be executed after c
 Assets
 ~~~~~~
 
-The "assets" section of the "config.yaml" file specifies additional scripts, binaries, or containers that need to be cloned from a git repo, copied from another location, and/or built during app installation. In this example, the app is fully contained within the "Execution Methods" section, so no additional assets are required. We'll specify this in the assets section as follows:
+The "assets" section of the "config.yaml" file specifies additional scripts, binaries, or containers that need to be cloned from a git repo, copied from another location, and/or built during app installation. In this example, the app is fully contained within the "Execution Methods" section, so no additional assets are required. Specify this in the assets section as follows:
 
 .. code-block:: yaml
 
@@ -247,7 +247,7 @@ The "assets" section of the "config.yaml" file specifies additional scripts, bin
 "Make" the App
 --------------
 
-Now that the app has been configured, you can generate the app wrapper script, the test script, and various definition files using the following commands:
+Now that the app has been configured, generate the app wrapper script, the test script, and various definition files using the following commands:
 
 First, make sure you're still in the app directory:
 
@@ -301,22 +301,108 @@ You should see output similar to the following:
     Exit code: 0
     Exit code: 0
 
-The "output.txt" file should also have been created in the test directory with the text "Hello World!":
+The "output.txt" file should also have been created in the test directory with the text "Hello World!". View it with:
 
 .. code-block:: text
 
     cat ./output.txt
 
+And you should see this output:
+
 .. code-block:: text
 
     Hello World!
 
-Congratulations! You've created a basic GeneFlow app.
-
 Update the App README
 ---------------------
+
+It's best practice to update the app README file to include the app name, a short description, and descriptions for each input and parameter. Edit the README.rst file in the main app directory:
+
+.. code-block:: text
+
+    cd ~/geneflow_work/hello-world-gf
+    vi ./README.rst
+
+Modify the file so it looks like the following:
+
+.. code-block:: text
+
+    Hello World! Basic GeneFlow App
+    ===============================
+
+    Version: 0.1
+
+    This is a basic GeneFlow app.
+
+    Inputs
+    ------
+
+    1. file: Dummy input file, use any small file. 
+
+    Parameters
+    ----------
+
+    1. output: Output text file where "Hello World!" will be printed.
+
+Save the file and exit the editor.
 
 Commit the App to a Git Repo
 ----------------------------
 
+Finally, commit the app to a git repo so that it can be used in a GeneFlow workflow. First, if you don't already have one, create an account in either GitHub, GitLab, BitBucket, or your company/organization's git repository. Delete the output file that was created while testing the app, since this output file is not part of the main app definition:
 
+.. code-block:: text
+
+    cd ~/geneflow_work/hello-world-gf
+    rm ./test/output.txt
+
+Add and commit all changes to the local git repo, and tag the app version: 
+
+.. code-block:: text
+
+    git add -A
+    git commit -m "initial version of the hello world app"
+    git tag 0.1
+
+Push to the remote repo using the following commands, depending on where your repository is located.
+
+GitHub
+~~~~~~
+
+If your repository is in GitHub, you must first create the repo on the GitHub.com site. Once created, it will likely be located at a URL similar to ``https://github.com/[user]/hello-world-gf.git``, where ``[user]`` should be replaced with your GitHub username or group. Push your code to GitHub using the following commands:
+
+.. code-block:: text
+
+    git remote set-url origin https://github.com/[user]/hello-world-gf.git
+    git push --tags origin master
+
+Be sure to replace ``[user]`` with your GitHub username or group. 
+
+GitLab
+~~~~~~
+
+If your repository is in GitLab, you don't need to create the repo on the GitLab.com site. You can skip directly to pushing your code to the git URL, which will be similar to ``https://gitlab.com/[user]/hello-world-gf.git``, where ``[user]`` should be replaced with your GitLab username or group:
+
+.. code-block:: text
+
+    git remote set-url origin https://gitlab.com/[user]/hello-world-gf.git
+    git push --tags origin master
+
+Be sure to replace ``[user]`` with your GitLab username or group. 
+
+Organization GitLab
+~~~~~~~~~~~~~~~~~~~
+
+If you have a company or organization GitLab server, your git repo hostname will likely be different. For example, it could be hosted at ``https://git.biotech.cdc.gov/[user]/hello-world-gf.git``, where ``[user]`` should be replaced with your username or group:
+
+.. code-block:: text
+
+    git remote set-url origin https://git.biotech.cdc.gov/[user]/hello-world-gf.git
+    git push --tags origin master
+
+Be sure to replace ``[user]`` with your organization's GitLab username or group. 
+
+Summary
+-------
+
+Congratulations! You created a basic GeneFlow app, tested it using the auto-generated test script, and committed it to a git repo. In the next tutorial, you'll create a one-step GeneFlow workflow that uses this "Hello-World" app. 
