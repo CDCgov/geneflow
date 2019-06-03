@@ -3,7 +3,7 @@
 Basic App: Hello World
 ======================
 
-In this tutorial, you'll create a basic GeneFlow app that prints "Hello World!" to a text file. This tutorial provides a high-level overview of the components of the app configuration file (config.yaml). However, not all of these components are required to create a functional "Hello World!" app. 
+GeneFlow workflows are composed of applications, or apps, which are modular pieces of functionality. Apps are ideally designed so that they can be combined to produce useful data analysis workflows. This tutorial covers the creation of a basic GeneFlow app that prints "Hello World!" to a text file. It is meant to be an introduction to the basic features of GeneFlow apps and does not cover all features. Advanced GeneFlow app features will be covered in later tutorials.
 
 Configure the Environment
 -------------------------
@@ -11,15 +11,13 @@ Configure the Environment
 Load or Install GeneFlow
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-First, configure our environment by loading or installing GeneFlow. If you're using a system administered by someone else (e.g., a CDC system), GeneFlow may already be installed. 
-
-To check if GeneFlow is available, use the following command:
+Configure the Linux environment by loading or installing GeneFlow. To check if GeneFlow is available, use the following command:
 
 .. code-block:: text
 
     geneflow --help
 
-If it's available, you'll get a message similar to the following:
+If it's available, you should see GeneFlow's usage instructions:
 
 .. code-block:: text
 
@@ -48,22 +46,22 @@ If it's available, you'll get a message similar to the following:
                             logging level
       --log_file LOG_FILE   log file
 
-However, if it's not installed, you'll get a message like this:
+However, if it's not installed, you'll get an error message like this:
 
 .. code-block:: text
 
     -bash: geneflow: command not found
 
-If this happens, try loading the GeneFlow module:
+If your system is configured with modules, try loading the GeneFlow module:
 
 .. code-block:: text
 
     module load geneflow/latest
     geneflow --help
 
-If GeneFlow is still not available, you'll need to install it. The recommended method for installation is in a Python virtual environment, as described here: :ref:`Install GeneFlow using a Python Virtual Environment <install-geneflow-venv>`.
+If you need to install GeneFlow, the recommended method for installation is in a Python virtual environment, as described here: :ref:`Install GeneFlow using a Python Virtual Environment <install-geneflow-venv>`.
 
-After installation in a Python virtual environment, you can load GeneFlow using the following commands:
+After installation in a Python virtual environment, load GeneFlow by sourcing the virtual environment:
 
 .. code-block:: text
 
@@ -73,14 +71,14 @@ After installation in a Python virtual environment, you can load GeneFlow using 
 Clone the GeneFlow App Template
 -------------------------------
 
-Create the "geneflow_work" directory in your home directory if doesn't already exist. This will be the location for all tutorial-related workflows, apps, and data:
+Create the "geneflow_work" directory in your home directory if it doesn't already exist. This will be the location for all tutorial-related workflows, apps, and data:
 
 .. code-block:: text
 
     mkdir -p ~/geneflow_work
     cd ~/geneflow_work
 
-GeneFlow's public Apps and Workflows repository is located here: https://gitlab.com/geneflow/. In addition to public apps and workflows, this repository contains app and workflow templates. When creating new GeneFlow apps or workflows, we recommended to start with the app or workflow template rather than start from scratch. Clone the app template with the following command:
+GeneFlow's public Apps and Workflows repository is located here: https://gitlab.com/geneflow/. In addition to public apps and workflows, this repository contains app and workflow templates. When creating new GeneFlow apps or workflows, we recommend to start with the app or workflow template rather then from scratch. Clone the app template using git:
 
 .. code-block:: text
 
@@ -88,14 +86,14 @@ GeneFlow's public Apps and Workflows repository is located here: https://gitlab.
 
 This command downloads the app template into the "hello-world-gf" directory. "hello-world-gf" also happens to be the name of the app you're creating in this tutorial.
 
-The GeneFlow app template contains a simple, but fully functional application. View the contents of the app template using the following commands:
+The GeneFlow app template contains a simple, but fully functional application. View the contents of the app template using the "tree" command:
 
 .. code-block:: text
 
     cd hello-world-gf
     tree .
 
-You should see the following output:
+You should see the app template directory structure:
 
 .. code-block:: text
 
@@ -115,14 +113,14 @@ You should see the following output:
 
     5 directories, 7 files
 
-You only need to update the "config.yaml" file to create the "Hello World" app. The "config.yaml" file is the main app configuration file, which defines the inputs, parameters, and execution commands of the app.
+You'll need to update the "config.yaml" file to create the "Hello World" app. The "config.yaml" file is the main app configuration file, which defines the inputs, parameters, and execution commands of the app.
 
 It's good practice to also update the main "README.rst" file to document the app. 
 
 Configure the App
 -----------------
 
-Proceed with configuring the app by editing the "config.yaml" file. This file currently contains the configuration of a fully functional app, so you'll be simplifying some of the sections to create the "hello-world" app. Open the "config.yaml" file using your favorite text editor (vi and nano examples shown):
+Configure the app by editing the "config.yaml" file. This file currently contains the configuration of a fully functional app, so you'll be simplifying some of the sections to create the "hello-world" app. Open the "config.yaml" file using your favorite text editor (vi and nano examples shown):
 
 .. code-block:: text
 
@@ -142,13 +140,13 @@ Metadata
 The app metadata section contains the following basic information:
 
 name:
-  Name of the GeneFlow app. We recommend to include version information if your app is wrapping a specific binary, container, or script. The app name should also include a "gf" suffix. For example, if the app is meant to wrap the "mem" function in BWA version 0.7.17, the app name should be "bwa-mem-0.7.17-gf". For this example, we'll use "hello-world-gf" without a version number because the app does not wrap a specific binary, container, or script. 
+  Name of the GeneFlow app. We recommend to include version information if your app is wrapping a specific binary, container, or script. The app name should also include a "gf" suffix. For example, if the app is meant to wrap the "mem" function in BWA version 0.7.17, the app name should be "bwa-mem-0.7.17-gf". For this example, use "hello-world-gf" without a version number because the app does not wrap a specific binary, container, or script. 
 
 description:
   A title or short description of the app. For this example, use "Simple hello world GeneFlow app".
 
 repo_uri:
-  The full URL of the app's source repository. This information is not available yet, so leave it blank for now.
+  The full URL of the app's source repository. This information is not available yet, so leave it blank.
 
 version:
   A string value that represents the app's version. For this example, use "0.1". We recommend to start with "0.1" for new apps and increment the number when changes are made to the app. 
@@ -196,11 +194,11 @@ For a more detailed explanation of each input or parameter property, see :ref:`A
 Execution Methods
 ~~~~~~~~~~~~~~~~~
 
-The "Execution Methods" section of the app configuration file defines what your app actually does when executed. Apps can be defined with multiple execution methods. The specific method executed upon app invocation is either auto-detected or specified on the command line. Execution method names are customizable and the choice of a name should depend on your execution system. For example, if your app dependencies are installed globally in your execution system, you should define an "environment" execution method (indicating that dependencies are available in the environment). If your app dependencies are containerized with Singularity, you should define a "singularity" execution method. For a more detailed explanation of the app "Execution Methods" section, see :ref:`App Execution Methods <app-execution-methods>`.
+The "Execution Methods" section of the app configuration file defines what the app actually does when executed. Apps can be defined with multiple execution methods. The specific method executed upon app invocation is either auto-detected or specified on the command line. Execution method names are customizable and the choice of a name should depend on the execution system. For example, if the app dependencies are installed globally in the execution system, use an execution method called "environment" (indicating that dependencies are available in the environment). If the app dependencies are containerized with Singularity, use an execution method called "singularity". For a more detailed explanation of the app "Execution Methods" section, see :ref:`App Execution Methods <app-execution-methods>`.
 
-The "Execution Methods" section contains four sub-sections: "default_exec_method", "pre_exec", "exec_methods", and "post_exec". Edit the "config.yaml" file so that each corresponding sub-section looks like the following. 
+The "Execution Methods" section of the "config.yaml" file contains four sub-sections: "default_exec_method", "pre_exec", "exec_methods", and "post_exec".
 
-The "default_exec_method" sub-section is a single string value. Set this to "auto", indicating that the execution method should be auto-detected. Alternatively, you can set it to one of the execution methods defined in the "exec_methods" sub-section, e.g., "environment". 
+The "default_exec_method" sub-section is a single string value. Set this to "auto", indicating that the execution method should be auto-detected. Alternatively, you can set it to one of the execution methods defined in the "exec_methods" sub-section, e.g., "environment" or "singularity". 
 
 .. code-block:: yaml
 
@@ -261,7 +259,7 @@ Then run the GeneFlow "make-app" command:
 
     geneflow make-app .
 
-You should see output similar to the following:
+GeneFlow will then generate four files:
 
 .. code-block:: text
 
@@ -316,7 +314,7 @@ And you should see this output:
 Update the App README
 ---------------------
 
-It's best practice to update the app README file to include the app name, a short description, and descriptions for each input and parameter. Edit the README.rst file in the main app directory:
+It is best practice to update the app README file to include the app name, a short description, and descriptions for each input and parameter. Edit the README.rst file in the main app directory:
 
 .. code-block:: text
 
@@ -356,7 +354,7 @@ Finally, commit the app to a git repo so that it can be used in a GeneFlow workf
     cd ~/geneflow_work/hello-world-gf
     rm ./test/output.txt
 
-Add and commit all changes to the local git repo, and tag the app version: 
+Commit all changes to the local git repo and tag the app version: 
 
 .. code-block:: text
 
@@ -405,4 +403,4 @@ Be sure to replace ``[user]`` with your organization's GitLab username or group.
 Summary
 -------
 
-Congratulations! You created a basic GeneFlow app, tested it using the auto-generated test script, and committed it to a git repo. In the next tutorial, you'll create a one-step GeneFlow workflow that uses this "Hello-World" app. 
+Congratulations! You created a basic GeneFlow app, tested it using the auto-generated test script, and committed it to a git repo. The next tutorial covers creation of a one-step GeneFlow workflow that uses this "Hello-World" app. 
