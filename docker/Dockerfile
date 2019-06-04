@@ -15,7 +15,7 @@ RUN apk update \
     	gawk \
     && mkdir -p $GOPATH/src/github.com/sylabs \
     && cd $GOPATH/src/github.com/sylabs \
-    && git clone -b v3.1.1 https://github.com/sylabs/singularity.git \
+    && git clone -b v3.2.0 https://github.com/sylabs/singularity.git \
     && cd $GOPATH/src/github.com/sylabs/singularity \
     && ./mconfig -s -S -p /opt/singularity \
     && cd $GOPATH/src/github.com/sylabs/singularity/builddir \
