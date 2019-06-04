@@ -61,7 +61,7 @@ If you need to install GeneFlow, it is recommended to use a Python3 virtual envi
 
 ## Additional Documentation
 
-Additional documentation can be found in the docs folder of this source repository (or by following this link: [Additional Documentation](docs/index.rst). You can view the index.rst text file, or you can generate the html and pdf documentation with the following commands:
+Additional documentation can be found in the docs folder of this source repository (or by following this link: [Additional Documentation](docs/index.rst)). You can view the index.rst text file, or you can generate the html and pdf documentation with the following commands:
 
 ```
 cd ~/geneflow_work
