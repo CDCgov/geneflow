@@ -8,7 +8,8 @@ GeneFlow (GF) is a light-weight platform-agnostic workflow engine for scientific
 
 At a minimum, GeneFlow requires a Linux environment with Python 3. The Python pip installer for GeneFlow handles all python dependencies.
 
-Agave is optionally required if you want to run workflows in [Agave](https://agaveapi.co).
+Agave is optional.  [Agave](https://tacc-cloud.readthedocs.io/projects/agave/en/latest/index.html) is a Science as a Service platform developed by the Texas Advanced Computing Center (TACC).  It provides fine-grained access to storage, authentication, data manipulation, and compute infrastructure and allows you to bring together public, private, and shared high performance computing (HPC), high throughput computing (HTC), Cloud, and Big Data resources under a single, web-friendly REST API.
+
 
 Users with access to the CDC SciComp environment may use the pre-installed GeneFlow and Agave environments to get started: [Quick Start for CDC Users](#quick-start-for-cdc-users).
 
