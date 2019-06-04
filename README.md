@@ -10,11 +10,11 @@ At a minimum, GeneFlow requires a Linux environment with Python 3. The Python pi
 
 Agave is optional.  [Agave](https://tacc-cloud.readthedocs.io/projects/agave/en/latest/index.html) is a Science as a Service platform developed by the Texas Advanced Computing Center (TACC).  It provides fine-grained access to storage, authentication, data manipulation, and compute infrastructure and allows you to bring together public, private, and shared high performance computing (HPC), high throughput computing (HTC), Cloud, and Big Data resources under a single, web-friendly REST API.
 
+## Quick Start
+
 Users with access to the CDC SciComp environment may use the pre-installed GeneFlow and Agave to get started: [Quick Start for CDC Users](#use-geneflow-in-the-cdc-scicomp-environment).
 
 External users, or CDC users who need a more customized installation, may refer to the general installation instructions which can be found in the [Additional Documentation](#additional-documentation).
-
-## Quick Start
 
 ### Use GeneFlow in the CDC SciComp Environment
 
