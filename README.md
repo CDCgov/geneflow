@@ -32,7 +32,7 @@ External users, or CDC users who need a more customized installation, may refer 
 
 ### Install GeneFlow in a Python Virtual Environment
 
-The easiest way to install GeneFlow is to use a Python3 virtual environment. However, if you have root access and want to install GeneFlow system-wide, you may skip the virtual environment step.
+If you need to install GeneFlow, it is recommended to use a Python3 virtual environment. However, if you have root access and want to install GeneFlow system-wide, you may skip the virtual environment step.
 
 1.  Create and activate a Python3 virtual environment:
 
