@@ -72,10 +72,13 @@ repo_uri:
 version:
   A string value that represents the app's version.
 
+
+.. _apps-inputs-parameters:
+
 Inputs and Parameters
 ~~~~~~~~~~~~~~~~~~~~~
 
-Each app input and parameter item is defined in a subsection with the same name as the input/parameter, and each subsection must have the following fields:
+Each app input and parameter item is defined in a subsection with the same name as the input/parameter. The 'output' parameter is required, and must be manually included in the config file. See the following section for details about the 'output' parameter. Each input or parameter subsection must have the following fields:
 
 label:
   A title or short description of the field.
@@ -108,10 +111,10 @@ script_default:
     3. If required == false, and script_default is NOT specified, the input is only set if corresponding args are passed to the wrapper script.
 
 test_value:
-  (Optional) If specified, used as the value for this input/parameter when generating the test script.
+  (Optional) If specified, the input/parameter is set to this value in the test script.
 
 post_exec:
-  (Optional) List of shell/bash commands used for post-processing of the input/parameter value after argument parsing. Use these commands to modify or check the value of inputs/parameters; or create additional shell/bash variables for use in later parts of the script. By default, the following commands are included in the wrapper script before any items listed in post_exec. If the name of the input/parameter is 'varname', then the following lines are added to the wrapper script:
+  (Optional) List of shell/bash commands for post-processing of the input/parameter value after argument parsing. These commands modify or check the value of inputs/parameters; or create additional shell/bash variables for use in later parts of the script. By default, for 'File', 'Directory', or 'Any' types, the following commands are included in the wrapper script before any items listed in post_exec. If the name of the input/parameter is 'varname', then the following lines are added to the wrapper script:
 
     .. code-block:: bash
 
@@ -120,6 +123,22 @@ post_exec:
         VARNAME_BASE=$(basename ${VARNAME_FULL})
 
   See the section 'Execution Blocks' for information about the required format for execution blocks.
+
+App Output
+~~~~~~~~~~
+
+The app 'output' parameter is associated with two additional variables for storing logs and temporary files:
+
+    .. code-block:: bash
+
+        LOG_FULL="${OUTPUT_DIR}/_log"
+        TMP_FULL="${OUTPUT_DIR}/_tmp"
+
+The LOG_FULL variable points to a directory that, once created, persists in the workflow intermediate and final output directory. LOG_FULL is optional, and must be manually created with a 'mkdir' command within the app config file preior to use. The '_log' directory must be accounted for when executing 'map' steps that process input folders. To exclude, a look-ahead regex can be used to filter the folder.  
+
+The TMP_FULL variable must also be manually created, but also must be manually deleted within the "clean-up" section of the app configuration. The TMP_FULL directory may or may not persist in the workflow intermediate and output directory, depending on the execution context. 
+
+.. _app-execution-methods:
 
 App Execution Methods
 ~~~~~~~~~~~~~~~~~~~~~
@@ -215,9 +234,11 @@ All bash/shell commands in the "exec_methods" section has access to a number of 
     2. ${DOCKER}: set to "yes" or "no" depending on whether the "docker" binary was detected.
     3. ${SCRIPT_DIR}: directory of the wrapper script, which may not be the current directory. This depends on the execution environment.
     4. ${VARNAME}: One for each input/parameter, set to value of the input/parameter.
-    5. ${VARNAME_FULL}: if input/parameter is a file or directory, this is the full path of the input/parameter. 
-    6. ${VARNAME_DIR}: if input/parameter is a file or directory, this is the parent directory of the input/parameter.
-    7. ${VARNAME_BASE}: if input/parameter is a file or directory, this is the basename of the input/parameter.
+    5. ${VARNAME_FULL}: if input/parameter is a File, Directory, or Any, this is the full path of the input/parameter. 
+    6. ${VARNAME_DIR}: if input/parameter is a File, Directory, or Any, this is the parent directory of the input/parameter.
+    7. ${VARNAME_BASE}: if input/parameter is a File, Directory, or Any, this is the basename of the input/parameter.
+    8. ${LOG_FULL}: location to store log files.
+    9. ${TMP_FULL}: location to store temporary files.
     
 Any additional bash/shell variables defined in the "post" section of each input/parameter, or defined in the "pre_exec" section are also available.
 

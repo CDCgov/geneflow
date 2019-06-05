@@ -561,7 +561,7 @@ class WorkflowDAG:
         """
         Initialize Graph input nodes by creating WorkflowInput instances.
 
-        Also popoulate the remaining contexts with URIs.
+        Also populate the remaining contexts with URIs.
 
         Args:
             None.

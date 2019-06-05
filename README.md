@@ -1,6 +1,6 @@
 # GeneFlow
 
-Version: 1.3.0
+Version: 1.4.0
 
 GeneFlow (GF) is a light-weight platform-agnostic workflow engine for scientific computing.
 
@@ -8,17 +8,31 @@ GeneFlow (GF) is a light-weight platform-agnostic workflow engine for scientific
 
 At a minimum, GeneFlow requires a Linux environment with Python 3. The Python pip installer for GeneFlow handles all python dependencies.
 
-Agave is optionally required if you want to run workflows in [Agave](https://agaveapi.co).
-
-Users with access to the CDC SciComp environment may use the pre-installed GeneFlow and Agave environments to get started: [Quick Start for CDC Users](#quick-start-for-cdc-users).
-
-External users, or CDC users who need a more customized installation, may refer to the general installation instructions which can be found in the [Additional Documentation](#addition-documentation).
+Agave is optional.  [Agave](https://tacc-cloud.readthedocs.io/projects/agave/en/latest/index.html) is a Science as a Service platform developed by the Texas Advanced Computing Center (TACC).  It provides fine-grained access to storage, authentication, data manipulation, and compute infrastructure and allows you to bring together public, private, and shared high performance computing (HPC), high throughput computing (HTC), Cloud, and Big Data resources under a single, web-friendly REST API.
 
 ## Quick Start
 
+Users with access to the CDC SciComp environment may use the pre-installed GeneFlow and Agave to get started: [Quick Start for CDC Users](#use-geneflow-in-the-cdc-scicomp-environment).
+
+External users, or CDC users who need a more customized installation, may refer to the general installation instructions which can be found in the [Additional Documentation](#additional-documentation).
+
+### Use GeneFlow in the CDC SciComp Environment
+
+1. Load the GeneFlow module in the CDC SciComp environment (from either Biolinux or Aspen):
+
+    ```
+    module load geneflow/latest
+    ```
+
+2. Test the installation by running the GeneFlow CLI:
+
+    ```
+    geneflow --help
+    ```
+
 ### Install GeneFlow in a Python Virtual Environment
 
-The easiest way to install GeneFlow is to use a Python3 virtual environment. However, if you have root access and want to install GeneFlow system-wide, you may skip the virtual environment step.
+If you need to install GeneFlow, it is recommended to use a Python3 virtual environment. However, if you have root access and want to install GeneFlow system-wide, you may skip the virtual environment step.
 
 1.  Create and activate a Python3 virtual environment:
 
@@ -47,7 +61,7 @@ The easiest way to install GeneFlow is to use a Python3 virtual environment. How
 
 ## Additional Documentation
 
-Additional documentation can be found in the docs folder of this source repository (or by following this link: [Additional Documentation](docs/index.rst). You can view the index.rst text file, or you can generate the html and pdf documentation with the following commands:
+Additional documentation can be found in the docs folder of this source repository (or by following this link: [Additional Documentation](docs/index.rst)). You can view the index.rst text file, or you can generate the html and pdf documentation with the following commands:
 
 ```
 cd ~/geneflow_work

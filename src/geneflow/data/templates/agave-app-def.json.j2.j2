@@ -29,9 +29,9 @@
       "value": {
         "required": {{ 'true' if value.required else 'false' }},
         {% if not value.required and value.default %}
-        "default": {% if value.type in ('string','File','Directory') -%}"{{ value.default }}"{%- else -%}{{ value.default }}{%- endif -%},
+        "default": {% if value.type in ('string','File','Directory','Any') -%}"{{ value.default }}"{%- else -%}{{ value.default }}{%- endif -%},
         {% endif %}
-        "type": "{{ 'string' if value.type in ('string','File','Directory') else 'number' }}"
+        "type": "{{ 'string' if value.type in ('string','File','Directory','Any') else 'number' }}"
       }
     },
     {% endfor %}

@@ -288,18 +288,18 @@ eval set -- "$PARSED"
 {% for key, value in inputs.items() %}
 {% if not value.required %}
 {% if value.script_default %}
-{{ key|upper }}={{ value.script_default }}    
+{{ key|upper }}="{{ value.script_default }}"
 {% endif %}
 {% endif %}
 {% endfor %}
 {% for key, value in parameters.items() %}
 {% if not value.required %}
 {% if value.default %}
-{{ key|upper }}={{ value.default }}    
+{{ key|upper }}="{{ value.default }}"
 {% endif %}
 {% endif %}
 {% endfor %}
-EXEC_METHOD={{ default_exec_method }}
+EXEC_METHOD="{{ default_exec_method }}"
 ## ***************************************************************** <<< MODIFY
 
 ## MODIFY >>> *****************************************************************
@@ -389,8 +389,10 @@ fi
 count=0
 {% if value.type == 'File' %}
 while [ ! -f ${{ '{' }}{{ key|upper }}{{ '}' }} ]
-{% else %}
+{% elif value.type == 'Directory' %}
 while [ ! -d ${{ '{' }}{{ key|upper }}{{ '}' }} ]
+{% else %}
+while [ ! -e ${{ '{' }}{{ key|upper }}{{ '}' }} ]
 {% endif %}
 do
     echo "${{ '{' }}{{ key|upper }}{{ '}' }} not staged, waiting..."
@@ -400,8 +402,10 @@ do
 done
 {% if value.type == 'File' %}
 if [ ! -f ${{ '{' }}{{ key|upper }}{{ '}' }} ]; then
-{% else %}
+{% elif value.type == 'Directory' %}
 if [ ! -d ${{ '{' }}{{ key|upper }}{{ '}' }} ]; then
+{% else %}
+if [ ! -e ${{ '{' }}{{ key|upper }}{{ '}' }} ]; then
 {% endif %}
     echo "{{ value.label }} not found: ${{ '{' }}{{ key|upper }}{{ '}' }}"
     exit 1
@@ -419,8 +423,10 @@ if [ -n "${{ '{' }}{{ key|upper }}{{ '}' }}" ]; then
     count=0
     {% if value.type == 'File' %}
     while [ ! -f ${{ '{' }}{{ key|upper }}{{ '}' }} ]
-    {% else %}
+    {% elif value.type == 'Directory' %}
     while [ ! -d ${{ '{' }}{{ key|upper }}{{ '}' }} ]
+    {% else %}
+    while [ ! -e ${{ '{' }}{{ key|upper }}{{ '}' }} ]
     {% endif %}
     do
         echo "${{ '{' }}{{ key|upper }}{{ '}' }} not staged, waiting..."
@@ -430,8 +436,10 @@ if [ -n "${{ '{' }}{{ key|upper }}{{ '}' }}" ]; then
     done
     {% if value.type == 'File' %}
     if [ ! -f ${{ '{' }}{{ key|upper }}{{ '}' }} ]; then
-    {% else %}
+    {% elif value.type == 'Directory' %}
     if [ ! -d ${{ '{' }}{{ key|upper }}{{ '}' }} ]; then
+    {% else %}
+    if [ ! -e ${{ '{' }}{{ key|upper }}{{ '}' }} ]; then
     {% endif %}
         echo "{{ value.label }} not found: ${{ '{' }}{{ key|upper }}{{ '}' }}"
         exit 1
@@ -453,10 +461,14 @@ fi
 # {{ key|upper }} parameter
 if [ -n "${{ '{' }}{{ key|upper }}{{ '}' }}" ]; then
     :
-    {% if value.type == 'File' or value.type == 'Directory' %}
+    {% if value.type == 'File' or value.type == 'Directory' or value.type == 'Any' %}
     {{ key|upper }}_FULL=$(readlink -f "${{ '{' }}{{ key|upper }}{{ '}' }}")
     {{ key|upper }}_DIR=$(dirname "${{ '{' }}{{ key|upper }}_FULL{{ '}' }}")
     {{ key|upper }}_BASE=$(basename "${{ '{' }}{{ key|upper }}_FULL{{ '}' }}")
+    {% if key == 'output' %}
+    LOG_FULL="${OUTPUT_DIR}/_log"
+    TMP_FULL="${OUTPUT_DIR}/_tmp"
+    {% endif %}
     {% endif %}
     {% for exec_item in value.post_exec %}
     {{ exec(exec_item) }}

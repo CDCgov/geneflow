@@ -1,6 +1,15 @@
 # Changelog
 
 
+## 2019/06/05 - v1.4.0: minor enhancement release
+
+1. Add "Basic App: Hello World" tutorial to documentation.
+
+2. Fix bug: "Any" datatypes for inputs or parameters should be processed similar to "File" or "Directory" datatypes.
+
+3. Add ability to store app log files in consistent and structured location: "_log" folder.
+
+
 ## 2019/05/08 - v1.3.0: minor enhancement release
 
 1. Fix security vulnerability: pyyaml>=4.2b1

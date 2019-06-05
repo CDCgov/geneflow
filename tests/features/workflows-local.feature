@@ -3,27 +3,69 @@ Feature: Workflows
 
   Scenario: Parameter strings with spaces are correctly passed to workflow step shell commands when running local workflows.
     Given The "local" "param-space" workflow has been installed
-    When I run the "local" "param-space" workflow with a "string" parameter of "hello world"
-    Then The "local" "param-space" workflow "print" step produces an output file called "output.txt" with contents "hello world"
+    When I run the "local" "param-space" workflow with the following inputs and parameters
+        | type      | name   | value         |
+        | input     | input  | data/test.txt |
+        | parameter | string | hello world   |
+    Then The "local" "param-space" workflow "print" step produces an output file called "output.txt" with the following contents
+        | line        |
+        | hello world |
   
   Scenario: Apps with multi exec blocks are correctly executed locally.
     Given The "local" "multi-exec" workflow has been installed
-    When I run the "local" "multi-exec" workflow with a "string" parameter of "hello world"
-    Then The "local" "multi-exec" workflow "print" step produces an output file called "output.txt" with multi-line contents
+    When I run the "local" "multi-exec" workflow with the following inputs and parameters
+        | type      | name   | value         |
+        | input     | input  | data/test.txt |
+        | parameter | string | hello world   |
+    Then The "local" "multi-exec" workflow "print" step produces an output file called "output.txt" with the following contents
         | line        |
         | hello world |
         | hello world |
 
   Scenario: Apps with if-else exec blocks are correctly executed locally.
     Given The "local" "if-else-exec" workflow has been installed
-    When I run the "local" "if-else-exec" workflow with a "string" parameter of "hello world"
-    Then The "local" "if-else-exec" workflow "print" step produces an output file called "output.txt" with contents "hello world else condition"
+    When I run the "local" "if-else-exec" workflow with the following inputs and parameters
+        | type      | name   | value         |
+        | input     | input  | data/test.txt |
+        | parameter | string | hello world   |
+    Then The "local" "if-else-exec" workflow "print" step produces an output file called "output.txt" with the following contents
+        | line                       |
+        | hello world else condition |
 
   Scenario: Apps with str-contain if blocks are correctly executed locally.
     Given The "local" "str-contain" workflow has been installed
-    When I run the "local" "str-contain" workflow with a "super_string" parameter of "super string"
-    Then The "local" "str-contain" workflow "contain" step produces an output file called "output.txt" with contents "string contains"
+    When I run the "local" "str-contain" workflow with the following inputs and parameters
+        | type      | name         | value         |
+        | input     | input        | data/test.txt |
+        | parameter | super_string | super string  |
+    Then The "local" "str-contain" workflow "contain" step produces an output file called "output.txt" with the following contents
+        | line            |
+        | string contains |
 
-    When I run the "local" "str-contain" workflow with a "super_string" parameter of "super"
-    Then The "local" "str-contain" workflow "contain" step produces an output file called "output.txt" with contents "string does not contain"
+    When I run the "local" "str-contain" workflow with the following inputs and parameters
+        | type      | name         | value         |
+        | input     | input        | data/test.txt |
+        | parameter | super_string | super         |
+    Then The "local" "str-contain" workflow "contain" step produces an output file called "output.txt" with the following contents
+        | line                    |
+        | string does not contain |
 
+  Scenario: Apps with Any input or parameter types are correctly handled locally.
+    Given The "local" "any-type" workflow has been installed
+    When I run the "local" "any-type" workflow with the following inputs and parameters
+        | type      | name  | value         |
+        | input     | input | data/test.txt |
+        | parameter | param | file.txt      |
+    Then The "local" "any-type" workflow "print" step produces an output file called "output.txt" with the following contents
+        | line     |
+        | test.txt |
+        | file.txt |
+
+  Scenario: Workflows run locally place logs in a consistent and structured location.
+    Given The "local" "rotate" workflow has been installed
+    When I run the "local" "rotate" workflow with the following inputs and parameters
+        | type  | name         | value |
+        | input | input_folder | data  |
+    Then The "local" "rotate" workflow "rotate_3" step produces an output file called "_log/test1_rot1_rot2b_rot3.txt.log" with the following contents
+        | line      |
+        | log stuff |
