@@ -13,7 +13,7 @@ INSTALL_REQUIRES = [
     pkg for pkg in open('requirements.txt').readlines()
 ]
 
-PYTHON_REQUIRES = '>=3.5.*'
+PYTHON_REQUIRES = '>=3.5.*,<3.7.*'
 
 # test_suite = 'geneflow.test.test_all'
 
