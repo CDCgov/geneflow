@@ -3,7 +3,7 @@
 One-Step Workflow: Hello World
 ==============================
 
-This tutorial covers the creation of a basic one-step GeneFlow workflow that uses the "Hello World!" app created in the previous tutorial. 
+This tutorial covers the creation of a basic one-step GeneFlow workflow that uses the "Hello World!" app created in the previous tutorial. The "Basic App: Hello World" tutorial must be completed, and its resulting "Hello World!" app should be committed to a Git repo prior to beginning this tutorial.
 
 Clone the GeneFlow Workflow Template
 ------------------------------------
@@ -67,7 +67,7 @@ Delete the template entries and add the "Hello World!" app:
       folder: hello-world-gf-0.1
       asset: none
 
-When editing this file, be sure to delete any other apps in the file so that the "Hello World!" app is the only app listed. Also be sure to replace the "repo" field with the correct git repo to which you committed the "Hello World!" app. Save and close the file.
+When editing this file, be sure to delete any other apps in the file so that the "Hello World!" app is the only app listed. Also be sure to replace the "repo" field with the correct Git repo to which you committed the "Hello World!" app. Save and close the file.
 
 Configure the Workflow
 ----------------------
@@ -209,7 +209,7 @@ Modify the file so it looks like the following:
 Commit the Workflow to a Git Repo
 ---------------------------------
 
-We'll use GitHub as an example, but you may use GitLab, BitBucket, or your company/organization's git repo instead. GitHub requires you to first create the repo on the GitHub.com site. Once created, it will likely be located at a URL similar to https://github.com/[user]/hello-world-workflow-gf.git, where [user] should be replaced with your GitHub username or group. If you're using a Git repo other than GitHub, refer to the instructions in the "Basic App: Hello World" tutorial.
+We'll use GitHub as an example, but you may use GitLab, BitBucket, or your company/organization's Git repo instead. GitHub requires you to first create the repo on the GitHub.com site. Once created, it will likely be located at a URL similar to https://github.com/[user]/hello-world-workflow-gf.git, where [user] should be replaced with your GitHub username or group. If you're using a Git repo other than GitHub, refer to the instructions in the "Basic App: Hello World" tutorial.
 
 Before committing the workflow code, remove the "apps" directory, since this directory is created during workflow installation.
 
@@ -225,8 +225,10 @@ Push the code to GitHub using the following commands:
     git add -A
     git commit -m "initial version of the hello world workflow"
     git tag 0.1
-    git remote set-url origin https://github.com/[user]/hello-world-workflow-gf.git
+    git remote set-url origin https://github.com/[USER]/hello-world-workflow-gf.git
     git push --tags origin master
+
+Be sure to replace ``[USER]`` with your GitHub user or group.
 
 Install the Workflow from a Git Repo
 ------------------------------------
@@ -236,9 +238,9 @@ Now that the workflow has been committed to a Git repo, it can be installed anyw
 .. code-block:: text
 
     cd ~/geneflow_work
-    geneflow install-workflow -g https://github.com/[user]/hello-world-workflow-gf.git -c --make_apps ./test-workflow
+    geneflow install-workflow -g https://github.com/[USER]/hello-world-workflow-gf.git -c --make_apps ./test-workflow
 
-This command installs the "Hello World!" one-step workflow, and its "Hello World!" app into the directory "test-workflow". Remember to replace the git URL with the URL to which you committed the workflow.
+This command installs the "Hello World!" one-step workflow, and its "Hello World!" app into the directory "test-workflow". Remember to replace the Git URL with the URL to which you committed the workflow.
 
 Test the Workflow
 -----------------
@@ -266,4 +268,4 @@ Be sure to replace ``[JOB ID]`` with the ID of the GeneFlow job. The job ID is a
 Summary
 -------
 
-Congratulations! You created a one-step GeneFlow workflow, committed it to a git repo and, and tested it. The next tutorial will expand on this workflow by adding a more complex workflow input. 
+Congratulations! You created a one-step GeneFlow workflow, committed it to a Git repo and, and tested it. The next tutorial will expand on this workflow by adding a more complex workflow input. 
