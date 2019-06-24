@@ -151,8 +151,13 @@
         {%- endif -%}
         ${MNT} {{ run.image }} {{ run.run }} ${ARG}";{{ ' ' }}
     {%- elif run_type == 'docker' -%}
-        CMD{{ loop_index }}="docker run --rm ${MNT} {{ run.image }}{{ ' ' -}}
-            {{- run.run }} ${ARG}";{{ ' ' }}
+        CMD{{ loop_index }}="docker{{ ' ' }}
+        {%- if run.options -%}
+            {{ run.options }}{{ ' ' }}
+        {%- else -%}
+            run --rm{{ ' ' }}
+        {%- endif -%}
+        ${MNT} {{ run.image }} {{ run.run }} ${ARG}";{{ ' ' }}
     {%- else -%}
         CMD{{ loop_index }}="{{ run.run }} ${ARG}";{{ ' ' }}
     {%- endif -%}
