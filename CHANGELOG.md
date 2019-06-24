@@ -1,6 +1,13 @@
 # Changelog
 
 
+## 2019/06/19 - v1.5.0: minor enhancement release
+
+1. Add "One-Step Workflow: Hello World" tutorial to documentation.
+
+2. Fix bug: disallow GeneFlow from installing with Python >=3.7 until all dependencies have been validated for compatibility.
+
+
 ## 2019/06/05 - v1.4.0: minor enhancement release
 
 1. Add "Basic App: Hello World" tutorial to documentation.
