@@ -143,8 +143,13 @@
         {%- endfor -%}
     {%- endif -%}
     {%- if run_type == 'singularity' -%}
-        CMD{{ loop_index }}="singularity -s exec ${MNT} {{ run.image }}{{ ' ' -}}
-            {{- run.run }} ${ARG}";{{ ' ' }}
+        CMD{{ loop_index }}="singularity{{ ' ' }}
+        {%- if run.options -%}
+            {{ run.options }}{{ ' ' }}
+        {%- else -%}
+            -s exec{{ ' ' }}
+        {%- endif -%}
+        ${MNT} {{ run.image }} {{ run.run }} ${ARG}";{{ ' ' }}
     {%- elif run_type == 'docker' -%}
         CMD{{ loop_index }}="docker run --rm ${MNT} {{ run.image }}{{ ' ' -}}
             {{- run.run }} ${ARG}";{{ ' ' }}
