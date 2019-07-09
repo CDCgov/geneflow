@@ -1,6 +1,11 @@
 # Changelog
 
 
+## 2019/07/03 - v1.6.0: minor enhancement release
+
+1. Set the default Singularity command to "-s exec" and allow custom commands for both Singularity and Docker
+
+
 ## 2019/06/19 - v1.5.0: minor enhancement release
 
 1. Add "One-Step Workflow: Hello World" tutorial to documentation.

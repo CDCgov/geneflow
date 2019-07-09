@@ -210,6 +210,9 @@ type:
 run:
   Command to run. If type is singularity or docker, this is the command passed to the container executor after the container image is specified.
 
+options:
+  Container entrypoint command. If type is singularity or docker, this command is the singularity or docker sub-command and options. For singularity, the default is '-s exec'. For docker, the default is 'run --rm'.
+
 image:
   If type is singularity or docker, this is the path, url, or name of the container.
 

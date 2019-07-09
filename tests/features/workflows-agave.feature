@@ -69,3 +69,15 @@ Feature: Workflows
     Then The "agave" "rotate" workflow "rotate_3" step produces an output file called "_log/test1_rot1_rot2b_rot3.txt.log" with the following contents
         | line      |
         | log stuff |
+
+  Scenario: Apps with singularity commands are correctly executed in Agave.
+    Given The "agave" "singularity-exec" workflow has been installed
+    When I run the "agave" "singularity-exec" workflow with the following inputs and parameters
+        | type      | name   | value         |
+        | input     | input  | data/test.txt |
+        | parameter | string | hello world   |
+    Then The "agave" "singularity-exec" workflow "print" step produces an output file called "output.txt" with the following contents
+        | line        |
+        | hello world |
+
+
