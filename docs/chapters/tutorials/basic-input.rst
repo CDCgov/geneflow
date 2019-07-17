@@ -71,7 +71,7 @@ Finally, change the execution commands of the app in the ``exec_methods`` sectio
       - run: cat ${FILE_FULL}
         stdout: ${OUTPUT_FULL}
 
-The modified execution block first checks if the ``cat`` command is available (it should be available in all standard Linux systems). It then runs the ``cat`` command to print the contents of the file passed as the ``file`` input. ``${FILE_FULL}`` is a bash variable that is automatically defined for the ``file`` input, and represents the full path of the ``file`` input. 
+The modified execution block first checks if the ``cat`` command is available (it should be available in all standard Linux systems). It then runs the ``cat`` command to print the contents of the file passed as the ``file`` input. ``${FILE_FULL}`` is a Bash variable that is automatically defined for the ``file`` input, and represents the full path of the ``file`` input. 
 
 Save and close the ``config.yaml`` file.
 
