@@ -195,22 +195,172 @@ Finally, commit the updated app to the Git repo and update its tag to reflect th
 Modify the "Hello World!" Workflow
 ----------------------------------
 
+Now that the app has been updated, we can update the "Hello World!" workflow to use the new app.
+
+Checkout the previous "Hello World!" workflow:
+
+.. code-block:: text
+
+    cd ~/geneflow_work
+    git clone https://github.com/[user]/hello-world-workflow-gf.git
+
+Note: if the "hello-world-workflow-gf" directory still exists with the contents of the previous workflow tutorial, do a "git pull" instead:
+
+.. code-block:: text
+
+    cd ~/geneflow_work/hello-world-workflow-gf
+    git pull
+
 Update the App Repo
 ~~~~~~~~~~~~~~~~~~~
+
+Update the ``apps-repo.yaml`` file so that the ``hello-world`` app item points to the latest "Hello World!" app repo. Open the file with:
+
+.. code-block:: text
+
+    cd ~/geneflow_work/hello-world-workflow-gf/workflow
+    vi ./apps-repo.yaml
+
+And modify the file so that it contains a single app item similar to:
+
+.. code-block:: text
+
+    - name: hello-world
+      repo: https://github.com/[user]/hello-world-gf.git
+      tag: '0.2'
+      folder: hello-world-gf-0.2
+      asset: none
+
+Be sure to replace the ``repo`` field with the appropriate Git url, and update ``tag`` and ``folder`` to reflect the '0.2' version of the app we just committed. 
+
+Save and close the ``apps-repo.yaml`` file.
+
+Update Workflow Metadata
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Update the workflow metadata by incrementing the version number to '0.2':
+
+.. code-block:: text
+
+    vi ./workflow.yaml
+
+The metadata section should have the line:
+
+.. code-block:: yaml
+
+    version: '0.2'
 
 Define a Workflow Input
 ~~~~~~~~~~~~~~~~~~~~~~~
 
+Update the ``inputs`` section of ``workflow.yaml`` so that the ``file`` input label and description are correct:
+
+.. code-block:: yaml
+
+    inputs:
+      file:
+        label: Input Text File
+        description: Input text file
+        type: File
+        enable: true
+        visible: true
+
 Pass the Workflow Input to the App
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Add a Test File to the Workflow
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Update the ``steps`` section of ``workflow.yaml`` so that the step refers to the correct app version. Specifically, the ``app`` field should have the value ``apps/hello-world-gf-0.2/app.yaml``:
+
+.. code-block:: yaml
+
+    steps:
+      hello:
+        app: apps/hello-world-gf-0.2/app.yaml
+        depend: []
+        template:
+          file: '{workflow->file}'
+          output: output.txt
+
+Save and close the ``workflow.yaml`` file.
+
+Update the Workflow README
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Update the README.rst file to reflect the new workflow input:
+
+.. code-block:: text
+
+    cd ~/geneflow_work/hello-world-workflow-gf
+    vi ./README.rst
+
+Modify the file so it looks like the following:
+
+.. code-block:: text
+
+    Hello World! One-Step GeneFlow Workflow
+    =======================================
+
+    Version: 0.2
+
+    This is a basic one-step GeneFlow workflow that prints the contexts of an input text file to an output text file.
+
+    Inputs
+    ------
+
+    1. file: Input text file.
+
+    Parameters
+    ----------
+
+    None
 
 Commit and Tag the New Workflow
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Commit the new version of the workflow to the Git repo:
+
+.. code-block:: text
+
+    cd ~/geneflow_work/hello-world-workflow-gf
+    git add -u
+    git commit -m "updated hello world workflow"
+    git tag 0.2
+    git push --tags origin master
+
 Install and Test the Workflow
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Now that the workflow has been updated and committed to a Git repo, we can install and test it:
+
+.. code-block:: text
+
+    cd ~/geneflow_work
+    geneflow install-workflow -g https://github.com/[USER]/hello-world-workflow-gf.git -c --make_apps ./test-workflow-0.2
+
+This command installs the updated "Hello World!" one-step workflow, and its updated "Hello World!" app into the directory "test-workflow-0.2". Remember to replace the Git URL with the URL to which you committed the workflow.
+
+Test the workflow to validate its functionality:
+
+.. code-block:: text
+
+    geneflow run -d output_uri=output -d inputs.file=./test-workflow-0.2/data/test.txt ./test-workflow-0.2
+
+This command runs the workflow in the "test-workflow-0.2" directory using the test data and copies the output to the "output" directory.
+
+Once complete, you should see a file called "output.txt" with the same text as the input test.txt file, "Test Hello World!":
+
+.. code-block:: text
+
+    cat ./output/geneflow-job-[JOB ID]/hello/output.txt
+
+Be sure to replace ``[JOB ID]`` with the ID of the GeneFlow job. The job ID is a randomly generated string and ensures that workflow jobs do not overwrite existing job output. You should see the following text in the "output.txt" file:
+
+.. code-block:: text
+
+    Test Hello World!
+
+Summary
+-------
+
+Congratulations! You updated the one-step GeneFlow workflow so that it can handle a basic input file. The next tutorial will expand on this workflow by using an app with piped execution. 
 
 
