@@ -1,6 +1,11 @@
 # Changelog
 
 
+## 2019/07/17 - v1.7.0: minor enhancement release
+
+1. Add "Basic Workflow and App Inputs" tutorial to documentation.
+
+
 ## 2019/07/03 - v1.6.0: minor enhancement release
 
 1. Set the default Singularity command to "-s exec" and allow custom commands for both Singularity and Docker
