@@ -2,6 +2,7 @@
 
 import os
 import time
+import urllib.parse
 
 try:
     from agavepy.agave import Agave
@@ -639,7 +640,7 @@ class AgaveFilesImportDataFromAgave(AgavePyWrapper):
             systemId=systemId,
             filePath=filePath,
             fileName=fileName,
-            urlToIngest=urlToIngest
+            urlToIngest=urllib.parse.quote(urlToIngest, safe='/:')
         )
         async_response = AgaveAsyncResponse(self._agave, response)
         status = async_response.result()

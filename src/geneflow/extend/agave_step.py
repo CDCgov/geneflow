@@ -4,6 +4,7 @@
 import pprint
 import regex as re
 from slugify import slugify
+import urllib.parse
 
 from geneflow.log import Log
 from geneflow.data_manager import DataManager
@@ -235,9 +236,12 @@ class AgaveStep(WorkflowStep):
         inputs = {}
         for input_key in self._app['inputs']:
             if input_key in map_item['template']:
-                inputs[input_key] = map_item['template'][input_key]
+                inputs[input_key] = urllib.parse.quote(map_item['template'][input_key], safe='/:')
             else:
-                inputs[input_key] = self._app['inputs'][input_key]['default']
+                inputs[input_key] = urllib.parse.quote(
+                    self._app['inputs'][input_key]['default'],
+                    safe='/:'
+                )
 
         # load default app parameters, overwrite with template parameters
         parameters = {}
@@ -535,7 +539,7 @@ class AgaveStep(WorkflowStep):
                     .format(self._step['name'])
                 Log.an().error(msg)
                 return self._fatal(msg)
-           
+
             # check if anything is in the _log directory
             src_log_dir = '{}/{}'.format(
                 map_item['run'][map_item['attempt']]['archive_uri'],
@@ -604,7 +608,7 @@ class AgaveStep(WorkflowStep):
                         msg = 'cannot copy log item "{}"'.format(item)
                         Log.an().error(msg)
                         return self._fatal(msg)
- 
+
         self._update_status_db('FINISHED', '')
 
         return True
