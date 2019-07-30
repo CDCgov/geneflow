@@ -69,12 +69,12 @@ def before_feature(context, feature):
 
 
 def after_feature(context, feature):
-
-    if feature.name == 'Workflows':
+    pass
+    #if feature.name == 'Workflows':
         # delete workflows and runs
-        for workflow in context.workflows:
-            shutil.rmtree('./data/workflows/{}'.format(workflow))
-        shutil.rmtree('./data/workflows/output')
+    #    for workflow in context.workflows:
+    #        shutil.rmtree('./data/workflows/{}'.format(workflow))
+    #    shutil.rmtree('./data/workflows/output')
 
 
 def before_scenario(context, scenario):
