@@ -1,6 +1,13 @@
 # Changelog
 
 
+## 2019/07/31 - v1.8.0: minor enhancement release
+
+1. Fix bug: input files or directories with spaces should be handled correctly. 
+
+2. Add "Piped Execution in Apps" tutorial to documentation.
+
+
 ## 2019/07/17 - v1.7.0: minor enhancement release
 
 1. Add "Basic Workflow and App Inputs" tutorial to documentation.
