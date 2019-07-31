@@ -398,11 +398,11 @@ fi
 # make sure {{ key|upper }} is staged
 count=0
 {% if value.type == 'File' %}
-while [ ! -f ${{ '{' }}{{ key|upper }}{{ '}' }} ]
+while [ ! -f "${{ '{' }}{{ key|upper }}{{ '}' }}" ]
 {% elif value.type == 'Directory' %}
-while [ ! -d ${{ '{' }}{{ key|upper }}{{ '}' }} ]
+while [ ! -d "${{ '{' }}{{ key|upper }}{{ '}' }}" ]
 {% else %}
-while [ ! -e ${{ '{' }}{{ key|upper }}{{ '}' }} ]
+while [ ! -e "${{ '{' }}{{ key|upper }}{{ '}' }}" ]
 {% endif %}
 do
     echo "${{ '{' }}{{ key|upper }}{{ '}' }} not staged, waiting..."
@@ -411,11 +411,11 @@ do
     if [ $count == 10 ]; then break; fi
 done
 {% if value.type == 'File' %}
-if [ ! -f ${{ '{' }}{{ key|upper }}{{ '}' }} ]; then
+if [ ! -f "${{ '{' }}{{ key|upper }}{{ '}' }}" ]; then
 {% elif value.type == 'Directory' %}
-if [ ! -d ${{ '{' }}{{ key|upper }}{{ '}' }} ]; then
+if [ ! -d "${{ '{' }}{{ key|upper }}{{ '}' }}" ]; then
 {% else %}
-if [ ! -e ${{ '{' }}{{ key|upper }}{{ '}' }} ]; then
+if [ ! -e "${{ '{' }}{{ key|upper }}{{ '}' }}" ]; then
 {% endif %}
     echo "{{ value.label }} not found: ${{ '{' }}{{ key|upper }}{{ '}' }}"
     exit 1
@@ -432,11 +432,11 @@ if [ -n "${{ '{' }}{{ key|upper }}{{ '}' }}" ]; then
     # make sure ${{ '{' }}{{ key|upper }}{{ '}' }} is staged
     count=0
     {% if value.type == 'File' %}
-    while [ ! -f ${{ '{' }}{{ key|upper }}{{ '}' }} ]
+    while [ ! -f "${{ '{' }}{{ key|upper }}{{ '}' }}" ]
     {% elif value.type == 'Directory' %}
-    while [ ! -d ${{ '{' }}{{ key|upper }}{{ '}' }} ]
+    while [ ! -d "${{ '{' }}{{ key|upper }}{{ '}' }}" ]
     {% else %}
-    while [ ! -e ${{ '{' }}{{ key|upper }}{{ '}' }} ]
+    while [ ! -e "${{ '{' }}{{ key|upper }}{{ '}' }}" ]
     {% endif %}
     do
         echo "${{ '{' }}{{ key|upper }}{{ '}' }} not staged, waiting..."
@@ -445,11 +445,11 @@ if [ -n "${{ '{' }}{{ key|upper }}{{ '}' }}" ]; then
         if [ $count == 10 ]; then break; fi
     done
     {% if value.type == 'File' %}
-    if [ ! -f ${{ '{' }}{{ key|upper }}{{ '}' }} ]; then
+    if [ ! -f "${{ '{' }}{{ key|upper }}{{ '}' }}" ]; then
     {% elif value.type == 'Directory' %}
-    if [ ! -d ${{ '{' }}{{ key|upper }}{{ '}' }} ]; then
+    if [ ! -d "${{ '{' }}{{ key|upper }}{{ '}' }}" ]; then
     {% else %}
-    if [ ! -e ${{ '{' }}{{ key|upper }}{{ '}' }} ]; then
+    if [ ! -e "${{ '{' }}{{ key|upper }}{{ '}' }}" ]; then
     {% endif %}
         echo "{{ value.label }} not found: ${{ '{' }}{{ key|upper }}{{ '}' }}"
         exit 1
