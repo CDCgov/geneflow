@@ -225,6 +225,22 @@ The metadata section should have the line:
 
     version: '0.3'
 
+Update Workflow Steps
+~~~~~~~~~~~~~~~~~~~~~
+
+Make sure the ``steps`` section of the ``workflow.yaml`` file points to the latest app (i.e., version '0.3'):
+
+.. code-block:: yaml
+
+    # steps
+    steps:
+      hello:
+        app: apps/hello-world-gf-0.3/app.yaml
+        depend: []
+        template:
+          file: '{workflow->file}'
+          output: output.txt
+
 Update the Workflow README
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
