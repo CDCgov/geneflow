@@ -43,6 +43,11 @@ def init_subparser(subparsers):
         help='git tag or branch to clone'
     )
     parser.add_argument(
+        '-f', '--force', action='store_true',
+        required=False,
+        help='Overwrite existing workflow folder'
+    )
+    parser.add_argument(
         '-n', '--name',
         type=str,
         required=False,
@@ -235,6 +240,7 @@ def install_workflow(args):
         str(Path(args.workflow_path).resolve()),
         git=args.git,
         git_branch=args.git_branch,
+        force=args.force,
         app_name=args.name,
         app_asset=args.asset,
         copy_prefix=args.prefix,
