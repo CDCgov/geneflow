@@ -8,7 +8,7 @@ This tutorial extends the previously created "Hello World" workflow and app to d
 Modify the "Hello World!" App
 -----------------------------
 
-Clone the previous "Hello World!" app from the Git repo (be sure to replace Git repo URL with the appropriate URL for your app):
+Clone the previous "Hello World!" app from the Git repo (be sure to replace the Git repo URL with the appropriate URL for your app):
 
 .. code-block:: text
 
@@ -65,11 +65,7 @@ Update the app execution commands in the ``exec_methods`` section as follows:
         - run: wc -w
           stdout: ${OUTPUT_FULL}
 
-The modified ``exec_methods`` block first checks if two command-line utilities are available in the system path: ``cat`` (which prints the contents of a file) and ``wc`` (which counts the number of words). If two or more items are defined in the ``if`` block, they are treated as an ``AND`` conditional, so both ``cat`` and ``wc`` must be available in the system path in order for the ``environment`` execution method to run. The ``pipe`` section includes a list of execution blocks. Each execution block is piped into the subsequent execution block, and the final block pipes its output to the item defined by the ``stdout`` field. Thus, the ``pipe`` section translates to the following Bash code:
-
-.. code-block:: text
-
-    cat ${FILE_FULL} | wc -w > ${OUTPUT_FULL}
+The modified ``exec_methods`` block first checks if two command-line utilities are available in the system path: ``cat`` (which prints the contents of a file) and ``wc`` (which counts the number of words). If two or more items are defined in the ``if`` block, they are treated as an ``AND`` conditional, so both ``cat`` and ``wc`` must be available in the system path in order for the ``environment`` execution method to run. The ``pipe`` section includes a list of execution blocks. Each execution block is piped into the subsequent execution block, and the final block pipes its output to the item defined by the ``stdout`` field. Thus, the ``pipe`` section translates to the following Bash code: ``cat ${FILE_FULL} | wc -w > ${OUTPUT_FULL}``
 
 This command prints the contents of ``${FILE_FULL}``, pipes the result to ``wc``, the word count utility, then outputs the word count result to ``${OUTPUT_FULL}``. 
 
@@ -229,6 +225,22 @@ The metadata section should have the line:
 
     version: '0.3'
 
+Update Workflow Steps
+~~~~~~~~~~~~~~~~~~~~~
+
+Make sure the ``steps`` section of the ``workflow.yaml`` file points to the latest app (i.e., version '0.3'):
+
+.. code-block:: yaml
+
+    # steps
+    steps:
+      hello:
+        app: apps/hello-world-gf-0.3/app.yaml
+        depend: []
+        template:
+          file: '{workflow->file}'
+          output: output.txt
+
 Update the Workflow README
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -293,7 +305,7 @@ Test the workflow to validate its functionality:
 
 This command runs the workflow in the ``test-workflow-0.3`` directory using the test data and copies the output to the ``output`` directory.
 
-Once complete, you should see a file called ``output.txt`` with contents of ``4``: 
+Once complete, you should see a file called ``output.txt`` with contents of ``3``: 
 
 .. code-block:: text
 
@@ -303,7 +315,7 @@ Be sure to replace ``[JOB ID]`` with the ID of the GeneFlow job. The job ID is a
 
 .. code-block:: text
 
-    4
+    3
 
 Summary
 -------
