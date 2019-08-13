@@ -5,6 +5,8 @@
 
 1. Add "Conditional Execution in Apps" tutorial to documentation.
 
+2. Add --force option to overwrite existing workflow directory when installing from a Git repo.
+
 
 ## 2019/07/31 - v1.8.0: minor enhancement release
 
