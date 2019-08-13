@@ -305,7 +305,7 @@ Test the workflow to validate its functionality:
 
 This command runs the workflow in the ``test-workflow-0.3`` directory using the test data and copies the output to the ``output`` directory.
 
-Once complete, you should see a file called ``output.txt`` with contents of ``4``: 
+Once complete, you should see a file called ``output.txt`` with contents of ``3``: 
 
 .. code-block:: text
 
@@ -315,7 +315,7 @@ Be sure to replace ``[JOB ID]`` with the ID of the GeneFlow job. The job ID is a
 
 .. code-block:: text
 
-    4
+    3
 
 Summary
 -------

@@ -259,13 +259,36 @@ The metadata section should have the line:
 Add a Workflow Parameter
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-In the ``workflow.yaml`` file, 
+In the ``workflow.yaml`` file, edit the ``parameters`` section so that it includes a ``mode`` parameter:
 
+.. code-block:: yaml
+
+    parameters:
+      mode:
+        label: Mode
+        description: Execution mode
+        type: string
+        default: basic
+        enable: true
+        visible: true
+
+This parameter will be passed on to the new app in the ``steps`` section.
 
 Update Workflow Steps
 ~~~~~~~~~~~~~~~~~~~~~
 
+Update the ``steps`` section so that the ``hello`` step refers to the latest app version (i.e., 0.4), and passes the new ``mode`` parameter to the app:
 
+.. code-block:: yaml
+
+    steps:
+       hello:
+         app: apps/hello-world-gf-0.4/app.yaml
+         depend: []
+         template:
+           file: '{workflow->file}'
+           mode: '{workflow->mode}'
+           output: output.txt
 
 Update the Workflow README
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -296,7 +319,7 @@ Modify the file so it looks like the following:
     Parameters
     ----------
 
-    None
+    1. mode: Mode of exeuction. 'basic' mopde will pipe 'Hello World!' to a text file. Any value other than 'basic' will process the input file with a series of commands that counts the number of words in the input file.
 
 Commit and Tag the New Workflow
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -308,7 +331,7 @@ Commit the new version of the workflow to the Git repo:
     cd ~/geneflow_work/hello-world-workflow-gf
     git add -u
     git commit -m "updated hello world workflow"
-    git tag 0.3
+    git tag 0.4
     git push --tags origin master
 
 Install and Test the Workflow
@@ -319,19 +342,19 @@ Now that the workflow has been updated and committed to a Git repo, we can insta
 .. code-block:: text
 
     cd ~/geneflow_work
-    geneflow install-workflow -g https://github.com/[USER]/hello-world-workflow-gf.git -c --make_apps ./test-workflow-0.3
+    geneflow install-workflow -g https://github.com/[USER]/hello-world-workflow-gf.git -c --make_apps ./test-workflow-0.4
 
-This command installs the updated "Hello World!" one-step workflow, and its updated "Hello World!" app into the directory ``test-workflow-0.3``. Remember to replace the Git URL with the URL to which you committed the workflow.
+This command installs the updated "Hello World!" one-step workflow, and its updated "Hello World!" app into the directory ``test-workflow-0.4``. Remember to replace the Git URL with the URL to which you committed the workflow.
 
 Test the workflow to validate its functionality:
 
 .. code-block:: text
 
-    geneflow run -d output_uri=output -d inputs.file=./test-workflow-0.3/data/test.txt ./test-workflow-0.3
+    geneflow run -d output_uri=output -d inputs.file=./test-workflow-0.4/data/test.txt -d parameters.mode=basic ./test-workflow-0.4
 
-This command runs the workflow in the ``test-workflow-0.3`` directory using the test data and copies the output to the ``output`` directory.
+This command runs the workflow in the ``test-workflow-0.4`` directory using the test data, ``mode`` of "basic", and copies the output to the ``output`` directory.
 
-Once complete, you should see a file called ``output.txt`` with contents of ``4``: 
+Once complete, you should see a file called ``output.txt`` with contents of ``Hello World!``:
 
 .. code-block:: text
 
@@ -341,10 +364,30 @@ Be sure to replace ``[JOB ID]`` with the ID of the GeneFlow job. The job ID is a
 
 .. code-block:: text
 
-    4
+    Hello World!
+
+Next, test the workflow with an alternate mode (i.e., other than "basic"):
+
+.. code-block:: text
+
+    geneflow run -d output_uri=output -d inputs.file=./test-workflow-0.4/data/test.txt -d parameters.mode=advanced ./test-workflow-0.4
+
+This command runs the workflow in the ``test-workflow-0.4`` directory using the test data, ``mode`` of "advanced", and copies the output to the ``output`` directory.
+
+Once complete, you should see a file called ``output.txt`` with contents of ``4``: 
+
+.. code-block:: text
+
+    cat ./output/geneflow-job-[JOB ID]/hello/output.txt
+
+Be sure to replace ``[JOB ID]`` with the ID of the GeneFlow job. You should see the following text in the ``output.txt`` file:
+
+.. code-block:: text
+
+    3
 
 Summary
 -------
 
-Congratulations! You updated the one-step GeneFlow workflow so that it demonstrates piping the app. The next tutorial will expand on this workflow by introducing conditional execution in apps. 
+Congratulations! You updated the one-step GeneFlow workflow so that it demonstrates conditional execution in the app. The next tutorial will expand on this workflow by adding more steps.  
 
