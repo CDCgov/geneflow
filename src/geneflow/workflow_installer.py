@@ -39,6 +39,7 @@ class WorkflowInstaller:
             path,
             git=None,
             git_branch=None,
+            force=False,
             app_name=None,
             app_asset=None,
             copy_prefix='/apps/standalone',
@@ -57,6 +58,7 @@ class WorkflowInstaller:
             path: local path to the workflow package
             git: git repo to clone
             git_branch: branch or tag of git repo
+            force: delete existing folder before install?
             app_name: name of app to install
             app_asset: type of app assets to install
             copy_prefix: prefix for copy installs
@@ -75,6 +77,7 @@ class WorkflowInstaller:
         self._path = path
         self._git = git
         self._git_branch = git_branch
+        self._force = force
         self._app_name = app_name
         self._app_asset = app_asset
         self._copy_prefix = copy_prefix
@@ -255,6 +258,11 @@ class WorkflowInstaller:
         if not self._git:
             Log.an().error('must specify a git url to clone workflow')
             return False
+
+        if self._force:
+            # remove workflow folder if it exists
+            if Path(self._path).is_dir():
+                shutil.rmtree(self._path)
 
         try:
             if self._git_branch:

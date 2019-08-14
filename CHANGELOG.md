@@ -1,6 +1,13 @@
 # Changelog
 
 
+## 2019/08/14 - v1.9.0: minor enhancement release
+
+1. Add "Conditional Execution in Apps" tutorial to documentation.
+
+2. Add --force option to overwrite existing workflow directory when installing from a Git repo.
+
+
 ## 2019/07/31 - v1.8.0: minor enhancement release
 
 1. Fix bug: input files or directories with spaces should be handled correctly. 
