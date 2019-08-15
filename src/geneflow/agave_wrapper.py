@@ -640,7 +640,7 @@ class AgaveFilesImportDataFromAgave(AgavePyWrapper):
             systemId=systemId,
             filePath=filePath,
             fileName=fileName,
-            urlToIngest=urllib.parse.quote(urlToIngest, safe='/:')
+            urlToIngest=urllib.parse.quote(str(urlToIngest or ''), safe='/:')
         )
         async_response = AgaveAsyncResponse(self._agave, response)
         status = async_response.result()
