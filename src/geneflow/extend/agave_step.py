@@ -236,10 +236,13 @@ class AgaveStep(WorkflowStep):
         inputs = {}
         for input_key in self._app['inputs']:
             if input_key in map_item['template']:
-                inputs[input_key] = urllib.parse.quote(map_item['template'][input_key], safe='/:')
+                inputs[input_key] = urllib.parse.quote(
+                    str(map_item['template'][input_key] or ''),
+                    safe='/:'
+                )
             else:
                 inputs[input_key] = urllib.parse.quote(
-                    self._app['inputs'][input_key]['default'],
+                    str(self._app['inputs'][input_key]['default'] or ''),
                     safe='/:'
                 )
 
