@@ -163,7 +163,7 @@ Now that the workflow has been committed to a Git repo, it can be installed anyw
 
 .. code-block:: text
 
-    geneflow install-workflow -g https://github.com/jiangweiyao/hello-world-2step-workflow-gf.git -c --make_apps ./hello-world-2step
+    geneflow install-workflow -g https://github.com/[name]/hello-world-2step-workflow-gf.git -c --make_apps ./hello-world-2step
 
 Make a dummy file named "test.txt":
 
