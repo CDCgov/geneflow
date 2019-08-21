@@ -12,6 +12,7 @@ You can either start from your previous "Hello World" workflow or a scratch temp
     git clone https://github.com/[USER]/hello-world-workflow-gf.git hello-world-2step-workflow-gf
 
 .. code-block:: text
+
     git clone https://gitlab.com/geneflow/workflows/workflow-template.git hello-world-2step-workflow-gf
 
 The "wc" app
@@ -20,7 +21,7 @@ The "wc" app
 The wc app has been created `already <https://github.com/jiangweiyao/hello-world-2step-workflow-gf.git>`_. The app essentially executes the following command: ``wc input.file > output.file`` You can clone the git repository, and look over and run the test package to get a better understanding of what it does.
 
 
-First, we tell the workflow to install and use the the exiting wc app by updating the ``apps-repo.yaml`` file. This tutorial uses the "Hello World" app I built previously, but you can substitute your own. 
+First, we tell the workflow to install and use the the existing wc app by updating the ``apps-repo.yaml`` file. This tutorial uses the "Hello World" app I built previously, but you can substitute your own. 
 
 .. code-block:: text
 
@@ -29,6 +30,7 @@ First, we tell the workflow to install and use the the exiting wc app by updatin
 Update the the entries to include both the hello-world and wc app
 
 .. code-block:: yaml
+
     apps:
     - name: hello-world-gf
       repo: https://github.com/jiangweiyao/hello-world-gf.git
@@ -54,6 +56,7 @@ Let's look at the input and output section of the wc app at
 `https://github.com/jiangweiyao/wc-gf/blob/master/config.yaml <https://github.com/jiangweiyao/wc-gf/blob/master/config.yaml>`_.
 
 .. code-block:: yaml
+
     inputs:
       file:
         label: Input File
@@ -88,6 +91,7 @@ Update the metadata section with the new information for the package. Add ``- wc
 
 
 .. code-block:: yaml
+
     # metadata
     name: hello-world-2step-workflow-gf
     description: Hello World two-step workflow
