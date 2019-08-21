@@ -11,6 +11,8 @@ You can either start from your previous "Hello World" workflow or a scratch temp
 
     git clone https://github.com/[USER]/hello-world-workflow-gf.git hello-world-2step-workflow-gf
 
+Or
+
 .. code-block:: text
 
     git clone https://gitlab.com/geneflow/workflows/workflow-template.git hello-world-2step-workflow-gf
@@ -18,16 +20,16 @@ You can either start from your previous "Hello World" workflow or a scratch temp
 The "wc" app
 ------------
 
-The wc app has been created `already <https://github.com/jiangweiyao/hello-world-2step-workflow-gf.git>`_. The app essentially executes the following command: ``wc input.file > output.file`` You can clone the git repository, and look over and run the test package to get a better understanding of what it does.
+The wc app has been created `already <https://github.com/jiangweiyao/hello-world-2step-workflow-gf.git>`_. The app essentially executes the following command: ``wc input.file > output.file`` You can clone the git repository, and look over and run the test package to get a better understanding of how it works.
 
 
-First, we tell the workflow to install and use the the existing wc app by updating the ``apps-repo.yaml`` file. This tutorial uses the "Hello World" app I built previously, but you can substitute your own. 
+First, we tell the workflow to install and use the the existing wc app by updating the ``apps-repo.yaml`` file.  
 
 .. code-block:: text
 
-    vi ./workflow/apps-repo.yaml
+    vi ./hello-world-2step-workflow-gf/workflow/apps-repo.yaml
 
-Update the the entries to include both the hello-world and wc app
+Update the the entries to include both the hello-world and wc app. Substitute the name and version of your "Hello World" app.
 
 .. code-block:: yaml
 
@@ -73,7 +75,7 @@ Let's look at the input and output section of the wc app at
         required: true
         test_value: output.txt 
 
-We see that the wc app takes a file as the input. In our workflow, we will use the output file of the 'Hello World' app
+We see that the wc app takes a file as the input in the "file" field. In our workflow, we will use the output file of the 'Hello World' app as the input to the wc app. 
 
 Update the workflow.yaml file
 -----------------------------
@@ -82,7 +84,7 @@ We go through and update the appropriate sections of the workflow.yaml file.
 
 .. code-block:: text
 
-    vi ./workflow/workflow.yaml
+    vi ./hello-world-2step-workflow-gf/workflow/workflow.yaml
 
 Metadata
 ~~~~~~~~
@@ -107,7 +109,7 @@ Update the metadata section with the new information for the package. Add ``- wc
 Steps
 ~~~~~
 
-Add the wc app as the second step. Set the ``app:`` value to the location specified in the ``apps-repo.yaml`` file. The ``depend:`` value sets the steps that needs to complete before the current step runs. Set wc to depend on hello world step. Set the ``file:`` option (input to the wc to '{hello->output}/helloworld.txt' specifying the "helloworld.txt" file produced in the hello step as the input to wc. Finally, set the ``output:`` option under the wc step as the name of the output file. 
+Add the wc app as the second step. Set the ``app:`` value to the location specified in the ``apps-repo.yaml`` file. The ``depend:`` value sets the steps that needs to complete before the current step runs. Set wc to depend on hello world step since the output of the hello world app is the input to the wc app. Set the ``file:`` option of wc to '{hello->output}/helloworld.txt' specifying the "helloworld.txt" file produced in the hello step as the input to wc. Finally, set the ``output:`` option under the wc step as the name of the output file. 
 
 
 .. code-block:: yaml
@@ -135,14 +137,14 @@ Update the README.rst to include the relevant information
 
 Commit and Tag the New Workflow
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-We'll use GitHub as an example, but the commands are similar for other repositories, except change the url. If you clone the the workflow from an existing repository, delete the .git folder to make it into a new repository.
+We'll use GitHub as an example, but the commands are similar for other repositories, except change the url. If you cloned the the workflow from an existing repository, delete the .git folder to make it into a new repository.
 
 .. code-block:: text
 
     cd hello-world-2step-workflow-gf
     rm -rf .git
 
-Push the code to GitHub using the following commands:
+Create a new repository on GitHub named "hello-world-2step-workflow-gf". Push the code to GitHub using the following commands:
 
 .. code-block:: text
 
@@ -163,11 +165,17 @@ Now that the workflow has been committed to a Git repo, it can be installed anyw
 
     geneflow install-workflow -g https://github.com/jiangweiyao/hello-world-2step-workflow-gf.git -c --make_apps ./hello-world-2step
 
+Make a dummy file named "test.txt":
+
+.. code-block:: text
+
+    touch test.txt
+
 Finally, test the workflow to validate its functionality:
 
 .. code-block:: text
 
-    geneflow run -d output_uri=output -d inputs.file=./test-workflow/data/test.txt ./hello-world-2step
+    geneflow run -d output_uri=output -d inputs.file=.test.txt ./hello-world-2step
 
 This command runs the workflow in the "hello-world-2step" directory using the test data and copies the output to the "output" directory. The output of the two steps are in separate folders for the steps. 
 
