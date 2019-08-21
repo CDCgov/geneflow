@@ -3,87 +3,186 @@
 Multi-Step Workflow
 ===================
 
-This tutorial extends the previously created "Hello World" workflow by adding a second step. The "Conditional Execution in Apps" tutorial must be completed, and its resulting "Hello World!" workflow chould be committed to a Git repo prior to beginning this tutorial. 
+This tutorial extends the previously created "Hello World" workflow by adding a second step. The second step executes the wc command and returns a text file with the word count, line count, byte count of the file created by the "Hello World!" app.
 
-We will modify the workflow by adding a second step that's executed before the current "Hello World!" app. The new app will take an input file, duplicate its contents, and save these contents to a separate output file. 
-
-Create the "Duplicate" App
---------------------------
-
-The "Duplicate" app takes an input file and prints the contents of the file to another file twice, separated by a single newline. In Bash, this can be achieved with a command similar to the following: ``awk '{print}' file.txt file.txt > ./output.txt``. Thus, we will use a similar command when we define the execution section of the "Duplicate" app.
-
-Clone the GeneFlow App Template
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-First, create a new app using the GeneFlow app template:
+You can either start from your previous "Hello World" workflow or a scratch template using one of the following commands 
 
 .. code-block:: text
 
-    cd ~/geneflow_work
-    git clone https://gitlab.com/geneflow/apps/app-template.git duplicate-gf
+    git clone https://github.com/[USER]/hello-world-workflow-gf.git hello-world-2step-workflow-gf
 
-``duplicate-gf`` is the name of the app. 
+.. code-block:: text
+    git clone https://gitlab.com/geneflow/workflows/workflow-template.git hello-world-2step-workflow-gf
 
-Define App Metadata
-~~~~~~~~~~~~~~~~~~~
+The "wc" app
+------------
 
-Next, edit the metadata section of the app ``config.yaml`` file:
+The wc app has been created `already <https://github.com/jiangweiyao/hello-world-2step-workflow-gf.git>`_. The app essentially executes the following command: ``wc input.file > output.file`` You can clone the git repository, and look over and run the test package to get a better understanding of what it does.
+
+
+First, we tell the workflow to install and use the the exiting wc app by updating the ``apps-repo.yaml`` file. This tutorial uses the "Hello World" app I built previously, but you can substitute your own. 
 
 .. code-block:: text
 
-    cd ~/geneflow_work/duplicate-gf
-    vi ./config.yaml
+    vi ./workflow/apps-repo.yaml
 
-The metadata section should look like the following:
+Update the the entries to include both the hello-world and wc app
 
-.. code-block:: text
+.. code-block:: yaml
+    apps:
+    - name: hello-world-gf
+      repo: https://github.com/jiangweiyao/hello-world-gf.git
+      tag: '0.2'
+      folder: hello-world-gf-0.2
+      asset: none
 
-    name: duplicate-gf
-    description: Geneflow app that duplicates contents of text file
-    repo_uri: https://github.com/[USER]/duplicate-gf.git 
-    version: '0.1'
+    - name: wc-gf
+      repo: https://github.com/jiangweiyao/wc-gf.git
+      tag: '0.1'
+      folder: wc-gf-0.1
+      asset: none
 
-Define App Inputs and Parameters
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Define App Execution Commands
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-"Make" the App
-~~~~~~~~~~~~~~
-
-Test the App
-~~~~~~~~~~~~
-
-Create App README
-~~~~~~~~~~~~~~~~~
-
-Commit and Tag the App
-~~~~~~~~~~~~~~~~~~~~~~
-
-Modify the "Hello World!" Workflow
+Hello World output is the wc input
 ----------------------------------
 
-Add "Duplicate" to App Repo
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The most important part to look at when connecting existing apps into a workflow is the input and output of the apps, as the output of one app will usually be the input of another app.
 
-Update Workflow Metadata
-~~~~~~~~~~~~~~~~~~~~~~~~
+wc app input and output
+~~~~~~~~~~~~~~~~~~~~~~~
 
-Add "Duplicate" Step
-~~~~~~~~~~~~~~~~~~~~
+Let's look at the input and output section of the wc app at
+`https://github.com/jiangweiyao/wc-gf/blob/master/config.yaml <https://github.com/jiangweiyao/wc-gf/blob/master/config.yaml>`_.
+
+.. code-block:: yaml
+    inputs:
+      file:
+        label: Input File
+        description: Input file
+        type: File
+        required: true
+        test_value: ${SCRIPT_DIR}/data/file.txt
+
+    parameters:
+      output: 
+        label: Output File
+        description: Output file
+        type: File
+        required: true
+        test_value: output.txt 
+
+We see that the wc app takes a file as the input. In our workflow, we will use the output file of the 'Hello World' app
+
+Update the workflow.yaml file
+-----------------------------
+
+We go through and update the appropriate sections of the workflow.yaml file. 
+
+.. code-block:: text
+
+    vi ./workflow/workflow.yaml
+
+Metadata
+~~~~~~~~
+
+Update the metadata section with the new information for the package. Add ``- wc`` to ``final_output`` for the output of the wc step to be included in the final output. 
+
+
+.. code-block:: yaml
+    # metadata
+    name: hello-world-2step-workflow-gf
+    description: Hello World two-step workflow
+    documentation_uri:
+    repo_uri: 'https://github.com/jiangweiyao/hello-world-2step-workflow-gf.git'
+    version: '0.1'
+    username: jyao
+
+    final_output:
+    - hello
+    - wc
+
+Steps
+~~~~~
+
+Add the wc app as the second step. Set the ``app:`` value to the location specified in the ``apps-repo.yaml`` file. The ``depend:`` value sets the steps that needs to complete before the current step runs. Set wc to depend on hello world step. Set the ``file:`` option (input to the wc to '{hello->output}/helloworld.txt' specifying the "helloworld.txt" file produced in the hello step as the input to wc. Finally, set the ``output:`` option under the wc step as the name of the output file. 
+
+
+.. code-block:: yaml
+
+    steps:
+      hello:
+        app: apps/hello-world-gf-0.2/app.yaml
+        depend: []
+        template:
+          file: '{workflow->file}'
+          output: helloworld.txt
+
+      wc:
+        app: apps/wc-gf-0.1/app.yaml
+        depend: [ "hello" ]
+        template:
+          file: '{hello->output}/helloworld.txt'
+          output: wc.txt
+
 
 Update Workflow README
 ~~~~~~~~~~~~~~~~~~~~~~
+Update the README.rst to include the relevant information 
+
 
 Commit and Tag the New Workflow
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+We'll use GitHub as an example, but the commands are similar for other repositories, except change the url. If you clone the the workflow from an existing repository, delete the .git folder to make it into a new repository.
+
+.. code-block:: text
+
+    cd hello-world-2step-workflow-gf
+    rm -rf .git
+
+Push the code to GitHub using the following commands:
+
+.. code-block:: text
+
+    git init
+    git add .
+    git commit -m "1st commit"
+    git tag 0.1
+    git remote add origin https://github.com/[name]/hello-world-2step-workflow-gf.git
+    git push -u origin master
+    git push origin 0.1
 
 Install and Test the Workflow
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Now that the workflow has been committed to a Git repo, it can be installed anywhere:
+
+.. code-block:: text
+
+    geneflow install-workflow -g https://github.com/jiangweiyao/hello-world-2step-workflow-gf.git -c --make_apps ./hello-world-2step
+
+Finally, test the workflow to validate its functionality:
+
+.. code-block:: text
+
+    geneflow run -d output_uri=output -d inputs.file=./test-workflow/data/test.txt ./hello-world-2step
+
+This command runs the workflow in the "hello-world-2step" directory using the test data and copies the output to the "output" directory. The output of the two steps are in separate folders for the steps. 
+
+.. code-block:: text
+
+    tree ./geneflow_output/geneflow-job-[JOB ID]
+
+You should see the following file structure:
+
+.. code-block:: text
+
+    geneflow-job-50dd420d
+    ├── hello
+    │   └── helloworld.txt
+    └── wc
+        └── wc.txt
+
 Summary
 -------
 
-
+Congratulations! You created a two step workflow that uses the output of one app as the input of the second app. 
 
