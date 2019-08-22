@@ -29,7 +29,7 @@ First, we tell the workflow to install and use the existing wc app by updating t
 
     vi ./hello-world-2step-workflow-gf/workflow/apps-repo.yaml
 
-Update the entries to include both the hello-world and wc app. Substitute the name and version of your "Hello World" app.
+Update the entries to include both the hello-world and wc app. We will use the first version (0.1) of the "Hello World" app. You can use the app we made or substitute the name and version of your "Hello World" app.
 
 .. code-block:: yaml
 
