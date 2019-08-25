@@ -20,31 +20,32 @@ Or
 The "wc" app
 ------------
 
-The wc app has been created `already <https://github.com/jiangweiyao/hello-world-2step-workflow-gf.git>`_. The app essentially executes the following command: ``wc input.file > output.file`` You can clone the git repository, and look over and run the test package to get a better understanding of how it works.
+The wc app has been created `already <https://gitlab.com/geneflow/apps/wc-gf.git>`_. The app essentially executes the following command: ``wc input.file > output.file`` You can clone the git repository, and look over and run the test package to get a better understanding of how it works.
 
 
-First, we tell the workflow to install and use the the existing wc app by updating the ``apps-repo.yaml`` file.  
+First, we tell the workflow to install and use the existing wc app by updating the ``apps-repo.yaml`` file.  
 
 .. code-block:: text
 
     vi ./hello-world-2step-workflow-gf/workflow/apps-repo.yaml
 
-Update the the entries to include both the hello-world and wc app. Substitute the name and version of your "Hello World" app.
+Update the entries to include both the hello-world and wc app. We will use the first version (0.1) of the "Hello World" app. You can use the app we made or substitute the name and version of your "Hello World" app.
 
 .. code-block:: yaml
 
     apps:
     - name: hello-world-gf
-      repo: https://github.com/jiangweiyao/hello-world-gf.git
-      tag: '0.2'
-      folder: hello-world-gf-0.2
+      repo: https://gitlab.com/geneflow/apps/hello-world-gf.git
+      tag: '0.1'
+      folder: hello-world-gf-0.1
       asset: none
 
     - name: wc-gf
-      repo: https://github.com/jiangweiyao/wc-gf.git
+      repo: https://gitlab.com/geneflow/apps/wc-gf.git
       tag: '0.1'
       folder: wc-gf-0.1
       asset: none
+
 
 Hello World output is the wc input
 ----------------------------------
@@ -55,7 +56,7 @@ wc app input and output
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 Let's look at the input and output section of the wc app at
-`https://github.com/jiangweiyao/wc-gf/blob/master/config.yaml <https://github.com/jiangweiyao/wc-gf/blob/master/config.yaml>`_.
+`https://gitlab.com/geneflow/apps/wc-gf/blob/master/config.yaml <https://gitlab.com/geneflow/apps/wc-gf/blob/master/config.yaml>`_.
 
 .. code-block:: yaml
 
@@ -114,9 +115,10 @@ Add the wc app as the second step. Set the ``app:`` value to the location specif
 
 .. code-block:: yaml
 
+    # steps
     steps:
       hello:
-        app: apps/hello-world-gf-0.2/app.yaml
+        app: apps/hello-world-gf-0.1/app.yaml
         depend: []
         template:
           file: '{workflow->file}'
@@ -137,7 +139,7 @@ Update the README.rst to include the relevant information
 
 Commit and Tag the New Workflow
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-We'll use GitHub as an example, but the commands are similar for other repositories, except change the url. If you cloned the the workflow from an existing repository, delete the .git folder to make it into a new repository.
+We'll use GitHub as an example, but the commands are similar for other repositories, except change the url. If you cloned the workflow from an existing repository, delete the .git folder to make it into a new repository.
 
 .. code-block:: text
 
@@ -175,7 +177,7 @@ Finally, test the workflow to validate its functionality:
 
 .. code-block:: text
 
-    geneflow run -d output_uri=output -d inputs.file=.test.txt ./hello-world-2step
+    geneflow run -d output_uri=output -d inputs.file=test.txt ./hello-world-2step
 
 This command runs the workflow in the "hello-world-2step" directory using the test data and copies the output to the "output" directory. The output of the two steps are in separate folders for the steps. 
 

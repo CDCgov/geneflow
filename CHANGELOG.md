@@ -5,6 +5,11 @@
 1. Add "Multi Step Worflow" tutorial to documentation.
 
 
+## 2019/08/15 - v1.9.1: bug fix release
+
+1. Fix bug: ensure that URL values passed to URL quote function are strings
+
+
 ## 2019/08/14 - v1.9.0: minor enhancement release
 
 1. Add "Conditional Execution in Apps" tutorial to documentation.
