@@ -3,7 +3,7 @@
 Multi-Step Workflow
 ===================
 
-This tutorial extends the previously created "Hello World" workflow by adding a second step. The second step executes the wc command and returns a text file with the word count, line count, byte count of the file created by the "Hello World!" app.
+This tutorial extends the previously created "Hello World" workflow by adding a second step. The second step executes the wc command and returns a text file with the word count, line count, byte count of the file created by the "Hello World" app.
 
 You can either start from your previous "Hello World" workflow or a scratch template using one of the following commands 
 
