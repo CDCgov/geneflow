@@ -2,7 +2,7 @@
 
 ## 2019/08/28 - v1.10.0: minor enhancement release
 
-1. Add "Multi Step Worflow" tutorial to documentation.
+1. Add "Multi-Step Worflow" tutorial to documentation.
 
 
 ## 2019/08/15 - v1.9.1: bug fix release
