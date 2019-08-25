@@ -238,7 +238,7 @@ class AgaveFilesDownload(AgavePyWrapper):
                     )
                     return False
 
-                Log.some().info(
+                Log.some().debug(
                     'download FINISHED: %s -> %s',
                     agave_uri,
                     local_uri
@@ -537,7 +537,7 @@ class AgaveFilesImportDataFromLocal(AgavePyWrapper):
                     )
                     async_response = AgaveAsyncResponse(self._agave, response)
                     status = async_response.result()
-                    Log.some().info(
+                    Log.some().debug(
                         'import %s: %s/%s -> agave://%s/%s/%s',
                         str(status),
                         root,
@@ -644,7 +644,7 @@ class AgaveFilesImportDataFromAgave(AgavePyWrapper):
         )
         async_response = AgaveAsyncResponse(self._agave, response)
         status = async_response.result()
-        Log.some().info(
+        Log.some().debug(
             'import %s: %s -> agave://%s/%s/%s',
             str(status),
             urlToIngest,
