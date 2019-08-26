@@ -278,7 +278,7 @@ class AgaveStep(WorkflowStep):
             'archiveSystem': self._agave['parsed_archive_uri']['authority'],
             'archivePath': archive_path
         }
-        Log.some().info(
+        Log.some().debug(
             "agave app template:\n%s", pprint.pformat(app_template)
         )
 
