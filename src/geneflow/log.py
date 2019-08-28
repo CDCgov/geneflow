@@ -32,10 +32,16 @@ class Log:
             False
 
         """
-        log_format = (
-            '%(asctime)s %(levelname)s '
-            '[%(filename)s:%(lineno)d:%(funcName)s()] %(message)s'
-        )
+        log_format = ''
+        if log_level == 'debug':
+            log_format = (
+                '%(asctime)s %(levelname)s '
+                '[%(filename)s:%(lineno)d:%(funcName)s()] %(message)s'
+            )
+        else:
+            log_format = (
+                '%(asctime)s %(levelname)s %(message)s'
+            )
         formatter = logging.Formatter(
             fmt=log_format, datefmt='%Y-%m-%d %H:%M:%S'
         )

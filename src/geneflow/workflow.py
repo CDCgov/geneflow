@@ -135,12 +135,16 @@ class Workflow:
         str_rep = (
             'Job: {} ({})'
             '\n    Workflow: {}'
+            '\n        Version: {}'
             '\n        Description: {}'
+            '\n        Repo: {}'
         ).format(
             self._job['name'],
             self._job_id,
             self._workflow['name'],
-            self._workflow['description']
+            self._workflow['version'],
+            self._workflow['description'],
+            self._workflow['repo_uri']
         )
 
         str_rep += '\n    Inputs: '
@@ -609,7 +613,7 @@ class Workflow:
         for node_name in self._dag.get_topological_sort():
             node = self._dag.graph().nodes[node_name]
             if node['type'] == 'input':
-                Log.some().info('[%s]: staging input', node_name)
+                Log.some().debug('[%s]: staging input', node_name)
                 if not node['node'].stage(
                         **{
                             context: self._workflow_context[context]\
@@ -623,7 +627,15 @@ class Workflow:
 
             else: # step node
 
-                Log.some().info('[%s]: iterating map uri', node_name)
+                Log.some().info(
+                    '[%s]: app: %s:%s [%s]',
+                    node_name,
+                    node['node']._app['name'],
+                    node['node']._app['version'],
+                    node['node']._app['repo_uri']
+                )
+
+                Log.some().debug('[%s]: iterating map uri', node_name)
                 if not node['node'].iterate_map_uri():
                     msg = 'iterate map uri failed for step {}'.format(node_name)
                     Log.an().error(msg)
@@ -641,7 +653,7 @@ class Workflow:
                     node['node'].check_running_jobs()
                     time.sleep(self._config['run_poll_delay'])
 
-                Log.some().info('[%s]: all jobs complete', node_name)
+                Log.some().debug('[%s]: all jobs complete', node_name)
 
                 # check if any jobs failed
                 if node['node'].any_failed():
@@ -650,14 +662,14 @@ class Workflow:
                     return self._fatal(msg)
 
                 # cleanup jobs
-                Log.some().info('[%s]: cleaning', node_name)
+                Log.some().debug('[%s]: cleaning', node_name)
                 if not node['node'].clean_up():
                     msg = 'clean up failed for step {}'.format(node_name)
                     Log.an().error(msg)
                     return self._fatal(msg)
 
                 # stage outputs
-                Log.some().info('[%s]: staging output', node_name)
+                Log.some().debug('[%s]: staging output', node_name)
                 if not node['node'].stage(
                         **{
                             context: self._workflow_context[context]\
