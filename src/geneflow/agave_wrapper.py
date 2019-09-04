@@ -6,7 +6,7 @@ import urllib.parse
 
 try:
     from agavepy.agave import Agave
-    from agavepy.async import AgaveAsyncResponse
+    from agavepy.asynchronous import AgaveAsyncResponse
 except ImportError: pass
 
 from geneflow.log import Log
