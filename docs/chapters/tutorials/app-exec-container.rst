@@ -3,7 +3,7 @@
 Executing Containers in Apps
 ============================
 
-This tutorial demonstrates how to create a GeneFlow app using a Singularity container. This tutorial also shows how to pipe two singularity commands together, which is an useful way to build more complex apps that runs multiple commands from multiple images in a single app. Singularity (and container technologies in general) is a way for the user to have full control of their environment. A container (rather than the operating system) contains all the software dependencies required for the app, which allows improved reproducibility. For more information on Singularity, check out the documentation at: https://sylabs.io/docs/
+This tutorial demonstrates how to create a GeneFlow app using a Singularity container. This tutorial also shows how to pipe two singularity commands together, which is a useful way to build more complex apps that run multiple commands from multiple images in a single app. Singularity (and container technologies in general) is a way for the user to have full control of their environment. A container (rather than the operating system) contains all the software dependencies required for the app, which allows improved reproducibility. For more information on Singularity, check out the documentation at: https://sylabs.io/docs/
 
 Clone the GeneFlow App Template
 -------------------------------
@@ -82,7 +82,7 @@ We will modify the ``exec_methods:`` field significantly. The ultimate command w
 
 This command calls singularity to execute the "fortune" command from the "docker://godlovedc/lolcow" container image. The results of this command is piped into the "cowsay" command also executed from the "docker://godlovedc/lolcow" container image. The output is the text file specified from the parameters section. 
 
-First, we change the "name" field of the "exec_method" to ``singularity``. The "if" statement checks if singularity is install in the environment. If it is not, you need to install it for the app to work. We add the ``- pipe:`` line under ``exec:`` because we want to pipe the commands into each other. 
+First, we change the "name" field of the "exec_method" to ``singularity``. The "if" statement checks if singularity is installed in the environment. If it is not, you need to install it for the app to work. We add the ``- pipe:`` line under ``exec:`` because we want to pipe the commands into each other. 
 
 Below the ``- pipe:`` line are the yaml blocks specifying the two singularity commands we want to execute. Remember that the first command is ``singularity -s exec docker://godlovedc/lolcow fortune``. The ``'singularity'`` goes with the "- type:" field. The ``'-s exec'`` goes with the "options" field. Note that ``'-s exec'`` is actually the default option for singularity in GeneFlow, so this line is unnecessary here, but included to show how to modify this portion of the command. The "image" field defines the image we are using. In this case, we pull from dockerhub at ``'docker://godlovedc/lolcow'``. The "run" field defines the command we want run from the container, in this case ``fortune``. 
 
@@ -137,7 +137,7 @@ To test the app, run the following commands:
     cd test
     sh ./test.sh
 
-The command should generate a file called "output.txt" after it finishes. Because we are pulling container images and running themon demand, this might take several minutes to finish.
+The command should generate a file called "output.txt" after it finishes. Because we are pulling container images and running them on demand, this might take several minutes to finish.
 
 Use the ``cat`` command to view the output of the file:
 
