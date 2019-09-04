@@ -3,7 +3,7 @@
 Executing Containers in Apps
 ============================
 
-This tutorial demonstrates how to create a GeneFlow app using a Singularity container. This tutorial also shows how to pipe two singularity commands together, which is a useful way to build more complex apps that run multiple commands from multiple images in a single app. Singularity (and container technologies in general) is a way for the user to have full control of their environment. A container (rather than the operating system) contains all the software dependencies required for the app, which allows improved reproducibility. For more information on Singularity, check out the documentation at: https://sylabs.io/docs/
+This tutorial demonstrates how to create a GeneFlow app using a Singularity container. This tutorial also shows how to pipe two singularity commands together, which is a useful way to build more complex apps that run multiple commands from multiple images in a single app. Singularity (and container technologies in general) is a way for the user to have full control of their environment. A container (rather than the operating system) contains all the software dependencies required for the app, which allows improved reproducibility. For more information on Singularity, check out the documentation at: https://sylabs.io/docs/.
 
 Clone the GeneFlow App Template
 -------------------------------
@@ -84,9 +84,9 @@ This command calls singularity to execute the "fortune" command from the "docker
 
 First, we change the "name" field of the "exec_method" to ``singularity``. The "if" statement checks if singularity is installed in the environment. If it is not, you need to install it for the app to work. We add the ``- pipe:`` line under ``exec:`` because we want to pipe the commands into each other. 
 
-Below the ``- pipe:`` line are the yaml blocks specifying the two singularity commands we want to execute. Remember that the first command is ``singularity -s exec docker://godlovedc/lolcow fortune``. The ``'singularity'`` goes with the "- type:" field. The ``'-s exec'`` goes with the "options" field. Note that ``'-s exec'`` is actually the default option for singularity in GeneFlow, so this line is unnecessary here, but included to show how to modify this portion of the command. The "image" field defines the image we are using. In this case, we pull from dockerhub at ``'docker://godlovedc/lolcow'``. The "run" field defines the command we want run from the container, in this case ``fortune``. 
+Below the ``- pipe:`` line are the yaml blocks specifying the two singularity commands we want to execute. Remember that the first command is ``singularity -s exec docker://godlovedc/lolcow fortune``. The ``'singularity'`` goes with the "- type:" field. The ``'-s exec'`` goes with the "options" field. Note that ``'-s exec'`` is actually the default option for singularity in GeneFlow, so this line is unnecessary here, but included to show how to modify this portion of the command. The "image" field defines the image we are using. In this case, we pull from DockerHub at ``'docker://godlovedc/lolcow'``. The "run" field defines the command we want to run from the container, in this case ``fortune``. 
 
-Because we are using the same image, the second block keeps the same fields except the following. The "run" field contains ``cowsay`` command. Next, we add the ``stdout: ${OUTPUT_FULL}`` line at the end of the block to specify that the output of the command is piped into the file defined in the parameters section.  
+Because we are using the same image, the second block keeps the same fields except the following. The "run" field contains the ``cowsay`` command. Next, we add the ``stdout: ${OUTPUT_FULL}`` line at the end of the block to specify that the output of the command is piped into the file defined in the parameters section.  
 
 .. code-block:: text
 
@@ -106,13 +106,12 @@ Because we are using the same image, the second block keeps the same fields exce
           run: 'cowsay'
           stdout: ${OUTPUT_FULL}
 
-
 We also leave the ``post_exec:`` field empty because we have no post execution commands.
 
 "Make" the App
 --------------
 
-Make this app like how you made the "hello world" app. 
+Make this app using the GeneFlow ``make-app`` command: 
 
 .. code-block:: text
 
@@ -147,22 +146,22 @@ Use the ``cat`` command to view the output of the file:
 
 You should see a cow saying a random statement like below. The statement was generated from the ``fortune`` command, while the cow and text box is generated from the ``cowsay`` command. 
 
-..
-    
-   _________________________________________
-  / Your reasoning powers are good, and you \
-  \ are a fairly good planner.              /
-   -----------------------------------------
-          \   ^__^
-           \  (oo)\_______
-              (__)\       )\/\
-                  ||----w |
-                  ||     ||
+.. code-block:: text
+
+       _________________________________________
+      / Your reasoning powers are good, and you \
+      \ are a fairly good planner.              /
+       -----------------------------------------
+              \   ^__^
+               \  (oo)\_______
+                  (__)\       )\/\
+                      ||----w |
+                      ||     ||
 
 Update your README.rst
 ----------------------
 
-As usual, update your README file so others (and you later in time) can find out what the app does.
+As usual, update your README file so that others (and you) can learn/remember what the app does.
 
 .. code-block:: text
 
@@ -209,4 +208,5 @@ Upload the app to your favorite repo service. Create a new project called "singu
 Summary
 -------
 
-Congratulations! You have created a GeneFlow app that uses singularity and pipes commands, tested it using the auto-generated test script, and committed it to a git repo. 
+Congratulations! You have created a GeneFlow app that uses singularity and pipes commands, tested it using the auto-generated test script, and committed it to a git repo.
+
