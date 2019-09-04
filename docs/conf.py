@@ -52,7 +52,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'GeneFlow'
-copyright = '2018, SCBS'
+copyright = '2019, SCBS'
 author = 'SCBS Team'
 
 # The version info for the project you're documenting, acts as replacement for
