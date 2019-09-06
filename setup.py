@@ -13,9 +13,7 @@ INSTALL_REQUIRES = [
     pkg for pkg in open('requirements.txt').readlines()
 ]
 
-PYTHON_REQUIRES = '>=3.5.*,<3.7.*'
-
-# test_suite = 'geneflow.test.test_all'
+PYTHON_REQUIRES = '>=3.5.*'
 
 class PostDevelopCommand(develop):
     """Post-installation for development mode."""
@@ -41,6 +39,7 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3 :: Only',
         'Topic :: Scientific/Engineering :: Bio-Informatics'
     ],

@@ -81,11 +81,11 @@ Feature: Workflows
         | hello world |
 
   Scenario: Workflows with inputs that have spaces in the path run successfully locally.
-    Given The "local" "rotate2" workflow has been installed
-    When I run the "local" "rotate2" workflow with the following inputs and parameters
+    Given The "local" "rotate" workflow has been installed
+    When I run the "local" "rotate" workflow with the following inputs and parameters
         | type  | name         | value                  |
         | input | input_folder | data/data with spaces  |
-    Then The "local" "rotate2" workflow "rotate_3" step produces an output file called "test 1_rot1_rot2b_rot3.txt" with the following contents
+    Then The "local" "rotate" workflow "rotate_3" step produces an output file called "test 1_rot1_rot2b_rot3.txt" with the following contents
         | line   |
         | Nkrru  |
         | Cuxrj! |
