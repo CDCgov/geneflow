@@ -1,6 +1,13 @@
 # Changelog
 
 
+## 2019/09/11 - v1.11.0: minor enhancement release
+
+1. Update agavepy module names for Python 3.7 compatibilty
+
+2. Add "Executing Containers in Apps" tutorial to documentation.
+
+
 ## 2019/08/28 - v1.10.0: minor enhancement release
 
 1. Add "Multi-Step Worflow" tutorial to documentation.
