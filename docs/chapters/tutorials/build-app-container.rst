@@ -3,32 +3,32 @@
 Build a Container for an App
 ============================
 
-In this tutorial, we will build a custom container using Singularity. This tutorial will demonstrate basic concepts like how to choose a base image to build from, how to install a software package from github, how to install packages, and how to copy local files into the container. This is only an introduction. For more information on Singularity, check out the documentation at: https://sylabs.io/docs/ and use Google as usual.
+In this tutorial, we will build a custom container using Singularity. This tutorial will demonstrate basic concepts: (1) how to choose a base image to build from, (2) how to install a software package from github, (3) how to install packages, and (4) how to copy local files into the container. This tutorial is only meant to be an introduction. For more information on Singularity, check out the documentation at: https://sylabs.io/docs/ and use Google as usual. Once the container has been created, it can be used in a GeneFlow app.
 
 Singularity Requirement
 -----------------------
 
-This tutorial is based on Singularity 2.6. It assumes that you have Singularity installed already and you have sufficient privileges to build an image (which may require sudo access). Check the Singularity documentation on how to install Singularity properly or with your system administrator.
+This tutorial is based on Singularity 2.6. It assumes that you already have Singularity installed and that you have sufficient privileges to build an image (which may require sudo access). Check the Singularity documentation on how to install Singularity or check with your system administrator.
 
 A Container for RNA-Seq
 -----------------------
 
-In this tutorial, we will build a container with the following softwares:
+In this tutorial, we will build a container with the following software:
 
-1. STAR aligner (https://github.com/alexdobin/STAR)  
+1. STAR aligner (https://github.com/alexdobin/STAR)
 2. DESeq2 on Bioconductor/R (https://bioconductor.org/packages/release/bioc/html/DESeq2.html)
 3. All dependencies required by the above 2 programs  
 
 Singularity Recipe
 ------------------
 
-A Singularity recipe is a set of instructions for building the Singularity image. The final Singularity recipe for building the image for the tutorial is below. I will breakdown what each section of the file does below. Meanwhile, copy it into a text file named `Singularity` using your favorite editor. The example here will use vi.
+A Singularity recipe is a set of instructions for building the Singularity image. The final Singularity recipe for building the image for the tutorial is shown below. I will break down what each section of the file does below. Meanwhile, copy it into a text file named `Singularity` using your favorite editor. The example here will use vi.
 
 .. code-block:: text
 
     vi Singularity
 
-Copy the following texts into the file and save it.
+Copy the following text into the file and save it.
 
 .. code-block:: text
 
@@ -48,7 +48,7 @@ Copy the following texts into the file and save it.
 
     %labels
     
-       AUTHOR jyao
+       AUTHOR user
     
     
     %post
@@ -80,7 +80,7 @@ Copy the following texts into the file and save it.
 Base Container
 --------------
 
-While it is possible to build a container from just a base operating system, it is often easier to start from images that already contain some of the software you want. In this case, we will start from the container image with R already installed. The image we will use is at https://hub.docker.com/_/r-base. The following code section in the recipe file tells Singularity to use this base image. The `Bootstrap:` options is set as "docker" to signify that we are building from a pre-existing docker image at the dockerhub. The `From:` options is set as "r-base:3.6.0" to signify that we want to use the r-base container tagged at 3.6.0. 
+While it is possible to build a container from just a base operating system, it is often easier to start from images that already contain some of the software you want. In this case, we will start from the container image with R already installed. The image we will use is here: https://hub.docker.com/_/r-base. The following code section in the recipe file tells Singularity to use this base image. The `Bootstrap:` option is set as "docker" to signify that we are building from a pre-existing docker image from DockerHub. The `From:` options is set as "r-base:3.6.0" to signify that we want to use the r-base container tagged at 3.6.0. 
 
 .. code-block:: text
 
@@ -95,7 +95,6 @@ Although the image in this tutorial doesn't need any local files, you will often
 .. code-block:: text
 
     echo "This is a test file" > test.txt
-
 
 The section of the recipe file instructing Singularity to copy the file into the image is shown below. Under the `%file` section, specify the source and the destination separated by space. I generally copy files into the `/opt/` directory because most pre-built images have this directory. 
 
@@ -120,38 +119,38 @@ The `%environment` section sets the environmental variables for your image at ru
 Metadata
 --------
 
-The `%labels` section contains all the metadata for the image. In this case, I put in my information as the author. 
+The `%labels` section contains all of the metadata for the image. In this case, I put in my information as the author. 
 
 .. code-block:: text
 
     %labels
 
-       AUTHOR jyao
+       AUTHOR user
 
 Install your software
 ---------------------
 
 The `%post` section contains commands that are executed on top of the base image. This is where most of the setup is done. Our base image is an Ubuntu OS with R installed. Imagine we are running such a computer: what commands do we need to execute to install everything we want? 
 
-In the first section of the code:   
+In the first section of the code:
 
-1. We go to the /opt directory  
-2. Download the STAR tarball  
-3. Unzip the tarball to get the binary  
-4. Remove the tarball  
-5. Softlink the executable STAR binary into the /bin directory so we can execute it from the command line.  
+1. We go to the /opt directory
+2. Download the STAR tarball
+3. Unzip the tarball to get the binary
+4. Remove the tarball
+5. Softlink the executable STAR binary into the /bin directory so we can execute it from the command line.
 
-In the second section of the code:   
+In the second section of the code:
 
-1. We update the list of libraries for the Ubuntu OS  
-2. Install the libcurl4-openssl-dev library  
-3. Install the libxml2-dev library (both needed by R packages)  
+1. We update the list of libraries for the Ubuntu OS
+2. Install the libcurl4-openssl-dev library
+3. Install the libxml2-dev library (both needed by R packages)
 
 In the final section of the code:
 
-1. We export and set `TMPDIR` as "opt" because R will download and compile packages in the directory specified by the TMPDIR variable, and /tmp is often set as noexec.  
-2. We install the R packages (including bioconductor).  
-3. We install the Bioconductor package DESeq2.  
+1. We export and set `TMPDIR` as "opt" because R will download and compile packages in the directory specified by the TMPDIR variable, and /tmp is often set as noexec
+2. We install the R packages (including bioconductor)
+3. We install the Bioconductor package DESeq2
 
 
 .. code-block:: text
@@ -170,16 +169,16 @@ In the final section of the code:
       apt-get install -y libcurl4-openssl-dev
       apt-get install -y libxml2-dev
 
-
       #Install R packages
       export TMPDIR=/opt
       R --slave -e 'install.packages(c("BiocManager","docopt","stringi", "stringr"))'
       R --slave -e 'BiocManager::install(c("DESeq2"))'
 
+
 Container as an Executable
 --------------------------
 
-The `%runscript` section defines what commands are executed if the image is ran as an executable (see below). We echo a quote to demonstrate this function. 
+The `%runscript` section defines what commands are executed if the image is run as an executable (see below). We echo a quote to demonstrate this function.
 
 .. code-block:: text
 
@@ -201,7 +200,7 @@ Assuming you named your recipe file "Singularity", execute the following command
 Working with your image
 -----------------------
 
-There are 3 main ways to interact with a Singularity image. Choose the method that best accomplish your goals. We will briefly explore all three.
+There are 3 main ways to interact with a Singularity image. Choose the method that suits your goals. We will briefly explore all three.
 
 Shell
 ~~~~~
@@ -218,7 +217,7 @@ Feel free to explore your virtual image. Try calling the manual of STAR with the
 
     STAR -h
 
-Echo the environmental variable you set with the following command:
+Echo the environment variable you set with the following command:
 
 .. code-block:: text
 

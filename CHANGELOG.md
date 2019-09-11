@@ -7,6 +7,8 @@
 
 2. Add "Executing Containers in Apps" tutorial to documentation.
 
+3. Add "Build a Container for an App" tutorial to documentation.
+
 
 ## 2019/08/28 - v1.10.0: minor enhancement release
 
