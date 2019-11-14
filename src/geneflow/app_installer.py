@@ -9,7 +9,7 @@ from git import Repo
 from git.exc import GitError
 import yaml
 
-from geneflow.agave_wrapper import AgaveAppsAddUpdate, AgaveAppsPublish
+from geneflow.extend.agave_wrapper import AgaveAppsAddUpdate, AgaveAppsPublish
 from geneflow.data_manager import DataManager
 from geneflow.log import Log
 from geneflow.shell_wrapper import ShellWrapper
