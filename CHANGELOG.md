@@ -1,6 +1,13 @@
 # Changelog
 
 
+## 2019/11/22 - v1.12.0: minor enhancement release
+
+1. Add "gf" as an additional console script to run GeneFlow.
+
+2. Add "-v" and "--version" options to display GeneFlow version.
+
+
 ## 2019/09/11 - v1.11.0: minor enhancement release
 
 1. Update agavepy module names for Python 3.7 compatibilty

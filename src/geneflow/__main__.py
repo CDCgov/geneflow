@@ -15,6 +15,7 @@ import geneflow.cli.migrate_db
 import geneflow.cli.run
 import geneflow.cli.run_pending
 from geneflow.log import Log
+from geneflow import __version__
 
 
 def parse_args():
@@ -29,7 +30,16 @@ def parse_args():
 
     """
     parser = argparse.ArgumentParser(
-        description='GeneFlow CLI'
+        description='GeneFlow CLI',
+        prog='GeneFlow'
+    )
+
+    # print version
+    parser.add_argument(
+        '-v',
+        '--version',
+        action='version',
+        version='%(prog)s {}'.format(__version__)
     )
 
     # shared arguments

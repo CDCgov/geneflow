@@ -75,7 +75,8 @@ setup(
         },
     entry_points={
         'console_scripts': [
-            'geneflow = geneflow.__main__:main'
+            'geneflow = geneflow.__main__:main',
+            'gf = geneflow.__main__:main'
         ]
     }
 )
