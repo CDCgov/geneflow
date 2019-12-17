@@ -177,9 +177,9 @@ def _list_agave(uri, agave):
         On failure: False.
 
     """
-    agwrap = AgaveFilesList(agave['agave'], agave['agave_config'])
+    agwrap = AgaveWrapper(agave['agave_config'], agave=agave['agave'])
 
-    file_list = agwrap.call(uri['authority'], uri['chopped_path'])
+    file_list = agwrap.files_list(uri['authority'], uri['chopped_path'])
 
     if file_list is False:
         Log.an().error(

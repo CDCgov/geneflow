@@ -7,6 +7,7 @@ import requests
 from geneflow.data_manager import DataManager
 from geneflow.log import Log
 from geneflow.uri_parser import URIParser
+from geneflow.extend.agave_wrapper import AgaveWrapper
 
 
 requests.packages.urllib3.disable_warnings(
@@ -40,8 +41,8 @@ class AgaveWorkflow:
         self._config = config
         self._parsed_job_work_uri = parsed_job_work_uri
 
-        # agave connection
-        self._agave = None
+        # init agave wrapper object
+        self._agave_wrapper = AgaveWrapper(config)
         self._parsed_archive_uri = None
 
 
@@ -59,7 +60,7 @@ class AgaveWorkflow:
             On failure: False.
 
         """
-        if not self._agave_connect():
+        if not self._agave_wrapper.connect():
             Log.an().error('cannot connect to agave')
             return False
 
@@ -82,49 +83,6 @@ class AgaveWorkflow:
         """
         if not self._init_archive_uri():
             Log.an().error('cannot create archive uri')
-            return False
-
-        return True
-
-
-    def _agave_connect(self):
-
-        agave_connection_type = self._config['agave'].get(
-            'connection_type', 'impersonate'
-        )
-
-        if agave_connection_type == 'impersonate':
-
-            self._agave = Agave(
-                api_server=self._config['agave']['server'],
-                username=self._config['agave']['username'],
-                password=self._config['agave']['password'],
-                token_username=self._job['username'],
-                client_name=self._config['agave']['client'],
-                api_key=self._config['agave']['key'],
-                api_secret=self._config['agave']['secret'],
-                verify=False
-            )
-            # when using impersonate, token_username is taken from the job
-            # description and is used to access archived job data
-            self._config['agave']['token_username'] = self._job['username']
-
-        elif agave_connection_type == 'agave-cli':
-
-            # get credentials from ~/.agave/current
-            agave_clients = Agave._read_clients()
-            agave_clients[0]['verify'] = False # don't verify ssl
-            self._agave = Agave(**agave_clients[0])
-            # when using agave-cli, token_username must be the same as the
-            # stored creds in user's home directory, this can be different
-            # from job username
-            self._config['agave']['token_username'] \
-                = agave_clients[0]['username']
-
-        else:
-            Log.an().error(
-                'invalid agave connection type: %s', agave_connection_type
-            )
             return False
 
         return True
@@ -187,7 +145,7 @@ class AgaveWorkflow:
 
         """
         return {
-            'agave': self._agave,
+            'agave': self._agave_wrapper._agave,
             'parsed_archive_uri': self._parsed_archive_uri,
             'agave_config': self._config['agave']
         }
