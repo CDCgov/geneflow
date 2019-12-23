@@ -145,7 +145,6 @@ class AgaveWorkflow:
 
         """
         return {
-            'agave': self._agave_wrapper._agave,
-            'parsed_archive_uri': self._parsed_archive_uri,
-            'agave_config': self._config['agave']
+            'agave_wrapper': self._agave_wrapper,
+            'parsed_archive_uri': self._parsed_archive_uri
         }

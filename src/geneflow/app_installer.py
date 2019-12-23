@@ -9,12 +9,13 @@ from git import Repo
 from git.exc import GitError
 import yaml
 
-from geneflow.extend.agave_wrapper import AgaveAppsAddUpdate, AgaveAppsPublish
 from geneflow.data_manager import DataManager
 from geneflow.log import Log
 from geneflow.shell_wrapper import ShellWrapper
 from geneflow.template_compiler import TemplateCompiler
 from geneflow.uri_parser import URIParser
+from geneflow.extend.agave_wrapper import AgaveWrapper
+#AgaveAppsAddUpdate, AgaveAppsPublish
 
 GF_VERSION = 'v1.0'
 
