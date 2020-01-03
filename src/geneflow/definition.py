@@ -160,7 +160,7 @@ APP_SCHEMA = {
         },
         'app_id': {'type': 'string', 'default': ''},
         'name': {'type': 'string', 'required': True},
-        'description': {'type': 'string', 'required': True},
+        'description': {'type': 'string', 'maxlength': 64, 'required': True},
         'repo_uri': {'type': 'string', 'default': ''},
         'version': {'type': 'string', 'default': ''},
         'public': {'type': 'boolean', 'default': True},
