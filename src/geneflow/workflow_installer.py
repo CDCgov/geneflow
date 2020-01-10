@@ -323,24 +323,20 @@ class WorkflowInstaller:
                 # clone app into install location
                 if not app_installer.clone_git_repo():
                     Log.an().error('cannot clone app to %s', str(repo_path))
-                    # skip app
-                    continue
+                    return False
 
                 if not app_installer.load_config():
                     Log.an().error('cannot load app config.yaml')
-                    # skip app
-                    continue
+                    return False
 
                 if self._make_apps:
                     if not app_installer.make():
                         Log.an().error('cannot compile app templates')
-                        # skip app
-                        continue
+                        return False
 
                 if not app_installer.install_assets():
                     Log.an().error('cannot install app assets')
-                    # skip app
-                    continue
+                    return False
 
                 # register in Agave
                 if (
@@ -355,11 +351,10 @@ class WorkflowInstaller:
                         self._agave_publish
                     )
                     if not register_result:
-                        Log.a().warning(
+                        Log.an().error(
                             'cannot register app "%s" in agave', app['name']
                         )
-                        # skip app
-                        continue
+                        return False
 
                     Log.some().info(
                         'registered agave app:\n%s',
@@ -375,12 +370,11 @@ class WorkflowInstaller:
                             version=register_result['version'],
                             revision=register_result['revision']
                     ):
-                        Log.a().warning(
+                        Log.an().error(
                             'cannot compile app "%s" definition from template',
                             app['name']
                         )
-                        # skip app
-                        continue
+                        return False
 
                 else:
 
@@ -388,12 +382,11 @@ class WorkflowInstaller:
                     if not TemplateCompiler.compile_template(
                             repo_path, 'app.yaml.j2', repo_path / 'app.yaml'
                     ):
-                        Log.a().warning(
+                        Log.an().error(
                             'cannot compile app "%s" definition from template',
                             app['name']
                         )
-                        # skip app
-                        continue
+                        return False
 
         return True
 
