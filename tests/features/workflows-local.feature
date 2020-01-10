@@ -92,6 +92,3 @@ Feature: Workflows
 
   Scenario: Apps with invalid description lengths cannot be installed locally.
     Then The "local" "test-app-def-01" workflow cannot be installed
-
-
-
