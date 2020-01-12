@@ -165,8 +165,7 @@ def _list_agave(uri, agave):
     Args:
         uri: parsed URI to list.
         agave: dict that contains:
-            agave: Agave connection object.
-            agave_config: Agave connection info, needed by AgavePyWrapper.
+            agave_wrapper: Agave wrapper object.
 
     Returns:
         On success: a list of filenames (basenames only).
