@@ -22,7 +22,7 @@ GF_VERSION = 'v1.0'
 CONFIG_SCHEMA = {
     'v1.0': {
         'name': {'type': 'string', 'required': True},
-        'description': {'type': 'string', 'required': True},
+        'description': {'type': 'string', 'maxlength': 64, 'required': True},
         'repo_uri': {'type': 'string', 'default': ''},
         'version': {'type': 'string', 'required': True},
         'inputs': {
