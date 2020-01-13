@@ -64,7 +64,70 @@ def step_impl(context, wf_context, workflow):
         print('Invalid workflow context: {}'.format(wf_context))
         assert False
 
+    wf_name = '{}-{}'.format(workflow, wf_context)
+    context.workflows[wf_name] = {}
+
     assert geneflow.cli.install_workflow.install_workflow(args)
+
+
+@then('The "{wf_context}" "{workflow}" workflow cannot be installed')
+def step_impl(context, wf_context, workflow):
+
+    args = None
+    if wf_context == 'local':
+        args = Namespace(
+            workflow_path='./data/workflows/{}-local'.format(workflow),
+            git=context.config.userdata.get('workflows_{}'.format(workflow)),
+            git_branch=None,
+            force=True,
+            name=None,
+            asset=None,
+            prefix=None,
+            clean=True,
+            make_apps=True,
+            config=None,
+            environment=None,
+            agave_params=None,
+            agave_username=None,
+            agave_apps_prefix=None,
+            agave_execution_system=None,
+            agave_deployment_system=None,
+            agave_apps_dir=None,
+            agave_test_data_dir=None,
+            agave_publish=False,
+            agave_test_data=False
+        )
+    elif wf_context == 'agave':
+        args = Namespace(
+            workflow_path='./data/workflows/{}-agave'.format(workflow),
+            git=context.config.userdata.get('workflows_{}'.format(workflow)),
+            git_branch=None,
+            force=True,
+            name=None,
+            asset=None,
+            prefix=None,
+            clean=True,
+            make_apps=True,
+            config='./test.conf',
+            environment='local',
+            agave_params=None,
+            agave_username=None,
+            agave_apps_prefix=context.config.userdata.get('agave_apps_prefix'),
+            agave_execution_system=context.config.userdata.get('agave_execution_system'),
+            agave_deployment_system=context.config.userdata.get('agave_deployment_system'),
+            agave_apps_dir=context.config.userdata.get('agave_apps_dir'),
+            agave_test_data_dir=None,
+            agave_publish=False,
+            agave_test_data=False
+        )
+    else:
+        print('Invalid workflow context: {}'.format(wf_context))
+        assert False
+
+    wf_name = '{}-{}'.format(workflow, wf_context)
+    context.workflows[wf_name] = {}
+
+    assert geneflow.cli.install_workflow.install_workflow(args) == False
 
 
 @when('I run the "{wf_context}" "{workflow}" workflow with the following inputs and parameters')
@@ -111,7 +174,6 @@ def step_impl(context, wf_context, workflow):
 
     result = geneflow.cli.run.run(args)
     wf_name = '{}-{}'.format(workflow, wf_context)
-    context.workflows[wf_name] = {}
     context.workflows[wf_name]['result'] = result
     assert all(result)
 
