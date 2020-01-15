@@ -90,3 +90,5 @@ Feature: Workflows
         | Nkrru  |
         | Cuxrj! |
  
+  Scenario: Apps with invalid description lengths cannot be installed locally.
+    Then The "agave" "test-app-def-01" workflow cannot be installed
