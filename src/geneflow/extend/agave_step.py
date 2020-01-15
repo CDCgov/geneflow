@@ -82,8 +82,8 @@ class AgaveStep(WorkflowStep):
             On failure: False.
 
         """
-        if 'agave' not in self._agave:
-            msg = 'agave connection object required'
+        if 'agave_wrapper' not in self._agave:
+            msg = 'agave_wrapper object required'
             Log.an().error(msg)
             return self._fatal(msg)
 

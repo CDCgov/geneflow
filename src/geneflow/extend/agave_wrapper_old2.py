@@ -3,7 +3,6 @@
 import os
 import time
 import urllib.parse
-from pprint import pprint
 
 try:
     from agavepy.agave import Agave
@@ -74,7 +73,7 @@ class AgaveWrapper:
                 ):
                     try:
                         try:
-                            result = func(that, *args, **kwargs)
+                            result = func(*args, **kwargs)
                             return result
 
                         except Exception as err:
@@ -222,7 +221,6 @@ class AgaveWrapper:
             List of file names.
 
         """
-        print('files_list: filePath={}'.format(file_path))
         files = [
             {
                 'name': f.name,
@@ -258,7 +256,6 @@ class AgaveWrapper:
             # done downloading to specified depth
             return True
 
-        print('_recursive_download: filePath={}'.format(file_path))
         files = self._agave.files.list(
             systemId=system_id,
             filePath=file_path,
@@ -354,7 +351,6 @@ class AgaveWrapper:
             On failure: Throws exception.
 
         """
-        print('files_delete: filePath={}'.format(file_path))
         self._agave.files.delete(
             systemId=system_id,
             filePath=file_path
@@ -379,8 +375,6 @@ class AgaveWrapper:
             On failure: Throws exception.
 
         """
-
-        print('files_mkdir: filePath={}'.format(file_path))
         self._agave.files.manage(
             systemId=system_id,
             filePath=file_path,
@@ -407,11 +401,7 @@ class AgaveWrapper:
             On failure: Throws exception.
 
         """
-        pprint({'body': body})
-        try:
-            job = self._agave.jobs.submit(body=body)
-        except Exception as err:
-            print(err)
+        job = self._agave.jobs.submit(body=body)
 
         return job
 
@@ -453,7 +443,6 @@ class AgaveWrapper:
                         file_path, file_name, root[len(file_to_upload)+1:]
                     )
                     # read file in binary mode to transfer
-                    print('files_import_from_local: filePath={}'.format(file_path))
                     response = self._agave.files.importData(
                         systemId=system_id,
                         filePath=dest_file_path,
@@ -479,9 +468,8 @@ class AgaveWrapper:
                 # create new directory for each directory in this level
                 for name in dirs:
                     # translate local path to dest path
-                    print('files_import_from_local2: filePath={}'.format(file_path))
                     dest_file_path = os.path.join(
-                        file_path, file_name, root[len(file_to_upload)+1:]
+                        filePath, fileName, root[len(fileToUpload)+1:]
                     )
                     # create dest directory
                     if not self.files_mkdir(

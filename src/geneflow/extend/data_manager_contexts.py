@@ -216,7 +216,7 @@ def _mkdir_agave(uri, agave):
         On failure: False.
 
     """
-    if not agave['agave_wrapper'].files_mkdir(['authority'], uri['folder'], uri['name']):
+    if not agave['agave_wrapper'].files_mkdir(uri['authority'], uri['folder'], uri['name']):
         Log.an().error(
             'cannot create folder at uri: %s', uri['chopped_uri']
         )

@@ -29,7 +29,7 @@ class AgaveWorkflow:
 
         Args:
             self: class instance
-            config: agave config
+            config: GeneFlow config
             job: job dictionary
             parsed_job_work_uri: job work URI
 
@@ -42,7 +42,7 @@ class AgaveWorkflow:
         self._parsed_job_work_uri = parsed_job_work_uri
 
         # init agave wrapper object
-        self._agave_wrapper = AgaveWrapper(config)
+        self._agave_wrapper = AgaveWrapper(config['agave'])
         self._parsed_archive_uri = None
 
 

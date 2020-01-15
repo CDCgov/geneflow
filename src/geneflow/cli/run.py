@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 from multiprocessing import Pool
 from functools import partial
+from pprint import pprint
 
 
 import geneflow.cli.common
@@ -252,7 +253,7 @@ def run(args):
                 )
                 return False
             # expand relative path if local
-            if parsed_uri['scheme'] == 'local': 
+            if parsed_uri['scheme'] == 'local':
                 job['inputs'][input_key] = str(
                     Path(parsed_uri['chopped_path']).expanduser().resolve()
                 )
@@ -273,14 +274,23 @@ def run(args):
             'log': None
         } for job in job_ids
     ]
-    result = pool.map(
-        partial(
-            geneflow.cli.common.run_workflow,
-            config=config_dict,
-            log_level=args.log_level
-        ),
-        jobs
-    )
+    pprint({'jobs': jobs})
+    result = [
+        geneflow.cli.common.run_workflow(job, config=config_dict, log_level=args.log_level) for job in jobs
+    ]
+
+    #try:
+    #    result = pool.map(
+    #        partial(
+    #            geneflow.cli.common.run_workflow,
+    #            config=config_dict,
+    #            log_level=args.log_level
+    #        ),
+    #        jobs
+    #    )
+    #except Exception as err:
+    #    pprint(err)
+    pprint({'result': result})
 
     pool.close()
     pool.join()
