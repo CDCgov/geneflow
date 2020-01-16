@@ -1,4 +1,4 @@
-"""This module contains the GeneFlow AgavePyWrapper and helper classes."""
+"""This module contains the GeneFlow AgaveWrapper class."""
 
 import os
 import time
