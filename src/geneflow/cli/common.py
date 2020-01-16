@@ -19,7 +19,6 @@ def run_workflow(job, config, log_level):
         On failure: False.
 
     """
-    print('asdfasdf asdfadsf')
     if job['log']:
         # reconfig log location for this run
         Log.config(log_level, job['log'])

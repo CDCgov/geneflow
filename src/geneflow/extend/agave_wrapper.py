@@ -3,7 +3,6 @@
 import os
 import time
 import urllib.parse
-from pprint import pprint
 
 try:
     from agavepy.agave import Agave
@@ -222,7 +221,6 @@ class AgaveWrapper:
             List of file names.
 
         """
-        print('files_list: filePath={}'.format(file_path))
         files = [
             {
                 'name': f.name,
@@ -258,7 +256,6 @@ class AgaveWrapper:
             # done downloading to specified depth
             return True
 
-        print('_recursive_download: filePath={}'.format(file_path))
         files = self._agave.files.list(
             systemId=system_id,
             filePath=file_path,
@@ -299,7 +296,7 @@ class AgaveWrapper:
                     )
                     return False
 
-                Log.some().info(
+                Log.some().debug(
                     'download FINISHED: %s -> %s',
                     agave_uri,
                     local_uri
@@ -354,7 +351,6 @@ class AgaveWrapper:
             On failure: Throws exception.
 
         """
-        print('files_delete: filePath={}'.format(file_path))
         self._agave.files.delete(
             systemId=system_id,
             filePath=file_path
@@ -379,8 +375,6 @@ class AgaveWrapper:
             On failure: Throws exception.
 
         """
-
-        print('files_mkdir: filePath={}'.format(file_path))
         self._agave.files.manage(
             systemId=system_id,
             filePath=file_path,
@@ -407,11 +401,7 @@ class AgaveWrapper:
             On failure: Throws exception.
 
         """
-        pprint({'body': body})
-        try:
-            job = self._agave.jobs.submit(body=body)
-        except Exception as err:
-            print(err)
+        job = self._agave.jobs.submit(body=body)
 
         return job
 
@@ -444,16 +434,16 @@ class AgaveWrapper:
                 )
                 return False
 
+
             # walk through local directory structure
             for root, dirs, files in os.walk(file_to_upload, topdown=True):
+                # translate local path to dest path
+                dest_file_path = os.path.join(
+                    file_path, file_name, root[len(file_to_upload)+1:]
+                )
                 # upload each file in this directory level
                 for name in files:
-                    # translate local path to dest path
-                    dest_file_path = os.path.join(
-                        file_path, file_name, root[len(file_to_upload)+1:]
-                    )
                     # read file in binary mode to transfer
-                    print('files_import_from_local: filePath={}'.format(file_path))
                     response = self._agave.files.importData(
                         systemId=system_id,
                         filePath=dest_file_path,
@@ -464,7 +454,7 @@ class AgaveWrapper:
                     )
                     async_response = AgaveAsyncResponse(self._agave, response)
                     status = async_response.result()
-                    Log.some().info(
+                    Log.some().debug(
                         'import %s: %s/%s -> agave://%s/%s/%s',
                         str(status),
                         root,
@@ -478,12 +468,7 @@ class AgaveWrapper:
 
                 # create new directory for each directory in this level
                 for name in dirs:
-                    # translate local path to dest path
-                    print('files_import_from_local2: filePath={}'.format(file_path))
-                    dest_file_path = os.path.join(
-                        file_path, file_name, root[len(file_to_upload)+1:]
-                    )
-                    # create dest directory
+                   # create dest directory
                     if not self.files_mkdir(
                             system_id,
                             dest_file_path,
@@ -507,7 +492,7 @@ class AgaveWrapper:
             )
             async_response = AgaveAsyncResponse(self._agave, response)
             status = async_response.result()
-            Log.some().info(
+            Log.some().debug(
                 'import %s: %s -> agave://%s/%s/%s',
                 str(status),
                 file_to_upload,
@@ -544,11 +529,11 @@ class AgaveWrapper:
             systemId=system_id,
             filePath=file_path,
             fileName=file_name,
-            urlToIngest=url_to_ingest
+            urlToIngest=urllib.parse.quote(str(url_to_ingest or ''), safe='/:')
         )
         async_response = AgaveAsyncResponse(self._agave, response)
         status = async_response.result()
-        Log.some().info(
+        Log.some().debug(
             'import %s: %s -> agave://%s/%s/%s',
             str(status),
             url_to_ingest,
@@ -601,7 +586,6 @@ class AgaveWrapper:
         )
 
         return response
-
 
 
     @AgaveRetry('apps_add_update')
