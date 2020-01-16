@@ -252,7 +252,7 @@ def run(args):
                 )
                 return False
             # expand relative path if local
-            if parsed_uri['scheme'] == 'local': 
+            if parsed_uri['scheme'] == 'local':
                 job['inputs'][input_key] = str(
                     Path(parsed_uri['chopped_path']).expanduser().resolve()
                 )
@@ -273,6 +273,7 @@ def run(args):
             'log': None
         } for job in job_ids
     ]
+
     result = pool.map(
         partial(
             geneflow.cli.common.run_workflow,

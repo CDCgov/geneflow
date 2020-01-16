@@ -6,13 +6,9 @@ import glob
 import os
 import shutil
 
-from geneflow.agave_wrapper import (
-    AgaveFilesDelete, AgaveFilesDownload, AgaveFilesList,
-    AgaveFilesImportDataFromAgave, AgaveFilesImportDataFromLocal,
-    AgaveFilesMkDir
-)
 from geneflow.log import Log
 from geneflow.uri_parser import URIParser
+from geneflow.extend.agave_wrapper import AgaveWrapper
 
 
 ### Local data management functions and move/copy with Local as source
@@ -169,17 +165,14 @@ def _list_agave(uri, agave):
     Args:
         uri: parsed URI to list.
         agave: dict that contains:
-            agave: Agave connection object.
-            agave_config: Agave connection info, needed by AgavePyWrapper.
+            agave_wrapper: Agave wrapper object.
 
     Returns:
         On success: a list of filenames (basenames only).
         On failure: False.
 
     """
-    agwrap = AgaveFilesList(agave['agave'], agave['agave_config'])
-
-    file_list = agwrap.call(uri['authority'], uri['chopped_path'])
+    file_list = agave['agave_wrapper'].files_list(uri['authority'], uri['chopped_path'])
 
     if file_list is False:
         Log.an().error(
@@ -197,16 +190,13 @@ def _exists_agave(uri, agave):
     Args:
         uri: parsed URI to check.
         agave: dict that contains:
-            agave: Agave connection object.
-            agave_config: Agave connection info, needed by AgavePyWrapper.
+            agave_wrapper: Agave wrapper object.
 
     Returns:
         True if the URI exists, False if it doesn't or if there's an error.
 
     """
-    agwrap = AgaveFilesList(agave['agave'], agave['agave_config'])
-
-    if agwrap.call(uri['authority'], uri['chopped_path']) is False:
+    if agave['agave_wrapper'].files_list(uri['authority'], uri['chopped_path']) is False:
         return False
 
     return True
@@ -219,17 +209,14 @@ def _mkdir_agave(uri, agave):
     Args:
         uri: parsed URI to create.
         agave: dict that contains:
-            agave: AgavePy connection object.
-            agave_config: Agave connection info, needed by AgavePyWrapper.
+            agave_wrapper: Agave wrapper object.
 
     Returns:
         On success: True.
         On failure: False.
 
     """
-    agwrap = AgaveFilesMkDir(agave['agave'], agave['agave_config'])
-
-    if not agwrap.call(uri['authority'], uri['folder'], uri['name']):
+    if not agave['agave_wrapper'].files_mkdir(uri['authority'], uri['folder'], uri['name']):
         Log.an().error(
             'cannot create folder at uri: %s', uri['chopped_uri']
         )
@@ -245,8 +232,7 @@ def _mkdir_recursive_agave(uri, agave):
     Args:
         uri: parsed URI to create.
         agave: dict that contains:
-            agave: AgavePy connection object.
-            agave_config: Agave connection info, needed by AgavePyWrapper.
+            agave_wrapper: Agave wrapper object.
 
     Returns:
         On success: True.
@@ -280,17 +266,14 @@ def _delete_agave(uri, agave):
     Args:
         uri: parsed URI to delete.
         agave: dict that contains:
-            agave: AgavePy connection object.
-            agave_config: Agave connection info, needed by AgavePyWrapper.
+            agave_wrapper: Agave wrapper object.
 
     Returns:
         On success: True.
         On failure: False.
 
     """
-    agwrap = AgaveFilesDelete(agave['agave'], agave['agave_config'])
-
-    if not agwrap.call(uri['authority'], uri['chopped_path']):
+    if not agave['agave_wrapper'].files_delete(uri['authority'], uri['chopped_path']):
         Log.an().error('cannot delete uri: %s', uri['chopped_path'])
         return False
 
@@ -305,19 +288,14 @@ def _copy_agave_agave(src_uri, dest_uri, agave):
         src_uri: Source URI parsed into dict with URIParser.
         dest_uri: Destination URI parsed into dict with URIParser.
         agave: dict that contains:
-            agave: AgavePy connection object.
-            agave_config: Agave connection info, needed by AgavePyWrapper.
+            agave_wrapper: Agave wrapper object.
 
     Returns:
         On success: True.
         On failure: False.
 
     """
-    agwrap = AgaveFilesImportDataFromAgave(
-        agave['agave'], agave['agave_config']
-    )
-
-    if not agwrap.call(
+    if not agave['agave_wrapper'].files_import_from_agave(
             dest_uri['authority'],
             dest_uri['folder'],
             dest_uri['name'],
@@ -343,19 +321,14 @@ def _copy_local_agave(src_uri, dest_uri, agave, local=None):
         src_uri: Source URI parsed into dict with URIParser.
         dest_uri: Destination URI parsed into dict with URIParser.
         agave: dict that contains:
-            agave: AgavePy connection object.
-            agave_config: Agave connection info, needed by AgavePyWrapper.
+            agave_wrapper: Agave wrapper object.
 
     Returns:
         On success: True.
         On failure: False.
 
     """
-    agwrap = AgaveFilesImportDataFromLocal(
-        agave['agave'], agave['agave_config']
-    )
-
-    if not agwrap.call(
+    if not agave['agave_wrapper'].files_import_from_local(
             dest_uri['authority'],
             dest_uri['folder'],
             dest_uri['name'],
@@ -379,19 +352,14 @@ def _copy_agave_local(src_uri, dest_uri, agave, local=None):
         src_uri: Source URI parsed into dict with URIParser.
         dest_uri: Destination URI parsed into dict with URIParser.
         agave: dict that contains:
-            agave: AgavePy connection object.
-            agave_config: Agave connection info, needed by AgavePyWrapper.
+            agave_wrapper: Agave wrapper object.
 
     Returns:
         On success: True.
         On failure: False.
 
     """
-    agwrap = AgaveFilesDownload(
-        agave['agave'], agave['agave_config']
-    )
-
-    if not agwrap.call(
+    if not agave['agave_wrapper'].files_download(
             src_uri['authority'],
             src_uri['chopped_path'],
             dest_uri['chopped_path'],
