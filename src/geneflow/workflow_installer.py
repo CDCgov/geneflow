@@ -19,6 +19,7 @@ from geneflow.data_manager import DataManager
 from geneflow.log import Log
 from geneflow.template_compiler import TemplateCompiler
 from geneflow.uri_parser import URIParser
+from geneflow.extend.agave_wrapper import AgaveWrapper
 
 
 requests.packages.urllib3.disable_warnings(
@@ -88,7 +89,7 @@ class WorkflowInstaller:
         self._apps_repo = None
 
         # agave-related member variables
-        self._agave = None # agave connection
+        self._agave_wrapper = None
         self._config = config
         self._agave_params = agave_params
         self._agave_username = agave_username
@@ -129,62 +130,10 @@ class WorkflowInstaller:
         # connect to agave
         if self._config and self._agave_params:
             if self._config.get('agave') and self._agave_params.get('agave'):
-                if not self._agave_connect():
+                self._agave_wrapper = AgaveWrapper(self._config['agave'])
+                if not self._agave_wrapper.connect():
                     Log.an().error('cannot connect to agave')
                     return False
-
-        return True
-
-
-    def _agave_connect(self):
-        """
-        Connect to Agave.
-
-        Args:
-            self: class instance.
-
-        Returns:
-            On success: True.
-            On failure: False.
-
-        """
-        agave_connection_type = self._config['agave'].get(
-            'connection_type', 'impersonate'
-        )
-
-        if agave_connection_type == 'impersonate':
-
-            if not self._agave_username:
-                Log.an().error('agave username required if impersonating')
-                return False
-
-            self._agave = Agave(
-                api_server=self._config['agave']['server'],
-                username=self._config['agave']['username'],
-                password=self._config['agave']['password'],
-                token_username=self._agave_username,
-                client_name=self._config['agave']['client'],
-                api_key=self._config['agave']['key'],
-                api_secret=self._config['agave']['secret'],
-                verify=False
-            )
-
-        elif agave_connection_type == 'agave-cli':
-
-            # get credentials from ~/.agave/current
-            agave_clients = Agave._read_clients()
-            agave_clients[0]['verify'] = False # don't verify ssl
-            self._agave = Agave(**agave_clients[0])
-            # when using agave-cli, token_username must be the same as the
-            # stored creds in user's home directory, this can be different
-            # from job username
-            self._agave_username = agave_clients[0]['username']
-
-        else:
-            Log.an().error(
-                'invalid agave connection type: %s', agave_connection_type
-            )
-            return False
 
         return True
 
@@ -340,13 +289,12 @@ class WorkflowInstaller:
 
                 # register in Agave
                 if (
-                        self._agave
+                        self._agave_wrapper
                         and self._agave_params
                         and self._agave_params.get('agave')
                 ):
                     register_result = app_installer.register_agave_app(
-                        self._agave,
-                        self._config['agave'],
+                        self._agave_wrapper,
                         self._agave_params,
                         self._agave_publish
                     )
@@ -403,7 +351,7 @@ class WorkflowInstaller:
 
         """
         if (
-                not self._agave
+                not self._agave_wrapper
                 or not self._agave_params
                 or not self._agave_params.get('agave')
         ):
@@ -425,8 +373,7 @@ class WorkflowInstaller:
                 parsed_uri=parsed_base_test_uri,
                 recursive=True,
                 agave={
-                    'agave': self._agave,
-                    'agave_config': self._config['agave']
+                    'agave_wrapper': self._agave_wrapper
                 }
         ):
             Log.a().warning(
@@ -453,8 +400,7 @@ class WorkflowInstaller:
                 parsed_dest_uri=parsed_agave_test_uri,
                 local={},
                 agave={
-                    'agave': self._agave,
-                    'agave_config': self._config['agave']
+                    'agave_wrapper': self._agave_wrapper
                 }
         ):
             Log.a().warning(

@@ -3,7 +3,9 @@
 
 ## 2020/01/15 - v1.13.0: minor enhancement release
 
-1. Fix bug: Length of app description must be validated as less than 64 characters.
+1. Clean-up and re-organization of Agave code.
+
+2. Fix bug: Length of app description must be validated as less than 64 characters.
 
 
 ## 2019/11/22 - v1.12.0: minor enhancement release

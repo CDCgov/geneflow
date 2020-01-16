@@ -9,12 +9,12 @@ from git import Repo
 from git.exc import GitError
 import yaml
 
-from geneflow.agave_wrapper import AgaveAppsAddUpdate, AgaveAppsPublish
 from geneflow.data_manager import DataManager
 from geneflow.log import Log
 from geneflow.shell_wrapper import ShellWrapper
 from geneflow.template_compiler import TemplateCompiler
 from geneflow.uri_parser import URIParser
+from geneflow.extend.agave_wrapper import AgaveWrapper
 
 GF_VERSION = 'v1.0'
 
@@ -607,7 +607,7 @@ class AppInstaller:
         return True
 
 
-    def register_agave_app(self, agave, agave_config, agave_params, agave_publish):
+    def register_agave_app(self, agave_wrapper, agave_params, agave_publish):
         """
         Register app in Agave.
 
@@ -651,8 +651,7 @@ class AppInstaller:
                 parsed_uri=parsed_agave_apps_uri,
                 recursive=True,
                 agave={
-                    'agave': agave,
-                    'agave_config': agave_config
+                    'agave_wrapper': agave_wrapper
                 }
         ):
             Log.a().warning('cannot create main agave apps uri')
@@ -673,8 +672,7 @@ class AppInstaller:
         if not DataManager.delete(
                 parsed_uri=parsed_app_uri,
                 agave={
-                    'agave': agave,
-                    'agave_config': agave_config
+                    'agave_wrapper': agave_wrapper
                 }
         ):
             # log warning, but ignore.. deleting non-existant uri returns False
@@ -695,8 +693,7 @@ class AppInstaller:
                 parsed_dest_uri=parsed_app_uri,
                 local={},
                 agave={
-                    'agave': agave,
-                    'agave_config': agave_config
+                    'agave_wrapper': agave_wrapper
                 }
         ):
             Log.a().warning(
@@ -720,8 +717,7 @@ class AppInstaller:
                 parsed_uri=parsed_test_uri,
                 recursive=True,
                 agave={
-                    'agave': agave,
-                    'agave_config': agave_config
+                    'agave_wrapper': agave_wrapper
                 }
         ):
             Log.a().warning(
@@ -745,8 +741,7 @@ class AppInstaller:
                 parsed_dest_uri=parsed_agave_test_script,
                 local={},
                 agave={
-                    'agave': agave,
-                    'agave_config': agave_config
+                    'agave_wrapper': agave_wrapper
                 }
         ):
             Log.a().warning(
@@ -769,10 +764,7 @@ class AppInstaller:
             )
             return False
 
-        agwrap = AgaveAppsAddUpdate(
-            agave, agave_config
-        )
-        app_add_result = agwrap.call(app_definition)
+        app_add_result = agave_wrapper.apps_add_update(app_definition)
         if not app_add_result:
             Log.a().warning(
                 'cannot register agave app:\n%s', pprint.pformat(app_definition)
@@ -785,10 +777,7 @@ class AppInstaller:
         if agave_publish:
             Log.some().info('publishing agave app')
 
-            agwrap = AgaveAppsPublish(
-                agave, agave_config
-            )
-            app_publish_result = agwrap.call(app_add_result['id'])
+            app_publish_result = agave_wrapper.apps_publish(app_add_result['id'])
             if not app_publish_result:
                 Log.a().warning(
                     'cannot publish agave app: %s', app_add_result['id']

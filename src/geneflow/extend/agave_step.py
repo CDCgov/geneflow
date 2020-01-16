@@ -9,10 +9,7 @@ import urllib.parse
 from geneflow.log import Log
 from geneflow.data_manager import DataManager
 from geneflow.workflow_step import WorkflowStep
-from geneflow.agave_wrapper import (
-    AgaveJobsSubmit, AgaveFilesImportDataFromAgave, AgaveJobsGetStatus,
-    AgaveJobsGetHistory
-)
+from geneflow.extend.agave_wrapper import AgaveWrapper
 
 
 class AgaveStep(WorkflowStep):
@@ -45,7 +42,7 @@ class AgaveStep(WorkflowStep):
         Args:
             agave: dict of Agave context data:
                 {
-                    'agave': agave connection object,
+                    'agave_wrapper': agave wrapper object,
                     'parsed_archive_uri': archive URI for Agave jobs
                 }
 
@@ -85,8 +82,8 @@ class AgaveStep(WorkflowStep):
             On failure: False.
 
         """
-        if 'agave' not in self._agave:
-            msg = 'agave connection object required'
+        if 'agave_wrapper' not in self._agave:
+            msg = 'agave_wrapper object required'
             Log.an().error(msg)
             return self._fatal(msg)
 
@@ -145,19 +142,13 @@ class AgaveStep(WorkflowStep):
         if (
                 DataManager.exists(
                     parsed_uri=self._parsed_data_uris[self._source_context],
-                    agave={
-                        'agave': self._agave['agave'],
-                        'agave_config': self._config['agave']
-                    }
+                    agave=self._agave
                 )
                 and self._clean
         ):
             if not DataManager.delete(
                     parsed_uri=self._parsed_data_uris[self._source_context],
-                    agave={
-                        'agave': self._agave['agave'],
-                        'agave_config': self._config['agave']
-                    }
+                    agave=self._agave
             ):
                 Log.a().warning(
                     'cannot delete existing data uri: %s',
@@ -168,10 +159,7 @@ class AgaveStep(WorkflowStep):
         if not DataManager.mkdir(
                 parsed_uri=self._parsed_data_uris[self._source_context],
                 recursive=True,
-                agave={
-                    'agave': self._agave['agave'],
-                    'agave_config': self._config['agave']
-                }
+                agave=self._agave
         ):
             msg = 'cannot create data uri: {}'.format(
                 self._parsed_data_uris[self._source_context]['chopped_uri']
@@ -205,10 +193,7 @@ class AgaveStep(WorkflowStep):
         # list files from URI
         file_list = DataManager.list(
             parsed_uri=self._parsed_map_uri,
-            agave={
-                'agave': self._agave['agave'],
-                'agave_config': self._config['agave']
-            }
+            agave=self._agave
         )
         if file_list is False:
             msg = 'cannot get contents of map uri: {}'\
@@ -285,17 +270,11 @@ class AgaveStep(WorkflowStep):
         # delete archive path if it exists
         if DataManager.exists(
                 uri=self._agave['parsed_archive_uri']['chopped_uri']+'/'+name,
-                agave={
-                    'agave': self._agave['agave'],
-                    'agave_config': self._config['agave']
-                }
+                agave=self._agave
         ):
             if not DataManager.delete(
                     uri=self._agave['parsed_archive_uri']['chopped_uri']+'/'+name,
-                    agave={
-                        'agave': self._agave['agave'],
-                        'agave_config': self._config['agave']
-                    }
+                    agave=self._agave
             ):
                 Log.a().warning(
                     'cannot delete archive uri: %s/%s',
@@ -304,11 +283,7 @@ class AgaveStep(WorkflowStep):
                 )
 
         # submit job
-        agwrap = AgaveJobsSubmit(
-            self._agave['agave'],
-            self._config['agave']
-        )
-        job = agwrap.call(app_template)
+        job = self._agave['agave_wrapper'].jobs_submit(app_template)
         if not job:
             msg = 'agave jobs submit failed for "{}"'.format(
                 app_template['name']
@@ -386,20 +361,10 @@ class AgaveStep(WorkflowStep):
             True.
 
         """
-        agwrap_job_status = AgaveJobsGetStatus(
-            self._agave['agave'],
-            self._config['agave']
-        )
-
-        agwrap_job_history = AgaveJobsGetHistory(
-            self._agave['agave'],
-            self._config['agave']
-        )
-
         # check if jobs are still running
         for map_item in self._map:
 
-            map_item['status'] = agwrap_job_status.call(
+            map_item['status'] = self._agave['agave_wrapper'].jobs_get_status(
                 map_item['run'][map_item['attempt']]['agave_job_id']
             )
 
@@ -419,7 +384,7 @@ class AgaveStep(WorkflowStep):
                 continue
 
             # job id listed in history
-            response = agwrap_job_history.call(
+            response = self._agave['agave_wrapper'].jobs_get_history(
                 map_item['run'][map_item['attempt']]['agave_job_id']
             )
 
@@ -518,17 +483,11 @@ class AgaveStep(WorkflowStep):
             '_log'
         )
 
-        # create instance of agave wrapper class for data import
-        agwrap = AgaveFilesImportDataFromAgave(
-            self._agave['agave'],
-            self._config['agave']
-        )
-
         # copy data for each map item
         for map_item in self._map:
 
             # copy step output
-            if not agwrap.call(
+            if not self._agave['agave_wrapper'].files_import_from_agave(
                     self._parsed_data_uris[self._source_context]['authority'],
                     self._parsed_data_uris[self._source_context]\
                         ['chopped_path'],
@@ -551,25 +510,16 @@ class AgaveStep(WorkflowStep):
 
             if DataManager.exists(
                 uri=src_log_dir,
-                agave={
-                    'agave': self._agave['agave'],
-                    'agave_config': self._config['agave']
-                }
+                agave=self._agave
             ):
                 # create dest _log dir if it doesn't exist
                 if not DataManager.exists(
                     uri=dest_log_dir,
-                    agave={
-                        'agave': self._agave['agave'],
-                        'agave_config': self._config['agave']
-                    }
+                    agave=self._agave
                 ):
                     if not DataManager.mkdir(
                         uri=dest_log_dir,
-                        agave={
-                            'agave': self._agave['agave'],
-                            'agave_config': self._config['agave']
-                        }
+                        agave=self._agave
                     ):
                         msg = 'cannot create _log directory for step "{}"'\
                             .format(self._step['name'])
@@ -579,10 +529,7 @@ class AgaveStep(WorkflowStep):
                 # get list of all items in src_log_dir
                 log_list = DataManager.list(
                     uri=src_log_dir,
-                    agave={
-                        'agave': self._agave['agave'],
-                        'agave_config': self._config['agave']
-                    }
+                    agave=self._agave
                 )
                 if not log_list:
                     msg = 'cannot get _log list for step "{}"'\
@@ -592,7 +539,7 @@ class AgaveStep(WorkflowStep):
 
                 # copy each list item
                 for item in log_list:
-                    if not agwrap.call(
+                    if not self._agave['agave_wrapper'].files_import_from_agave(
                         self._parsed_data_uris[self._source_context]\
                             ['authority'],
                         '{}/{}'.format(
@@ -631,8 +578,5 @@ class AgaveStep(WorkflowStep):
         """
         return super(AgaveStep, self).stage(
             local={},
-            agave={
-                'agave': self._agave['agave'],
-                'agave_config': self._config['agave']
-            }
+            agave=self._agave
         )
