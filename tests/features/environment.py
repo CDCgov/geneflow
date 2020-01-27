@@ -4,13 +4,8 @@ import inspect, os, shutil, sys
 from behave import *
 from pprint import pprint
 
-try:
-    from agavepy.agave import Agave
-except ImportError: pass
-
 from geneflow.config import Config
 from geneflow.data import DataSource
-from geneflow.agave_wrapper import AgaveFilesDelete, AgaveFilesList
 from geneflow.uri_parser import URIParser
 
 
