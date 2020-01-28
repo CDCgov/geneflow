@@ -78,7 +78,7 @@ class AgaveWrapper:
 
                         except Exception as err:
                             # check for expired token error
-                            if '401' in str(err):
+                            if str(err).startswith('401'):
                                 num_token_tries += 1
                                 Log.a().warning(
                                     'agave token error [%s]', str(err)
@@ -128,7 +128,8 @@ class AgaveWrapper:
                                             )
                                     )
 
-                            if '404' in str(err):
+                            if str(err).startswith('404'):
+                                Log.a().warning('agave not found [%s]', str(err))
                                 # don't retry if 404 error
                                 return False
 
