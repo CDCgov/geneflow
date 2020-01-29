@@ -5,6 +5,8 @@
 
 1. Fix bug: Agave token errors (401) and not found errors (404) are correctly detected in error message.
 
+2. Fix bug: Default number of Agave call retries and delay can be set in config file.
+
 
 ## 2020/01/15 - v1.13.0: minor enhancement release
 
