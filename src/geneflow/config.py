@@ -68,6 +68,8 @@ AGAVE_SCHEMA = {
             'secret': {'type': 'string', 'required': True},
             'server': {'type': 'string', 'required': True},
             'username': {'type': 'string', 'required': True},
+            'retry': {'type': 'integer', 'default': 5},
+            'retry_delay': {'type': 'integer', 'default': 3},
             'token_retry': {'type': 'integer', 'default': 3},
             'token_retry_delay': {'type': 'integer', 'default': 1},
             'mkdir_retry': {'type': 'integer', 'default': 3},
@@ -88,6 +90,8 @@ AGAVE_SCHEMA = {
                 'required': True,
                 'allowed': ['agave-cli']
             },
+            'retry': {'type': 'integer', 'default': 5},
+            'retry_delay': {'type': 'integer', 'default': 3},
             'token_retry': {'type': 'integer', 'default': 3},
             'token_retry_delay': {'type': 'integer', 'default': 1},
             'mkdir_retry': {'type': 'integer', 'default': 3},

@@ -62,9 +62,13 @@ class AgaveWrapper:
                 """
                 num_tries = 0
                 num_token_tries = 0
-                retry = that._config.get(self._func_key+'_retry', 1)
+                retry = that._config.get(
+                    self._func_key+'_retry',
+                    that._config['retry']
+                )
                 retry_delay = that._config.get(
-                    self._func_key+'_retry_delay', 0
+                    self._func_key+'_retry_delay',
+                    that._config['retry_delay']
                 )
 
                 while (
