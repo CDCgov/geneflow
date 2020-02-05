@@ -268,7 +268,7 @@ JOB_SCHEMA = {
                     'valueschema': {
                         'type': 'string',
                         'default': 'local',
-                        'allowed': ['local', 'agave']
+                        'allowed': ['local', 'agave', 'gridengine']
                     }
                 },
                 'method': {
@@ -283,17 +283,7 @@ JOB_SCHEMA = {
                     },
                     'valueschema': {
                         'type': 'string',
-                        'default': 'auto',
-                        'allowed': [
-                            'auto',
-                            'package',
-                            'cdc-shared-package',
-                            'singularity',
-                            'cdc-shared-singularity',
-                            'docker',
-                            'environment',
-                            'module'
-                        ]
+                        'default': 'auto'
                     }
                 }
             }
