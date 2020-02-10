@@ -7,7 +7,7 @@ from geneflow.uri_parser import URIParser
 from geneflow.shell_wrapper import ShellWrapper
 
 
-class GridEngineStep(WorkflowStep):
+class LocalStep(WorkflowStep):
     """
     A class that represents Local Workflow step objects.
 
