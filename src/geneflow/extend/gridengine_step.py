@@ -4,12 +4,11 @@ from geneflow.log import Log
 from geneflow.workflow_step import WorkflowStep
 from geneflow.data_manager import DataManager
 from geneflow.uri_parser import URIParser
-from geneflow.shell_wrapper import ShellWrapper
 
 
-class LocalStep(WorkflowStep):
+class GridEngineStep(WorkflowStep):
     """
-    A class that represents Local Workflow step objects.
+    A class that represents GridEngine Workflow Step objects.
 
     Inherits from the "WorkflowStep" class.
     """
@@ -26,10 +25,10 @@ class LocalStep(WorkflowStep):
             data_uris,
             source_context,
             clean=False,
-            local={}
+            gridengine={}
     ):
         """
-        Instantiate LocalStep class by calling the super class constructor.
+        Instantiate GridEngineStep class by calling the super class constructor.
 
         See documentation for WorkflowStep __init__().
         """
@@ -46,13 +45,16 @@ class LocalStep(WorkflowStep):
             clean
         )
 
+        # gridengine context data
+        self._gridengine = gridengine
+
 
     def initialize(self):
         """
-        Initialize the LocalStep class.
+        Initialize the GridEngineStep class.
 
-        Validate that the step context is appropriate for this "local" context.
-        And that the app contains a "local" definition.
+        Validate that the step context is appropriate for this "gridengine" context.
+        And that the app contains a "gridengine" definition.
 
         Args:
             self: class instance.
@@ -63,18 +65,19 @@ class LocalStep(WorkflowStep):
 
         """
         # make sure the step context is local
-        if self._step['execution']['context'] != 'local':
+        if self._step['execution']['context'] != 'gridengine':
             msg = (
-                '"local" step class can only be instantiated with a'
-                ' step definition that has a "local" execution context'
+                '"gridengine" step class can only be instantiated with a'
+                ' step definition that has a "gridengine" execution context'
             )
             Log.an().error(msg)
             return self._fatal(msg)
 
         # make sure app has a local definition
+        #   local def can be used by gridengine because it just needs a shell script
         if 'local' not in self._app['definition']:
             msg = (
-                '"local" step class can only be instantiated with an app that'
+                '"gridengine" step class can only be instantiated with an app that'
                 ' has a "local" definition'
             )
             Log.an().error(msg)
@@ -170,7 +173,7 @@ class LocalStep(WorkflowStep):
 
     def _run_map(self, map_item):
         """
-        Run a job for each map item and store the proc and PID.
+        Run a job for each map item and store the job ID.
 
         Args:
             self: class instance.
@@ -224,16 +227,15 @@ class LocalStep(WorkflowStep):
 
         Log.a().debug('command: %s', cmd)
 
-        # launch process
-        proc = ShellWrapper.spawn(cmd)
-        if proc is False:
-            msg = 'shell process error: {}'.format(cmd)
-            Log.an().error(msg)
-            return self._fatal(msg)
+        # submit hpc job using drmaa library
+        jt = self._gridengine['drmaa_session'].createJobTemplate()
+        jt.remoteCommand = cmd
+        jt.nativeSpecification = '-V {}'.format(self._step['execution']['parameters'])
+        job_id = self._gridengine['drmaa_session'].runJob(jt)
+        self._gridengine['drmaa_session'].deleteJobTemplate(jt)
 
         # record job info
-        map_item['run'][map_item['attempt']]['proc'] = proc
-        map_item['run'][map_item['attempt']]['pid'] = proc.pid
+        map_item['run'][map_item['attempt']]['hpc_job_id'] = job_id
 
         # set status of process
         map_item['status'] = 'RUNNING'
@@ -282,14 +284,7 @@ class LocalStep(WorkflowStep):
             A dict of all map items and their run histories.
 
         """
-        return {
-            map_item['filename']: [
-                {
-                    'status': run_item['status'],
-                    'pid': run_item['pid']
-                } for run_item in map_item['run']
-            ] for map_item in self._map
-        }
+        return self._map
 
 
     def check_running_jobs(self):
@@ -333,7 +328,7 @@ class LocalStep(WorkflowStep):
         """
         Retry any map-reduce jobs that failed.
 
-        This is not-yet supported for local apps.
+        This is not-yet supported for gridengine apps.
 
         Args:
             self: class instance.
@@ -342,6 +337,6 @@ class LocalStep(WorkflowStep):
             False.
 
         """
-        msg = 'retry not yet supported for local apps'
+        msg = 'retry not yet supported for gridengine apps'
         Log.an().error(msg)
         return self._fatal(msg)
