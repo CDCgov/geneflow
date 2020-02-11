@@ -43,6 +43,9 @@ class Workflow:
         self._parsed_job_work_uri = {}
         self._parsed_job_output_uri = {}
 
+        self._exec_contexts = set()
+        self._data_contexts = set()
+
         # context-specific data and methods
         self._workflow_context = {}
 
@@ -468,7 +471,7 @@ class Workflow:
             On failure: False.
 
         """
-        for context in self._job['work_uri']:
+        for exec_context in set(self._job['execution']['context'].values()):
 
             mod_name = '{}_workflow'.format(context)
             cls_name = '{}Workflow'.format(context.capitalize())
