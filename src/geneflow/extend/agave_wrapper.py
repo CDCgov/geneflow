@@ -62,9 +62,13 @@ class AgaveWrapper:
                 """
                 num_tries = 0
                 num_token_tries = 0
-                retry = that._config.get(self._func_key+'_retry', 1)
+                retry = that._config.get(
+                    self._func_key+'_retry',
+                    that._config['retry']
+                )
                 retry_delay = that._config.get(
-                    self._func_key+'_retry_delay', 0
+                    self._func_key+'_retry_delay',
+                    that._config['retry_delay']
                 )
 
                 while (
@@ -78,7 +82,7 @@ class AgaveWrapper:
 
                         except Exception as err:
                             # check for expired token error
-                            if '401' in str(err):
+                            if str(err).startswith('401'):
                                 num_token_tries += 1
                                 Log.a().warning(
                                     'agave token error [%s]', str(err)
@@ -128,7 +132,8 @@ class AgaveWrapper:
                                             )
                                     )
 
-                            if '404' in str(err):
+                            if str(err).startswith('404'):
+                                Log.a().warning('agave not found [%s]', str(err))
                                 # don't retry if 404 error
                                 return False
 
