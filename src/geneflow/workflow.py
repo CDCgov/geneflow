@@ -712,8 +712,8 @@ class Workflow:
             msg_headers = {
                 'Authorization':'Bearer {}'.format(
                     self._workflow_context['agave']\
-                        .get_context_options()['agave']\
-                        .token.token_info.get('access_token')
+                        .get_context_options()['agave_wrapper']\
+                        ._agave.token.token_info.get('access_token')
                 )
             }
 
