@@ -42,7 +42,7 @@ class AgaveWorkflow:
         self._parsed_job_work_uri = parsed_job_work_uri
 
         # init agave wrapper object
-        self._agave_wrapper = AgaveWrapper(config['agave'])
+        self._agave_wrapper = AgaveWrapper(config['agave'], token_username=self._job['username'])
         self._parsed_archive_uri = None
 
 
