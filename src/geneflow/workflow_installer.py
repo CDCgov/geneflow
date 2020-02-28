@@ -130,6 +130,7 @@ class WorkflowInstaller:
         # connect to agave
         if self._config and self._agave_params:
             if self._config.get('agave') and self._agave_params.get('agave'):
+                self._config['agave']['token_username'] = self._agave_username;
                 self._agave_wrapper = AgaveWrapper(self._config['agave'])
                 if not self._agave_wrapper.connect():
                     Log.an().error('cannot connect to agave')
