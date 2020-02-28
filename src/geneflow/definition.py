@@ -239,6 +239,7 @@ JOB_SCHEMA = {
             'required': True,
             'valueschema': {'type': 'string'}
         },
+        'no_output_hash': {'type': 'boolean', 'default': False},
         'inputs': {
             'type': 'dict', 'default': {}, 'valueschema': {'type': 'string'}
         },
