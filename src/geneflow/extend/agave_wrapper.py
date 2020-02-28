@@ -169,7 +169,6 @@ class AgaveWrapper:
 
         self._config = config
         self._agave = agave
-        self._token_username = token_username
 
         if token_username:
             self._config['token_username'] = token_username
