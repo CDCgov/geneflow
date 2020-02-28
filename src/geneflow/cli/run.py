@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 from multiprocessing import Pool
 from functools import partial
+from pprint import pprint
 
 
 import geneflow.cli.common
@@ -188,6 +189,7 @@ def run(args):
     # override with cli parameters
     if args.data:
         apply_job_modifiers(jobs_dict, args.data)
+    pprint(jobs_dict)
 
     # insert workflow name, if not provided
     workflow_name = next(iter(defs['workflows']))
