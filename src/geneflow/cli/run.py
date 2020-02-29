@@ -92,10 +92,26 @@ def apply_job_modifiers(jobs_dict, job_mods):
     for mod in job_mods:
         # split at =
         try:
-            key, val = mod.split('=')
+            parts = mod.split('=')
         except ValueError as err:
             Log.a().warning('job mod "%s" is malformed [%s]', mod, str(err))
             continue # skip mod
+
+        key = parts[0]
+        if not key:
+            Log.a().warning('empty job mod')
+            continue # skip mod
+
+        val = None
+        if len(parts) == 1:
+            # only one key, treat as bool switch
+            val = True
+        elif len(parts) == 2:
+            # two parts, key & value
+            val = parts[1]
+        else:
+            # multiple '=', include '=' in value
+            val = '='.join(parts[1:])
 
         # split key at .
         keys = key.split('.')

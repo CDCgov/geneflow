@@ -10,6 +10,7 @@ import json
 import os
 import uuid
 import yaml
+from pprint import pprint
 
 from sqlalchemy import create_engine, asc, desc, case
 from sqlalchemy import Boolean, Column, DateTime, Integer, String, Text
@@ -2441,7 +2442,7 @@ class DataSource:
                     valid_def['name']
                 )
                 return False
-
+            pprint(valid_def)
             # insert job record
             job_id = self.add_job({
                 'workflow_id'   : valid_def['workflow_id'],

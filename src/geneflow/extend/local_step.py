@@ -222,6 +222,9 @@ class LocalStep(WorkflowStep):
         # add exeuction method
         cmd += ' --exec_method="{}"'.format(self._step['execution']['method'])
 
+        # pass log level
+        # cmd += ' --log_level="{}"'.format(Log.getLevel())
+
         Log.a().debug('command: %s', cmd)
 
         # launch process
