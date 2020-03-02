@@ -134,6 +134,19 @@ class LocalStep(WorkflowStep):
             Log.an().error(msg)
             return self._fatal(msg)
 
+        # create _log folder
+        if not DataManager.mkdir(
+                uri='{}/_log'.format(
+                    self._parsed_data_uris[self._source_context]['chopped_uri']
+                ),
+                recursive=True
+        ):
+            msg = 'cannot create _log folder in data uri: {}/_log'.format(
+                self._parsed_data_uris[self._source_context]['chopped_uri']
+            )
+            Log.an().error(msg)
+            return self._fatal(msg)
+
         return True
 
 
@@ -223,14 +236,12 @@ class LocalStep(WorkflowStep):
         cmd += ' --exec_method="{}"'.format(self._step['execution']['method'])
 
         # add stdout and stderr
-        log_path = '{}/{}'.format(
+        log_path = '{}/_log/{}-wrapper-attempt-{}'.format(
             self._parsed_data_uris[self._source_context]['chopped_path'],
-            parameters['output']
+            parameters['output'],
+            map_item['attempt']
         )
-        cmd += ' > "{}.stdout" 2> "{}.stderr"'.format(log_path, log_path)
-
-        # pass log level
-        # cmd += ' --log_level="{}"'.format(Log.getLevel())
+        cmd += ' > "{}.out" 2> "{}.err"'.format(log_path, log_path)
 
         Log.a().debug('command: %s', cmd)
 
