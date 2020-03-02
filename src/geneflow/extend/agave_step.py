@@ -167,6 +167,20 @@ class AgaveStep(WorkflowStep):
             Log.an().error(msg)
             return self._fatal(msg)
 
+        # create _log folder
+        if not DataManager.mkdir(
+                uri='{}/_log'.format(
+                    self._parsed_data_uris[self._source_context]['chopped_uri']
+                ),
+                recursive=True,
+                agave=self._agave
+        ):
+            msg = 'cannot create _log folder in data uri: {}/_log'.format(
+                self._parsed_data_uris[self._source_context]['chopped_uri']
+            )
+            Log.an().error(msg)
+            return self._fatal(msg)
+
         return True
 
 
@@ -244,7 +258,7 @@ class AgaveStep(WorkflowStep):
         parameters['exec_method'] = self._step['execution']['method']
 
         # construct agave app template
-        name = '{}-{}-{}'.format(
+        name = 'gf-{}-{}-{}'.format(
             str(map_item['attempt']),
             slugify(self._step['name']),
             slugify(map_item['filename'])
@@ -290,6 +304,8 @@ class AgaveStep(WorkflowStep):
             )
             Log.an().error(msg)
             return self._fatal(msg)
+
+        Log.some().debug('agave job id: %s', job['id'])
 
         # record job info
         map_item['run'][map_item['attempt']]['agave_job_id'] = job['id']
