@@ -1,7 +1,7 @@
 """This module contains the GeneFlow Logging class."""
 
 import logging
-import  sys
+import sys
 
 
 class Log:
@@ -14,6 +14,8 @@ class Log:
         'error'   : logging.ERROR,
         'critical': logging.CRITICAL
     }
+
+    LOGLEVEL_REV = {v: k for k, v in LOGLEVEL.items()}
 
     # class level logger
     logger = logging.getLogger('GeneFlow')
@@ -99,3 +101,17 @@ class Log:
 
         """
         return cls.logger
+
+    @classmethod
+    def getLevel(cls):
+        """
+        Return the log level in string format.
+
+        Args:
+            cls: class instance.
+
+        Returns:
+            Log level string.
+
+        """
+        return cls.LOGLEVEL_REV.get(cls.logger.level, 'info')

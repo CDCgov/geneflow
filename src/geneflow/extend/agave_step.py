@@ -244,7 +244,7 @@ class AgaveStep(WorkflowStep):
         parameters['exec_method'] = self._step['execution']['method']
 
         # construct agave app template
-        name = '{}-{}-{}'.format(
+        name = 'gf-{}-{}-{}'.format(
             str(map_item['attempt']),
             slugify(self._step['name']),
             slugify(map_item['filename'])

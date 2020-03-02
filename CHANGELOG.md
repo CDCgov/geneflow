@@ -1,6 +1,16 @@
 # Changelog
 
 
+## 2020/02/28 - v1.13.3: bug fix release
+
+1. Fix bug: Agave token username not correctly populated when impersonating user.
+
+
+## 2020/02/21 - v1.13.2: bug fix release
+
+1. Fix bug: Agave context not properly referenced when running with user impersonation.
+
+
 ## 2020/02/19 - v1.13.1: bug fix release
 
 1. Fix bug: Agave token errors (401) and not found errors (404) are correctly detected in error message.

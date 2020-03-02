@@ -371,9 +371,8 @@ class Workflow:
 
         """
         # name of the job directory
-        job_dir = '{}-{}'.format(
-            slugify(self._job['name']), self._job['job_id'][:8]
-        )
+        job_dir = slugify(self._job['name'])
+        job_dir_hash = '{}-{}'.format(job_dir, self._job['job_id'][:8])
 
         # validate work URI for each context
         for context in self._job['work_uri']:
@@ -386,10 +385,10 @@ class Workflow:
                 Log.an().error(msg)
                 return self._fatal(msg)
 
-            # append job dir to each context
+            # append hashed job dir to each context
             full_job_work_uri = (
                 '{}{}' if parsed_uri['chopped_path'] == '/' else '{}/{}'
-            ).format(parsed_uri['chopped_uri'], job_dir)
+            ).format(parsed_uri['chopped_uri'], job_dir_hash)
 
             # validate again after appending
             parsed_job_work_uri = URIParser.parse(full_job_work_uri)
@@ -415,7 +414,10 @@ class Workflow:
         # append job dir to each context
         full_job_output_uri = (
             '{}{}' if parsed_uri['chopped_path'] == '/' else '{}/{}'
-        ).format(parsed_uri['chopped_uri'], job_dir)
+        ).format(
+            parsed_uri['chopped_uri'],
+            job_dir if self._job['no_output_hash'] else job_dir_hash
+        )
 
         # validate again after appending
         parsed_job_output_uri = URIParser.parse(full_job_output_uri)
@@ -709,8 +711,8 @@ class Workflow:
             msg_headers = {
                 'Authorization':'Bearer {}'.format(
                     self._workflow_context['agave']\
-                        .get_context_options()['agave']\
-                        .token.token_info.get('access_token')
+                        .get_context_options()['agave_wrapper']\
+                        ._agave.token.token_info.get('access_token')
                 )
             }
 

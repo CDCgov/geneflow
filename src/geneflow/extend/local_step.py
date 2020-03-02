@@ -222,6 +222,16 @@ class LocalStep(WorkflowStep):
         # add exeuction method
         cmd += ' --exec_method="{}"'.format(self._step['execution']['method'])
 
+        # add stdout and stderr
+        log_path = '{}/{}'.format(
+            self._parsed_data_uris[self._source_context]['chopped_path'],
+            parameters['output']
+        )
+        cmd += ' > "{}.stdout" 2> "{}.stderr"'.format(log_path, log_path)
+
+        # pass log level
+        # cmd += ' --log_level="{}"'.format(Log.getLevel())
+
         Log.a().debug('command: %s', cmd)
 
         # launch process
