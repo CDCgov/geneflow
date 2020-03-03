@@ -1,9 +1,13 @@
 # Changelog
 
 
-## 2020/02/28 - v1.13.3: bug fix release
+## 2020/03/03 - v1.13.3: bug fix release
 
 1. Fix bug: Agave token username not correctly populated when impersonating user.
+
+2. Fix bug: Command-line options with zero (boolean) or >1 equal signs are not properly handled.
+
+3. Fix bug: Local and Agave context log files not placed in systematic location.
 
 
 ## 2020/02/21 - v1.13.2: bug fix release
