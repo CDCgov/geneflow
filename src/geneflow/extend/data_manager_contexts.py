@@ -196,7 +196,7 @@ def _exists_agave(uri, agave):
         True if the URI exists, False if it doesn't or if there's an error.
 
     """
-    if agave['agave_wrapper'].files_list(uri['authority'], uri['chopped_path']) is False:
+    if agave['agave_wrapper'].files_exist(uri['authority'], uri['chopped_path']) is False:
         return False
 
     return True

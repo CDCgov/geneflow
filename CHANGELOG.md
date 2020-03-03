@@ -9,6 +9,8 @@
 
 3. Fix bug: Local and Agave context log files not placed in systematic location.
 
+4. Fix bug: Extraneous Agave 404 warning messages are printed when checking if files/dirs exist.
+
 
 ## 2020/02/21 - v1.13.2: bug fix release
 
