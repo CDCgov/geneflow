@@ -261,7 +261,7 @@ class AgaveStep(WorkflowStep):
         name = 'gf-{}-{}-{}'.format(
             str(map_item['attempt']),
             slugify(self._step['name']),
-            slugify(map_item['filename'])
+            slugify(map_item['template']['output'])
         )
         name = name[:62]+'..' if len(name) > 64 else name
         archive_path = '{}/{}'.format(
@@ -305,7 +305,8 @@ class AgaveStep(WorkflowStep):
             Log.an().error(msg)
             return self._fatal(msg)
 
-        Log.some().debug('agave job id: %s', job['id'])
+        # log agave job id
+        Log.some().debug('agave job id: %s -> %s', map_item['template']['output'], job['id'])
 
         # record job info
         map_item['run'][map_item['attempt']]['agave_job_id'] = job['id']
@@ -419,6 +420,13 @@ class AgaveStep(WorkflowStep):
                     if match:
                         map_item['run'][map_item['attempt']]['hpc_job_id'] \
                             = match.group(1)
+
+                        # log hpc job id in
+                        Log.some().debug(
+                            'hpc job id: %s -> %s', map_item['template']['output'],
+                            match.group(1)
+                        )
+
                         break
 
         self._update_status_db(self._status, '')
@@ -517,6 +525,39 @@ class AgaveStep(WorkflowStep):
                     .format(self._step['name'])
                 Log.an().error(msg)
                 return self._fatal(msg)
+
+            # check for any agave log files (*.out and *.err files)
+            agave_log_list = DataManager.list(
+                uri=map_item['run'][map_item['attempt']]['archive_uri'],
+                agave=self._agave
+            )
+            if not agave_log_list:
+                msg = 'cannot get agave log list for step "{}"'\
+                    .format(self._step['name'])
+                Log.an().error(msg)
+                return self._fatal(msg)
+
+            # copy each agave log file, the pattern is gf-{}-{}-{}.out or .err
+            for item in agave_log_list:
+                if re.match('^gf-\d*-.*\.(out|err)$', item):
+                    if not self._agave['agave_wrapper'].files_import_from_agave(
+                        self._parsed_data_uris[self._source_context]\
+                            ['authority'],
+                        '{}/{}'.format(
+                            self._parsed_data_uris[self._source_context]\
+                                ['chopped_path'],
+                            '_log'
+                        ),
+                        item,
+                        '{}/{}'.format(
+                            map_item['run'][map_item['attempt']]\
+                                ['archive_uri'],
+                            item
+                        )
+                    ):
+                        msg = 'cannot copy agave log item "{}"'.format(item)
+                        Log.an().error(msg)
+                        return self._fatal(msg)
 
             # check if anything is in the _log directory
             src_log_dir = '{}/{}'.format(

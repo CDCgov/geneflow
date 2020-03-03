@@ -1,5 +1,8 @@
 """This module contains the GeneFlow LocalStep class."""
 
+
+from slugify import slugify
+
 from geneflow.log import Log
 from geneflow.workflow_step import WorkflowStep
 from geneflow.data_manager import DataManager
@@ -236,10 +239,11 @@ class LocalStep(WorkflowStep):
         cmd += ' --exec_method="{}"'.format(self._step['execution']['method'])
 
         # add stdout and stderr
-        log_path = '{}/_log/{}-wrapper-attempt-{}'.format(
+        log_path = '{}/_log/gf-{}-{}-{}'.format(
             self._parsed_data_uris[self._source_context]['chopped_path'],
-            parameters['output'],
-            map_item['attempt']
+            map_item['attempt'],
+            slugify(self._step['name']),
+            slugify(map_item['template']['output'])
         )
         cmd += ' > "{}.out" 2> "{}.err"'.format(log_path, log_path)
 
