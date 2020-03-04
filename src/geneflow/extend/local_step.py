@@ -1,5 +1,8 @@
 """This module contains the GeneFlow LocalStep class."""
 
+
+from slugify import slugify
+
 from geneflow.log import Log
 from geneflow.workflow_step import WorkflowStep
 from geneflow.data_manager import DataManager
@@ -134,6 +137,19 @@ class LocalStep(WorkflowStep):
             Log.an().error(msg)
             return self._fatal(msg)
 
+        # create _log folder
+        if not DataManager.mkdir(
+                uri='{}/_log'.format(
+                    self._parsed_data_uris[self._source_context]['chopped_uri']
+                ),
+                recursive=True
+        ):
+            msg = 'cannot create _log folder in data uri: {}/_log'.format(
+                self._parsed_data_uris[self._source_context]['chopped_uri']
+            )
+            Log.an().error(msg)
+            return self._fatal(msg)
+
         return True
 
 
@@ -223,14 +239,13 @@ class LocalStep(WorkflowStep):
         cmd += ' --exec_method="{}"'.format(self._step['execution']['method'])
 
         # add stdout and stderr
-        log_path = '{}/{}'.format(
+        log_path = '{}/_log/gf-{}-{}-{}'.format(
             self._parsed_data_uris[self._source_context]['chopped_path'],
-            parameters['output']
+            map_item['attempt'],
+            slugify(self._step['name']),
+            slugify(map_item['template']['output'])
         )
-        cmd += ' > "{}.stdout" 2> "{}.stderr"'.format(log_path, log_path)
-
-        # pass log level
-        # cmd += ' --log_level="{}"'.format(Log.getLevel())
+        cmd += ' > "{}.out" 2> "{}.err"'.format(log_path, log_path)
 
         Log.a().debug('command: %s', cmd)
 

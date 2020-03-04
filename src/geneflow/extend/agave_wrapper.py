@@ -30,7 +30,7 @@ class AgaveWrapper:
 
         """
 
-        def __init__(self, func_key):
+        def __init__(self, func_key, silent_404=False):
             """
             Initialize decorator class
 
@@ -38,9 +38,11 @@ class AgaveWrapper:
                 self: instance of decorator class.
                 func_key: descriptor for function to be decorated. This is used
                     to look up the retry # and retry delay times.
+                silent_404: whether to suppress warning messages for 404 errors
 
             """
             self._func_key = func_key
+            self._silent_404 = silent_404
 
         def __call__(self, func):
             """
@@ -133,7 +135,9 @@ class AgaveWrapper:
                                     )
 
                             if str(err).startswith('404'):
-                                Log.a().warning('agave not found [%s]', str(err))
+                                if not self._silent_404:
+                                    Log.a().warning('agave file/dir/object not found [%s]', str(err))
+
                                 # don't retry if 404 error
                                 return False
 
@@ -209,6 +213,30 @@ class AgaveWrapper:
             return False
 
         return True
+
+
+    @AgaveRetry('files_list', silent_404=True)
+    def files_exist(self, system_id, file_path):
+        """
+        Wrap AgavePy file listing command to check if file exists.
+
+        Args:
+            self: class instance.
+            system_id: Identifier for Agave storage system.
+            file_path: Path for file listing.
+
+        Returns:
+            True if file/dir exists.
+            False if file/dir does not exist.
+
+        """
+        if self._agave.files.list(
+            systemId=system_id,
+            filePath=file_path
+        ):
+            return True
+
+        return False
 
 
     @AgaveRetry('files_list')
