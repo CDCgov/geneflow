@@ -103,6 +103,7 @@ class JobEntity(Base):
     name = Column(String, default='')
     username = Column(String, default='')
     work_uri = Column(String, default='')
+    no_output_hash = Column(Boolean, default=False)
     status = Column(String, default='PENDING')
     queued = Column(DateTime, default=datetime.datetime.now)
     started = Column(DateTime)
@@ -262,6 +263,7 @@ class DataSource:
                 WorkflowEntity.name,
                 JobEntity.output_uri,
                 JobEntity.work_uri,
+                JobEntity.no_output_hash,
                 JobEntity.inputs,
                 JobEntity.parameters,
                 JobEntity.final_output,
@@ -282,14 +284,15 @@ class DataSource:
                     'workflow_name': row[4],
                     'output_uri': row[5],
                     'work_uri': json.loads(row[6]),
-                    'inputs': json.loads(row[7]),
-                    'parameters': json.loads(row[8]),
-                    'final_output': json.loads(row[9]),
+                    'no_output_hash': row[7],
+                    'inputs': json.loads(row[8]),
+                    'parameters': json.loads(row[9]),
+                    'final_output': json.loads(row[10]),
                     'execution': {
-                        'context': json.loads(row[10]),
-                        'method': json.loads(row[11])
+                        'context': json.loads(row[11]),
+                        'method': json.loads(row[12])
                     },
-                    'notifications': json.loads(row[12])
+                    'notifications': json.loads(row[13])
                 } for row in result
             ]
 
@@ -1255,7 +1258,7 @@ class DataSource:
 
         Args:
             data: a dictionary with the following keys:
-                  ['workflow_id', 'name', 'username', 'work_uri'
+                  ['workflow_id', 'name', 'username', 'work_uri', 'no_output_hash',
                   'inputs', 'parameters', 'output_uri','final_output',
                   'exec_context', 'exec_method']
         Returns:
@@ -1271,6 +1274,7 @@ class DataSource:
                 name=data['name'],
                 username=data['username'],
                 work_uri=data['work_uri'],
+                no_output_hash=data['no_output_hash'],
                 inputs=data['inputs'],
                 parameters=data['parameters'],
                 output_uri=data['output_uri'],
@@ -2444,6 +2448,7 @@ class DataSource:
                 'name'          : valid_def['name'],
                 'username'      : valid_def['username'],
                 'work_uri'      : json.dumps(valid_def['work_uri']),
+                'no_output_hash': valid_def['no_output_hash'],
                 'inputs'        : json.dumps(valid_def['inputs']),
                 'parameters'    : json.dumps(valid_def['parameters']),
                 'output_uri'    : valid_def['output_uri'],
