@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 from setuptools.command.develop import develop
 from setuptools.command.install import install
 
-BASE_DIR = os.path.dirname(__file__)
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(BASE_DIR, 'README.md'), encoding='utf-8').read()
 VERSION = open(os.path.join(BASE_DIR, 'VERSION'), encoding='utf-8').read()
 
@@ -40,6 +40,7 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3 :: Only',
         'Topic :: Scientific/Engineering :: Bio-Informatics'
     ],
