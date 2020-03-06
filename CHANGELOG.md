@@ -1,6 +1,11 @@
 # Changelog
 
 
+## 2020/03/04 - v1.13.4: bug fix release
+
+1. Fix bug: Add MANIFEST.in file to correctly include extra package files.
+
+
 ## 2020/03/03 - v1.13.3: bug fix release
 
 1. Fix bug: Agave token username not correctly populated when impersonating user.
