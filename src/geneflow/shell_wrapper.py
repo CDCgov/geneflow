@@ -1,5 +1,6 @@
 """This module contains the GeneFlow ShellWrapper class."""
 
+import os
 from subprocess import (PIPE, Popen)
 
 from geneflow.log import Log
@@ -22,7 +23,7 @@ class ShellWrapper:
         """
         proc = None
         try:
-            proc = Popen(command, stdout=PIPE, shell=True)
+            proc = Popen(command, stdout=PIPE, shell=True, env=os.environ)
         except OSError as err:
             Log.an().error('invoke command failed: %s [%s]', command, str(err))
             return False
@@ -53,7 +54,7 @@ class ShellWrapper:
 
         """
         try:
-            return Popen(command, shell=True)
+            return Popen(command, shell=True, env=os.environ)
         except OSError as err:
             Log.an().error('spawn command failed: %s [%s]', command, str(err))
             return False
