@@ -1,11 +1,12 @@
 include CHANGELOG.md
 include CONTRIBUTING.md
 include DISCLAIMER.md
-include docker/*
-include docs/*
 include LICENSE
 include requirements.txt
 include VERSION
+include docker/*
+include docs/*
+include src/geneflow/data/*
 include tests/behave.ini
 include tests/data/*
 include tests/features/*
