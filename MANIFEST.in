@@ -6,7 +6,9 @@ include requirements.txt
 include VERSION
 include docker/*
 include docs/*
-include src/geneflow/data/*
+include src/geneflow/data/migrations/*
+include src/geneflow/data/sql/*
+include src/geneflow/data/templates/*
 include tests/behave.ini
 include tests/data/*
 include tests/features/*
