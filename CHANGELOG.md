@@ -5,6 +5,8 @@
 
 1. Fix bug: Environment variables not passed to workflow step subprocesses.
 
+2. Fix bug: Add src/geneflow/data/ directories to MANIFEST.in.
+
 
 ## 2020/03/04 - v1.13.4: bug fix release
 
