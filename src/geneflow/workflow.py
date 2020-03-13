@@ -6,6 +6,7 @@ import requests
 import yaml
 from slugify import slugify
 
+from geneflow.extend.contexts import Contexts
 from geneflow.log import Log
 from geneflow.data import DataSource, DataSourceException
 from geneflow.data_manager import DataManager
@@ -42,6 +43,9 @@ class Workflow:
 
         self._parsed_job_work_uri = {}
         self._parsed_job_output_uri = {}
+
+        self._exec_contexts = set() # all execution contexts
+        self._data_contexts = set() # all data contexts
 
         # context-specific data and methods
         self._workflow_context = {}
@@ -84,6 +88,12 @@ class Workflow:
         # inject job parameters into workflow def
         if not self._inject_job_params():
             msg = 'cannot inject job parameters into workflow definition'
+            Log.an().error(msg)
+            return self._fatal(msg)
+
+        # initialize set of execution contexts
+        if not self._init_exec_data_contexts():
+            msg = 'cannot initialize execution contexts'
             Log.an().error(msg)
             return self._fatal(msg)
 
@@ -358,6 +368,38 @@ class Workflow:
         return True
 
 
+    def _init_exec_data_contexts(self):
+        """
+        Initialize set of execution and data contexts.
+
+        Args:
+            self: class instance
+
+        Returns:
+            On success: True.
+            On failure: False.
+
+        """
+        # get explicit execution contexts from the job parameters
+        self._exec_contexts = set(self._job['execution']['context'].values())
+
+        # check input URIs for data contexts
+        for input_key in self._job['inputs']:
+            parsed_uri = URIParser.parse(
+                self._workflow['inputs'][input_key]['value']
+            )
+            if not parsed_uri:
+                msg = 'invalid input uri: {}'.format(
+                    self._workflow['inputs'][input_key]['value']
+                )
+                Log.an().error(msg)
+                return self._fatal(msg)
+
+            if parsed_uri['scheme'] not in Contexts.mapping:
+
+            self._data_contexts.add(parsed_uri['scheme'])
+
+
     def _init_job_uris(self):
         """
         Initialize all work and output URIs.
@@ -470,7 +512,7 @@ class Workflow:
             On failure: False.
 
         """
-        for context in self._job['work_uri']:
+        for exec_context in set(self._job['execution']['context'].values()):
 
             mod_name = '{}_workflow'.format(context)
             cls_name = '{}Workflow'.format(context.capitalize())

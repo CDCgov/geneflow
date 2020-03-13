@@ -40,8 +40,8 @@ class WorkflowDAG:
                     ...
                 }
             parsed_job_work_uri: dict of parsed job work URIs, one URI per
-                context.
-            parsed_job_output_uri: string of job output URI.
+                data context.
+            parsed_job_output_uri: job output URI.
             config: dict of workflow config
             **kwargs: additional arguments specific to contexts for this
                 workflow (e.g., local or agave arguments)
@@ -71,7 +71,7 @@ class WorkflowDAG:
         # Step classes for each required context
         self._context_classes = {}
 
-        # additional args for specific contexts
+        # additional args for specific data or execution contexts
         self._context_options = kwargs
 
 
