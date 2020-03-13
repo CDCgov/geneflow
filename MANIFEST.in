@@ -1,0 +1,16 @@
+include CHANGELOG.md
+include CONTRIBUTING.md
+include DISCLAIMER.md
+include LICENSE
+include requirements.txt
+include VERSION
+include docker/*
+include docs/*
+include src/geneflow/data/migrations/*
+include src/geneflow/data/sql/*
+include src/geneflow/data/templates/*
+include tests/behave.ini
+include tests/data/*
+include tests/features/*
+include tests/README.md
+include tests/test.conf

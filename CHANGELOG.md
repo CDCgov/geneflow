@@ -1,6 +1,18 @@
 # Changelog
 
 
+## 2020/03/09 - v1.13.5: bug fix release
+
+1. Fix bug: Environment variables not passed to workflow step subprocesses.
+
+2. Fix bug: Add src/geneflow/data/ directories to MANIFEST.in.
+
+
+## 2020/03/04 - v1.13.4: bug fix release
+
+1. Fix bug: Add MANIFEST.in file to correctly include extra package files.
+
+
 ## 2020/03/03 - v1.13.3: bug fix release
 
 1. Fix bug: Agave token username not correctly populated when impersonating user.
