@@ -6,7 +6,7 @@ from geneflow.data_manager import DataManager
 from geneflow.uri_parser import URIParser
 
 
-class GridEngineStep(WorkflowStep):
+class GridengineStep(WorkflowStep):
     """
     A class that represents GridEngine Workflow Step objects.
 

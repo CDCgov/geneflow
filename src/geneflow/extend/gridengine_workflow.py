@@ -6,7 +6,7 @@ import drmaa
 from geneflow.log import Log
 
 
-class GridEngineWorkflow:
+class GridengineWorkflow:
     """
     A class that represents the Grid Engine Workflow objects.
     """
@@ -41,7 +41,7 @@ class GridEngineWorkflow:
         try:
             self._drmaa_session.exit()
         except drmaa.errors.DrmaaException as err:
-            Log.a().warning()
+            Log.a().warning(
                 'cannot exit drmaa session: [%s]', str(err)
             )
 

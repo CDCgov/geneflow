@@ -412,6 +412,8 @@ class Workflow:
 
         Log.some().debug('data contexts: {}'.format(self._data_contexts))
 
+        return True
+
 
     def _init_job_uris(self):
         """
@@ -525,10 +527,10 @@ class Workflow:
             On failure: False.
 
         """
-        for exec_context in set(self._job['execution']['context'].values()):
+        for exec_context in self._exec_contexts:
 
-            mod_name = '{}_workflow'.format(context)
-            cls_name = '{}Workflow'.format(context.capitalize())
+            mod_name = '{}_workflow'.format(exec_context)
+            cls_name = '{}Workflow'.format(exec_context.capitalize())
 
             try:
                 workflow_mod = __import__(
@@ -551,12 +553,12 @@ class Workflow:
                 Log.an().error(msg)
                 return self._fatal(msg)
 
-            self._workflow_context[context] = workflow_class(
+            self._workflow_context[exec_context] = workflow_class(
                 self._config, self._job, self._parsed_job_work_uri
             )
 
             # perform context-specific init
-            if not self._workflow_context[context].initialize():
+            if not self._workflow_context[exec_context].initialize():
                 msg = (
                     'cannot initialize workflow context: {}'.format(cls_name)
                 )
