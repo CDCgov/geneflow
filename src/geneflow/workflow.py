@@ -382,6 +382,7 @@ class Workflow:
         """
         # get explicit execution contexts from the job parameters
         self._exec_contexts = set(self._job['execution']['context'].values())
+        Log.some().debug('execution contexts: {}'.format(self._exec_contexts))
 
         # check input URIs for data contexts
         for input_key in self._job['inputs']:
@@ -396,8 +397,20 @@ class Workflow:
                 return self._fatal(msg)
 
             if parsed_uri['scheme'] not in Contexts.mapping:
+                self._data_contexts.add(parsed_uri['scheme'])
 
-            self._data_contexts.add(parsed_uri['scheme'])
+        # add output URI data context
+        parsed_output_uri = URIParser.parse(self._job['output_uri'])
+        if not parsed_output_uri:
+            msg = 'invalid base of job output uri: {}'.format(
+                self._job['output_uri']
+            )
+            Log.an().error(msg)
+            return self._fatal(msg)
+
+        self._data_contexts.add(parsed_output_uri['scheme'])
+
+        Log.some().debug('data contexts: {}'.format(self._data_contexts))
 
 
     def _init_job_uris(self):
