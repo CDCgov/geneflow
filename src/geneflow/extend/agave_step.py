@@ -235,15 +235,19 @@ class AgaveStep(WorkflowStep):
         inputs = {}
         for input_key in self._app['inputs']:
             if input_key in map_item['template']:
-                inputs[input_key] = urllib.parse.quote(
-                    str(map_item['template'][input_key] or ''),
-                    safe='/:'
-                )
+                if map_item['template'][input_key]:
+                    # only include an input if the value is a non-empty string
+                    inputs[input_key] = urllib.parse.quote(
+                        str(map_item['template'][input_key]),
+                        safe='/:'
+                    )
             else:
-                inputs[input_key] = urllib.parse.quote(
-                    str(self._app['inputs'][input_key]['default'] or ''),
-                    safe='/:'
-                )
+                if self._app['inputs'][input_key]['default']:
+                    # only include an input if the value is a non-empty string
+                    inputs[input_key] = urllib.parse.quote(
+                        str(self._app['inputs'][input_key]['default']),
+                        safe='/:'
+                    )
 
         # load default app parameters, overwrite with template parameters
         parameters = {}
