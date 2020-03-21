@@ -247,12 +247,14 @@ class GridengineStep(WorkflowStep):
 
         # submit hpc job using drmaa library
         jt = self._gridengine['drmaa_session'].createJobTemplate()
-        path = ShellWrapper.invoke('which {}'.format(cmd))
+        path = ShellWrapper.invoke('which {}'.format(cmd)).decode('utf-8')
+        path = ShellWrapper.invoke('dirname {}'.format(path)).decode('utf-8')
         Log.a().debug('path: {}'.format(path))
-        jt.remoteCommand = path.decode('utf-8')
+        jt.workingDirectory = path
+        jt.remoteCommand = cmd
         #Log.a().debug(os.environ['PATH'])
         #jt.nativeSpecification = '-cwd -shell y -b y -v {}'.format(os.environ['PATH'])
-        jt.nativeSpecification = '-cwd -shell y -b n'
+        jt.nativeSpecification = '-shell y -b n'
         jt.jobName = self._job['name']
         job_id = self._gridengine['drmaa_session'].runJob(jt)
         self._gridengine['drmaa_session'].deleteJobTemplate(jt)
