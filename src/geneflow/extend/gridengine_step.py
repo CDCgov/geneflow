@@ -1,8 +1,13 @@
-"""This module contains the GeneFlow LocalStep class."""
+"""This module contains the GeneFlow GridengineStep class."""
+
+
+import drmaa
+import os
 
 from geneflow.log import Log
 from geneflow.workflow_step import WorkflowStep
 from geneflow.data_manager import DataManager
+from geneflow.shell_wrapper import ShellWrapper
 from geneflow.uri_parser import URIParser
 
 
@@ -32,7 +37,7 @@ class GridengineStep(WorkflowStep):
 
         See documentation for WorkflowStep __init__().
         """
-        super(LocalStep, self).__init__(
+        super(GridengineStep, self).__init__(
             job,
             step,
             app,
@@ -47,6 +52,19 @@ class GridengineStep(WorkflowStep):
 
         # gridengine context data
         self._gridengine = gridengine
+
+        self._job_status_map = {
+            drmaa.JobState.UNDETERMINED: 'UNKNOWN',
+            drmaa.JobState.QUEUED_ACTIVE: 'PENDING',
+            drmaa.JobState.SYSTEM_ON_HOLD: 'PENDING',
+            drmaa.JobState.USER_ON_HOLD: 'PENDING',
+            drmaa.JobState.USER_SYSTEM_ON_HOLD: 'PENDING',
+            drmaa.JobState.RUNNING: 'RUNNING',
+            drmaa.JobState.SYSTEM_SUSPENDED: 'RUNNING',
+            drmaa.JobState.USER_SUSPENDED: 'RUNNING',
+            drmaa.JobState.DONE: 'FINISHED',
+            drmaa.JobState.FAILED: 'FAILED'
+        }
 
 
     def initialize(self):
@@ -83,7 +101,7 @@ class GridengineStep(WorkflowStep):
             Log.an().error(msg)
             return self._fatal(msg)
 
-        if not super(LocalStep, self).initialize():
+        if not super(GridengineStep, self).initialize():
             msg = 'cannot initialize workflow step'
             Log.an().error(msg)
             return self._fatal(msg)
@@ -203,43 +221,50 @@ class GridengineStep(WorkflowStep):
 
         # construct shell command
         cmd = self._app['definition']['local']['script']
-        for input_key in inputs:
-            if inputs[input_key]:
-                cmd += ' --{}="{}"'.format(
-                    input_key,
-                    URIParser.parse(inputs[input_key])['chopped_path']
-                )
-        for param_key in parameters:
-            if param_key == 'output':
-                cmd += ' --output="{}/{}"'.format(
-                    self._parsed_data_uris[self._source_context]\
-                        ['chopped_path'],
-                    parameters['output']
-                )
+        #for input_key in inputs:
+        #    if inputs[input_key]:
+        #        cmd += ' --{}="{}"'.format(
+        #            input_key,
+        #            URIParser.parse(inputs[input_key])['chopped_path']
+        #        )
+        #for param_key in parameters:
+        #    if param_key == 'output':
+        #        cmd += ' --output="{}/{}"'.format(
+        #            self._parsed_data_uris[self._source_context]\
+        #                ['chopped_path'],
+        #            parameters['output']
+        #        )
 
-            else:
-                cmd += ' --{}="{}"'.format(
-                    param_key, parameters[param_key]
-                )
+        #    else:
+        #        cmd += ' --{}="{}"'.format(
+        #            param_key, parameters[param_key]
+        #        )
 
         # add exeuction method
-        cmd += ' --exec_method="{}"'.format(self._step['execution']['method'])
+        #cmd += ' --exec_method="{}"'.format(self._step['execution']['method'])
 
         Log.a().debug('command: %s', cmd)
 
         # submit hpc job using drmaa library
         jt = self._gridengine['drmaa_session'].createJobTemplate()
-        jt.remoteCommand = cmd
-        jt.nativeSpecification = '-V {}'.format(self._step['execution']['parameters'])
+        path = ShellWrapper.invoke('which {}'.format(cmd))
+        Log.a().debug('path: {}'.format(path))
+        jt.remoteCommand = path.decode('utf-8')
+        #Log.a().debug(os.environ['PATH'])
+        #jt.nativeSpecification = '-cwd -shell y -b y -v {}'.format(os.environ['PATH'])
+        jt.nativeSpecification = '-cwd -shell y -b n'
+        jt.jobName = self._job['name']
         job_id = self._gridengine['drmaa_session'].runJob(jt)
         self._gridengine['drmaa_session'].deleteJobTemplate(jt)
+
+        Log.a().debug('hpc job id: %s', job_id)
 
         # record job info
         map_item['run'][map_item['attempt']]['hpc_job_id'] = job_id
 
         # set status of process
-        map_item['status'] = 'RUNNING'
-        map_item['run'][map_item['attempt']]['status'] = 'RUNNING'
+        map_item['status'] = 'PENDING'
+        map_item['run'][map_item['attempt']]['status'] = 'PENDING'
 
         return True
 
@@ -298,26 +323,13 @@ class GridengineStep(WorkflowStep):
             True.
 
         """
-        # check if procs are running, finished, or failed
+        # check if jobs are running, finished, or failed
         for map_item in self._map:
-            try:
-                if ShellWrapper.is_running(
-                        map_item['run'][map_item['attempt']]['proc']
-                ):
-                    map_item['status'] = 'RUNNING'
-                else:
-                    if map_item['run'][map_item['attempt']]['proc'].returncode:
-                        map_item['status'] = 'FAILED'
-                    else:
-                        map_item['status'] = 'FINISHED'
-                map_item['run'][map_item['attempt']]['status']\
-                    = map_item['status']
-            except (OSError, AttributeError) as err:
-                Log.a().warning(
-                    'process polling failed for map item "%s" [%s]',
-                    map_item['filename'], str(err)
-                )
-                map_item['status'] = 'FAILED'
+            status = self._gridengine['drmaa_session'].jobStatus(
+                map_item['run'][map_item['attempt']]['hpc_job_id']
+            )
+            map_item['status'] = self._job_status_map[status]
+            map_item['run'][map_item['attempt']]['status'] = map_item['status']
 
         self._update_status_db(self._status, '')
 

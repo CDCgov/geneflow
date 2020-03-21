@@ -6,13 +6,13 @@ import requests
 import yaml
 from slugify import slugify
 
-from geneflow.extend.contexts import Contexts
 from geneflow.log import Log
 from geneflow.data import DataSource, DataSourceException
 from geneflow.data_manager import DataManager
 from geneflow.definition import Definition
 from geneflow.workflow_dag import WorkflowDAG, WorkflowDAGException
 from geneflow.uri_parser import URIParser
+from geneflow.extend.contexts import Contexts
 
 
 class Workflow:
@@ -92,8 +92,14 @@ class Workflow:
             return self._fatal(msg)
 
         # initialize set of execution contexts
-        if not self._init_exec_data_contexts():
-            msg = 'cannot initialize execution contexts'
+        if not self._init_exec_context_set():
+            msg = 'cannot initialize set of execution contexts'
+            Log.an().error(msg)
+            return self._fatal(msg)
+
+        # initialize set of execution contexts
+        if not self._init_data_context_set():
+            msg = 'cannot initialize set of data contexts'
             Log.an().error(msg)
             return self._fatal(msg)
 
@@ -368,9 +374,36 @@ class Workflow:
         return True
 
 
-    def _init_exec_data_contexts(self):
+    def _init_exec_context_set(self):
         """
-        Initialize set of execution and data contexts.
+        Initialize set of execution contexts, which is specified by the execution.context job
+        parameters.
+
+        Args:
+            self: class instance
+
+        Returns:
+            On success: True.
+
+        """
+        # get explicit execution contexts from the job parameters
+        self._exec_contexts = set(self._job['execution']['context'].values())
+
+        # check validity of exec contexts
+        for context in self._exec_contexts:
+            if not Contexts.is_exec_context(context):
+                msg = 'invalid exec context: {}'.format(context)
+                Log.an().error(msg)
+                return self._fatal(msg)
+
+        Log.some().debug('execution contexts: {}'.format(self._exec_contexts))
+
+        return True
+
+
+    def _init_data_context_set(self):
+        """
+        Initialize set of data contexts, which is determined by inputs and output.
 
         Args:
             self: class instance
@@ -380,12 +413,8 @@ class Workflow:
             On failure: False.
 
         """
-        # get explicit execution contexts from the job parameters
-        self._exec_contexts = set(self._job['execution']['context'].values())
-        Log.some().debug('execution contexts: {}'.format(self._exec_contexts))
-
         # check input URIs for data contexts
-        for input_key in self._job['inputs']:
+        for input_key in self._workflow['inputs']:
             parsed_uri = URIParser.parse(
                 self._workflow['inputs'][input_key]['value']
             )
@@ -396,8 +425,7 @@ class Workflow:
                 Log.an().error(msg)
                 return self._fatal(msg)
 
-            if parsed_uri['scheme'] not in Contexts.mapping:
-                self._data_contexts.add(parsed_uri['scheme'])
+            self._data_contexts.add(parsed_uri['scheme'])
 
         # add output URI data context
         parsed_output_uri = URIParser.parse(self._job['output_uri'])
@@ -409,6 +437,13 @@ class Workflow:
             return self._fatal(msg)
 
         self._data_contexts.add(parsed_output_uri['scheme'])
+
+        # check validity of data contexts
+        for context in self._data_contexts:
+            if not Contexts.is_data_context(context):
+                msg = 'invalid data context: {}'.format(context)
+                Log.an().error(msg)
+                return self._fatal(msg)
 
         Log.some().debug('data contexts: {}'.format(self._data_contexts))
 
@@ -431,8 +466,18 @@ class Workflow:
         job_dir = slugify(self._job['name'])
         job_dir_hash = '{}-{}'.format(job_dir, self._job['job_id'][:8])
 
-        # validate work URI for each context
-        for context in self._job['work_uri']:
+        # validate work URI for each exec context
+        #   use the 'data_scheme' for each execution context
+        #   and place into a set to remove repeats
+        for context in {
+                Contexts.mapping[exec_context]['data_scheme']
+                for exec_context in self._exec_contexts
+        }:
+            # work_uri must be set for each exec_context
+            if context not in self._job['work_uri']:
+                msg = 'missing work_uri for context: {}'.format(context)
+                Log.an().error(msg)
+                return self._fatal(msg)
 
             parsed_uri = URIParser.parse(self._job['work_uri'][context])
             if not parsed_uri:
@@ -452,7 +497,7 @@ class Workflow:
 
             if not parsed_job_work_uri:
                 msg = 'invalid job work uri for context: {}->{}'.format(
-                    context, full_job_work_uri
+                    exec_context, full_job_work_uri
                 )
                 Log.an().error(msg)
                 return self._fatal(msg)
@@ -468,7 +513,7 @@ class Workflow:
             Log.an().error(msg)
             return self._fatal(msg)
 
-        # append job dir to each context
+        # append job dir (hashed or not) to output uri
         full_job_output_uri = (
             '{}{}' if parsed_uri['chopped_path'] == '/' else '{}/{}'
         ).format(
@@ -503,11 +548,11 @@ class Workflow:
             On failure: False.
 
         """
-        for context in self._job['work_uri']:
-            if not self._workflow_context[context].init_data():
+        for exec_context in self._exec_contexts:
+            if not self._workflow_context[exec_context].init_data():
                 msg = (
                     'cannot initialize data for workflow context: {}'\
-                        .format(context)
+                        .format(exec_context)
                 )
                 Log.an().error(msg)
                 return self._fatal(msg)
@@ -527,10 +572,15 @@ class Workflow:
             On failure: False.
 
         """
-        for exec_context in self._exec_contexts:
+        # currently the union of all execution and data contexts will be used
+        # to initialize workflow contexts/classes. the reason is that all supported
+        # data contexts are also execution contexts. This may change in the future
+        # with data-only contexts (e.g., http/s). In that case, a new method
+        # (_init_data_contexts) will be added to populate a _data_context variable.
+        for context in self._exec_contexts | self._data_contexts:
 
-            mod_name = '{}_workflow'.format(exec_context)
-            cls_name = '{}Workflow'.format(exec_context.capitalize())
+            mod_name = '{}_workflow'.format(context)
+            cls_name = '{}Workflow'.format(context.capitalize())
 
             try:
                 workflow_mod = __import__(
@@ -553,12 +603,12 @@ class Workflow:
                 Log.an().error(msg)
                 return self._fatal(msg)
 
-            self._workflow_context[exec_context] = workflow_class(
+            self._workflow_context[context] = workflow_class(
                 self._config, self._job, self._parsed_job_work_uri
             )
 
             # perform context-specific init
-            if not self._workflow_context[exec_context].initialize():
+            if not self._workflow_context[context].initialize():
                 msg = (
                     'cannot initialize workflow context: {}'.format(cls_name)
                 )
@@ -580,9 +630,8 @@ class Workflow:
             On failure: False.
 
         """
-        # create work URI for each context
+        # create work URIs. a work URI is required for each workflow context
         for context in self._job['work_uri']:
-
             if not DataManager.mkdir(
                     parsed_uri=self._parsed_job_work_uri[context],
                     recursive=True,
@@ -597,9 +646,9 @@ class Workflow:
                 Log.an().error(msg)
                 return self._fatal(msg)
 
-        # create output URI
+        # create output URI. output URI scheme must be in the set of data contexts
         output_context = self._parsed_job_output_uri['scheme']
-        if output_context not in self._workflow_context:
+        if output_context not in self._data_contexts:
             msg = 'invalid output context: {}'.format(output_context)
             Log.an().error(msg)
             return self._fatal(msg)
@@ -638,6 +687,8 @@ class Workflow:
             self._apps,
             self._parsed_job_work_uri,
             self._parsed_job_output_uri,
+            self._exec_contexts,
+            self._data_contexts,
             self._config,
             **{
                 context: self._workflow_context[context].get_context_options()\
