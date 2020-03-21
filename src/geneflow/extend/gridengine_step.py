@@ -220,41 +220,43 @@ class GridengineStep(WorkflowStep):
                     = self._app['parameters'][param_key]['default']
 
         # construct shell command
-        cmd = self._app['definition']['local']['script']
-        #for input_key in inputs:
-        #    if inputs[input_key]:
-        #        cmd += ' --{}="{}"'.format(
-        #            input_key,
-        #            URIParser.parse(inputs[input_key])['chopped_path']
-        #        )
-        #for param_key in parameters:
-        #    if param_key == 'output':
-        #        cmd += ' --output="{}/{}"'.format(
-        #            self._parsed_data_uris[self._source_context]\
-        #                ['chopped_path'],
-        #            parameters['output']
-        #        )
+        path = ShellWrapper.invoke(
+            'which {}'.format(self._app['definition']['local']['script'])
+        ).decode('utf-8')
+        Log.a().debug('path: {}'.format(path))
 
-        #    else:
-        #        cmd += ' --{}="{}"'.format(
-        #            param_key, parameters[param_key]
-        #        )
+        args = [path]
+        for input_key in inputs:
+            if inputs[input_key]:
+                args.append('--{}="{}"'.format(
+                    input_key,
+                    URIParser.parse(inputs[input_key])['chopped_path']
+                ))
+        for param_key in parameters:
+            if param_key == 'output':
+                args.append('--output="{}/{}"'.format(
+                    self._parsed_data_uris[self._source_context]\
+                        ['chopped_path'],
+                    parameters['output']
+                ))
+
+            else:
+                args.append('--{}="{}"'.format(
+                    param_key, parameters[param_key]
+                ))
 
         # add exeuction method
-        #cmd += ' --exec_method="{}"'.format(self._step['execution']['method'])
+        args.append('--exec_method="{}"'.format(self._step['execution']['method']))
 
-        Log.a().debug('command: %s', cmd)
+        Log.a().debug('command: %s', args)
 
         # submit hpc job using drmaa library
         jt = self._gridengine['drmaa_session'].createJobTemplate()
-        path = ShellWrapper.invoke('which {}'.format(cmd)).decode('utf-8')
-        path = ShellWrapper.invoke('dirname {}'.format(path)).decode('utf-8')
-        Log.a().debug('path: {}'.format(path))
-        jt.workingDirectory = path
-        jt.remoteCommand = cmd
+        jt.remoteCommand = '/bin/bash'
+        jt.args = args
         #Log.a().debug(os.environ['PATH'])
         #jt.nativeSpecification = '-cwd -shell y -b y -v {}'.format(os.environ['PATH'])
-        jt.nativeSpecification = '-shell y -b n'
+        #jt.nativeSpecification = '-shell y -b n'
         jt.jobName = self._job['name']
         job_id = self._gridengine['drmaa_session'].runJob(jt)
         self._gridengine['drmaa_session'].deleteJobTemplate(jt)
