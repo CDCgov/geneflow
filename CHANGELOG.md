@@ -1,6 +1,11 @@
 # Changelog
 
 
+## 2020/03/16 - v1.13.6: bug fix release
+
+1. Fix bug: Non-required inputs to Agave jobs cannot be passed as empty strings.
+
+
 ## 2020/03/09 - v1.13.5: bug fix release
 
 1. Fix bug: Environment variables not passed to workflow step subprocesses.
