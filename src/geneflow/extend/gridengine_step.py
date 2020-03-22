@@ -3,6 +3,7 @@
 
 import drmaa
 import os
+from slugify import slugify
 
 from geneflow.log import Log
 from geneflow.workflow_step import WorkflowStep
@@ -155,6 +156,19 @@ class GridengineStep(WorkflowStep):
             Log.an().error(msg)
             return self._fatal(msg)
 
+        # create _log folder
+        if not DataManager.mkdir(
+                uri='{}/_log'.format(
+                    self._parsed_data_uris[self._source_context]['chopped_uri']
+                ),
+                recursive=True
+        ):
+            msg = 'cannot create _log folder in data uri: {}/_log'.format(
+                self._parsed_data_uris[self._source_context]['chopped_uri']
+            )
+            Log.an().error(msg)
+            return self._fatal(msg)
+
         return True
 
 
@@ -228,27 +242,35 @@ class GridengineStep(WorkflowStep):
         args = [path]
         for input_key in inputs:
             if inputs[input_key]:
-                args.append('--{}="{}"'.format(
+                args.append('--{}={}'.format(
                     input_key,
                     URIParser.parse(inputs[input_key])['chopped_path']
                 ))
         for param_key in parameters:
             if param_key == 'output':
-                args.append('--output="{}/{}"'.format(
+                args.append('--output={}/{}'.format(
                     self._parsed_data_uris[self._source_context]\
                         ['chopped_path'],
                     parameters['output']
                 ))
 
             else:
-                args.append('--{}="{}"'.format(
+                args.append('--{}={}'.format(
                     param_key, parameters[param_key]
                 ))
 
         # add exeuction method
-        args.append('--exec_method="{}"'.format(self._step['execution']['method']))
+        args.append('--exec_method={}'.format(self._step['execution']['method']))
 
         Log.a().debug('command: %s', args)
+
+        # construct paths for logging stdout and stderr
+        log_path = '{}/_log/gf-{}-{}-{}'.format(
+            self._parsed_data_uris[self._source_context]['chopped_path'],
+            map_item['attempt'],
+            slugify(self._step['name']),
+            slugify(map_item['template']['output'])
+        )
 
         # submit hpc job using drmaa library
         jt = self._gridengine['drmaa_session'].createJobTemplate()
@@ -257,7 +279,9 @@ class GridengineStep(WorkflowStep):
         #Log.a().debug(os.environ['PATH'])
         #jt.nativeSpecification = '-cwd -shell y -b y -v {}'.format(os.environ['PATH'])
         #jt.nativeSpecification = '-shell y -b n'
-        jt.jobName = self._job['name']
+        jt.jobName = slugify(self._job['name'])
+        jt.errorPath = ':{}.err'.format(log_path)
+        jt.outputPath = ':{}.out'.format(log_path)
         job_id = self._gridengine['drmaa_session'].runJob(jt)
         self._gridengine['drmaa_session'].deleteJobTemplate(jt)
 
