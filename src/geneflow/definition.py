@@ -117,7 +117,7 @@ WORKFLOW_SCHEMA = {
                     },
                     'execution': {
                         'type': 'dict',
-                        'default': {'context': 'local', 'method': 'auto', 'parameters': ''},
+                        'default': {'context': 'local', 'method': 'auto', 'parameters': {}},
                         'schema': {
                             'context': {
                                 'type': 'string',
@@ -129,8 +129,9 @@ WORKFLOW_SCHEMA = {
                                 'default': 'auto'
                             },
                             'parameters': {
-                                'type': 'string',
-                                'default': ''
+                                'type': 'dict',
+                                'allow_unknown': True,
+                                'default': {}
                             }
                         }
                     }
@@ -252,7 +253,7 @@ JOB_SCHEMA = {
             'default': {
                 'context': {'default': 'local'},
                 'method': {'default': 'auto'},
-                'parameters': {'default': ''}
+                'parameters': {'default': {}}
             },
             'schema': {
                 'context': {
@@ -268,7 +269,7 @@ JOB_SCHEMA = {
                     'valueschema': {
                         'type': 'string',
                         'default': 'local',
-                        'allowed': ['local', 'agave', 'gridengine']
+                        'allowed': ['local', 'agave', 'tapis', 'gridengine']
                     }
                 },
                 'method': {
@@ -288,17 +289,19 @@ JOB_SCHEMA = {
                 },
                 'parameters': {
                     'type': 'dict',
-                    'default': {'default': ''},
+                    'default': {'default': {}},
                     'allow_unknown': True,
                     'schema': {
                         'default': {
-                            'type': 'string',
-                            'default': ''
+                            'type': 'dict',
+                            'default': {},
+                            'allow_unknown': True
                         }
                     },
                     'valueschema': {
-                        'type': 'string',
-                        'default': ''
+                        'type': 'dict',
+                        'default': {},
+                        'allow_unknown': True
                     }
                 }
             }

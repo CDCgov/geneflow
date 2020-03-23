@@ -233,12 +233,12 @@ class GridengineStep(WorkflowStep):
                 parameters[param_key] \
                     = self._app['parameters'][param_key]['default']
 
-        # construct shell command
+        # get full path of wrapper script
         path = ShellWrapper.invoke(
             'which {}'.format(self._app['definition']['local']['script'])
         ).decode('utf-8')
-        Log.a().debug('path: {}'.format(path))
 
+        # construct argument list for wrapper script
         args = [path]
         for input_key in inputs:
             if inputs[input_key]:
@@ -272,16 +272,31 @@ class GridengineStep(WorkflowStep):
             slugify(map_item['template']['output'])
         )
 
-        # submit hpc job using drmaa library
+        # create and populate job template
         jt = self._gridengine['drmaa_session'].createJobTemplate()
         jt.remoteCommand = '/bin/bash'
         jt.args = args
-        #Log.a().debug(os.environ['PATH'])
-        #jt.nativeSpecification = '-cwd -shell y -b y -v {}'.format(os.environ['PATH'])
-        #jt.nativeSpecification = '-shell y -b n'
         jt.jobName = slugify(self._job['name'])
         jt.errorPath = ':{}.err'.format(log_path)
         jt.outputPath = ':{}.out'.format(log_path)
+
+        # pass execution parameters to job template
+        native_spec = ''
+        if 'queue' in self._step['execution']['parameters']:
+            native_spec += ' -q {}'.format(
+                self._step['execution']['parameters']['queue']
+            )
+        if 'slots' in self._step['execution']['parameters']:
+            native_spec += ' -pe smp {}'.format(
+                self._step['execution']['parameters']['slots']
+            )
+        if 'other' in self._step['execution']['parameters']:
+            native_spec += ' {}'.format(
+                self._step['execution']['parameters']['other']
+            )
+        jt.nativeSpecification = native_spec
+
+        # submit hpc job using drmaa library
         job_id = self._gridengine['drmaa_session'].runJob(jt)
         self._gridengine['drmaa_session'].deleteJobTemplate(jt)
 

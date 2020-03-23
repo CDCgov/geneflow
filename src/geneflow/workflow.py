@@ -1,10 +1,11 @@
 """This module contains the GeneFlow Workflow class."""
 
 
-import time
+import json
 import requests
-import yaml
 from slugify import slugify
+import time
+import yaml
 
 from geneflow.log import Log
 from geneflow.data import DataSource, DataSourceException
@@ -362,7 +363,8 @@ class Workflow:
         for step_name, step in self._workflow['steps'].items():
             step['execution'] = {
                 'context': self._job['execution']['context']['default'],
-                'method': self._job['execution']['method']['default']
+                'method': self._job['execution']['method']['default'],
+                'parameters': self._job['execution']['parameters']['default']
             }
             if step_name in self._job['execution']['context']:
                 step['execution']['context'] \
@@ -370,6 +372,9 @@ class Workflow:
             if step_name in self._job['execution']['method']:
                 step['execution']['method'] \
                     = self._job['execution']['method'][step_name]
+            if step_name in self._job['execution']['parameters']:
+                step['execution']['parameters'] \
+                    = self._job['execution']['parameters'][step_name]
 
         return True
 
