@@ -1,12 +1,18 @@
-"""This module contains the GeneFlow LocalStep class."""
+"""This module contains the GeneFlow GridengineStep class."""
+
+
+import drmaa
+import os
+from slugify import slugify
 
 from geneflow.log import Log
 from geneflow.workflow_step import WorkflowStep
 from geneflow.data_manager import DataManager
+from geneflow.shell_wrapper import ShellWrapper
 from geneflow.uri_parser import URIParser
 
 
-class GridEngineStep(WorkflowStep):
+class GridengineStep(WorkflowStep):
     """
     A class that represents GridEngine Workflow Step objects.
 
@@ -32,7 +38,7 @@ class GridEngineStep(WorkflowStep):
 
         See documentation for WorkflowStep __init__().
         """
-        super(LocalStep, self).__init__(
+        super(GridengineStep, self).__init__(
             job,
             step,
             app,
@@ -47,6 +53,19 @@ class GridEngineStep(WorkflowStep):
 
         # gridengine context data
         self._gridengine = gridengine
+
+        self._job_status_map = {
+            drmaa.JobState.UNDETERMINED: 'UNKNOWN',
+            drmaa.JobState.QUEUED_ACTIVE: 'PENDING',
+            drmaa.JobState.SYSTEM_ON_HOLD: 'PENDING',
+            drmaa.JobState.USER_ON_HOLD: 'PENDING',
+            drmaa.JobState.USER_SYSTEM_ON_HOLD: 'PENDING',
+            drmaa.JobState.RUNNING: 'RUNNING',
+            drmaa.JobState.SYSTEM_SUSPENDED: 'RUNNING',
+            drmaa.JobState.USER_SUSPENDED: 'RUNNING',
+            drmaa.JobState.DONE: 'FINISHED',
+            drmaa.JobState.FAILED: 'FAILED'
+        }
 
 
     def initialize(self):
@@ -83,7 +102,7 @@ class GridEngineStep(WorkflowStep):
             Log.an().error(msg)
             return self._fatal(msg)
 
-        if not super(LocalStep, self).initialize():
+        if not super(GridengineStep, self).initialize():
             msg = 'cannot initialize workflow step'
             Log.an().error(msg)
             return self._fatal(msg)
@@ -132,6 +151,19 @@ class GridEngineStep(WorkflowStep):
                 recursive=True
         ):
             msg = 'cannot create data uri: {}'.format(
+                self._parsed_data_uris[self._source_context]['chopped_uri']
+            )
+            Log.an().error(msg)
+            return self._fatal(msg)
+
+        # create _log folder
+        if not DataManager.mkdir(
+                uri='{}/_log'.format(
+                    self._parsed_data_uris[self._source_context]['chopped_uri']
+                ),
+                recursive=True
+        ):
+            msg = 'cannot create _log folder in data uri: {}/_log'.format(
                 self._parsed_data_uris[self._source_context]['chopped_uri']
             )
             Log.an().error(msg)
@@ -201,45 +233,91 @@ class GridEngineStep(WorkflowStep):
                 parameters[param_key] \
                     = self._app['parameters'][param_key]['default']
 
-        # construct shell command
-        cmd = self._app['definition']['local']['script']
+        # get full path of wrapper script
+        path = ShellWrapper.invoke(
+            'which {}'.format(self._app['definition']['local']['script'])
+        ).decode('utf-8')
+
+        # construct argument list for wrapper script
+        args = [path]
         for input_key in inputs:
             if inputs[input_key]:
-                cmd += ' --{}="{}"'.format(
+                args.append('--{}={}'.format(
                     input_key,
                     URIParser.parse(inputs[input_key])['chopped_path']
-                )
+                ))
         for param_key in parameters:
             if param_key == 'output':
-                cmd += ' --output="{}/{}"'.format(
+                args.append('--output={}/{}'.format(
                     self._parsed_data_uris[self._source_context]\
                         ['chopped_path'],
                     parameters['output']
-                )
+                ))
 
             else:
-                cmd += ' --{}="{}"'.format(
+                args.append('--{}={}'.format(
                     param_key, parameters[param_key]
-                )
+                ))
 
         # add exeuction method
-        cmd += ' --exec_method="{}"'.format(self._step['execution']['method'])
+        args.append('--exec_method={}'.format(self._step['execution']['method']))
 
-        Log.a().debug('command: %s', cmd)
+        Log.a().debug(
+            '[step.%s]: command: %s -> %s',
+            self._step['name'],
+            map_item['template']['output'],
+            args
+        )
+
+        # construct paths for logging stdout and stderr
+        log_path = '{}/_log/gf-{}-{}-{}'.format(
+            self._parsed_data_uris[self._source_context]['chopped_path'],
+            map_item['attempt'],
+            slugify(self._step['name']),
+            slugify(map_item['template']['output'])
+        )
+
+        # create and populate job template
+        jt = self._gridengine['drmaa_session'].createJobTemplate()
+        jt.remoteCommand = '/bin/bash'
+        jt.args = args
+        jt.jobName = slugify(self._job['name'])
+        jt.errorPath = ':{}.err'.format(log_path)
+        jt.outputPath = ':{}.out'.format(log_path)
+
+        # pass execution parameters to job template
+        native_spec = ''
+        if 'queue' in self._step['execution']['parameters']:
+            native_spec += ' -q {}'.format(
+                self._step['execution']['parameters']['queue']
+            )
+        if 'slots' in self._step['execution']['parameters']:
+            native_spec += ' -pe smp {}'.format(
+                self._step['execution']['parameters']['slots']
+            )
+        if 'other' in self._step['execution']['parameters']:
+            native_spec += ' {}'.format(
+                self._step['execution']['parameters']['other']
+            )
+        jt.nativeSpecification = native_spec
 
         # submit hpc job using drmaa library
-        jt = self._gridengine['drmaa_session'].createJobTemplate()
-        jt.remoteCommand = cmd
-        jt.nativeSpecification = '-V {}'.format(self._step['execution']['parameters'])
         job_id = self._gridengine['drmaa_session'].runJob(jt)
         self._gridengine['drmaa_session'].deleteJobTemplate(jt)
+
+        Log.a().debug(
+            '[step.%s]: hpc job id: %s -> %s',
+            self._step['name'],
+            map_item['template']['output'],
+            job_id
+        )
 
         # record job info
         map_item['run'][map_item['attempt']]['hpc_job_id'] = job_id
 
         # set status of process
-        map_item['status'] = 'RUNNING'
-        map_item['run'][map_item['attempt']]['status'] = 'RUNNING'
+        map_item['status'] = 'PENDING'
+        map_item['run'][map_item['attempt']]['status'] = 'PENDING'
 
         return True
 
@@ -298,26 +376,32 @@ class GridEngineStep(WorkflowStep):
             True.
 
         """
-        # check if procs are running, finished, or failed
+        # check if jobs are running, finished, or failed
         for map_item in self._map:
-            try:
-                if ShellWrapper.is_running(
-                        map_item['run'][map_item['attempt']]['proc']
-                ):
-                    map_item['status'] = 'RUNNING'
-                else:
-                    if map_item['run'][map_item['attempt']]['proc'].returncode:
-                        map_item['status'] = 'FAILED'
-                    else:
-                        map_item['status'] = 'FINISHED'
-                map_item['run'][map_item['attempt']]['status']\
-                    = map_item['status']
-            except (OSError, AttributeError) as err:
-                Log.a().warning(
-                    'process polling failed for map item "%s" [%s]',
-                    map_item['filename'], str(err)
+            if map_item['status'] != 'FINISHED' and map_item['status'] != 'FAILED':
+                # can only get job status if it has not already been disposed with "wait"
+                status = self._gridengine['drmaa_session'].jobStatus(
+                    map_item['run'][map_item['attempt']]['hpc_job_id']
                 )
-                map_item['status'] = 'FAILED'
+                map_item['status'] = self._job_status_map[status]
+
+                if map_item['status'] == 'FINISHED' or map_item['status'] == 'FAILED':
+                    # check exit status
+                    job_info = self._gridengine['drmaa_session'].wait(
+                        map_item['run'][map_item['attempt']]['hpc_job_id'],
+                        self._gridengine['drmaa_session'].TIMEOUT_NO_WAIT
+                    )
+                    Log.a().debug(
+                        '[step.%s]: exit status: %s -> %s',
+                        self._step['name'],
+                        map_item['template']['output'],
+                        job_info.exitStatus
+                    )
+                    if job_info.exitStatus > 0:
+                        # job actually failed
+                        map_item['status'] = 'FAILED'
+
+            map_item['run'][map_item['attempt']]['status'] = map_item['status']
 
         self._update_status_db(self._status, '')
 

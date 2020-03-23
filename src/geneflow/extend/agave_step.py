@@ -235,15 +235,19 @@ class AgaveStep(WorkflowStep):
         inputs = {}
         for input_key in self._app['inputs']:
             if input_key in map_item['template']:
-                inputs[input_key] = urllib.parse.quote(
-                    str(map_item['template'][input_key] or ''),
-                    safe='/:'
-                )
+                if map_item['template'][input_key]:
+                    # only include an input if the value is a non-empty string
+                    inputs[input_key] = urllib.parse.quote(
+                        str(map_item['template'][input_key]),
+                        safe='/:'
+                    )
             else:
-                inputs[input_key] = urllib.parse.quote(
-                    str(self._app['inputs'][input_key]['default'] or ''),
-                    safe='/:'
-                )
+                if self._app['inputs'][input_key]['default']:
+                    # only include an input if the value is a non-empty string
+                    inputs[input_key] = urllib.parse.quote(
+                        str(self._app['inputs'][input_key]['default']),
+                        safe='/:'
+                    )
 
         # load default app parameters, overwrite with template parameters
         parameters = {}
@@ -278,7 +282,9 @@ class AgaveStep(WorkflowStep):
             'archivePath': archive_path
         }
         Log.some().debug(
-            "agave app template:\n%s", pprint.pformat(app_template)
+                "[step.%s]: agave app template:\n%s",
+                self._step['name'],
+                pprint.pformat(app_template)
         )
 
         # delete archive path if it exists
@@ -306,7 +312,12 @@ class AgaveStep(WorkflowStep):
             return self._fatal(msg)
 
         # log agave job id
-        Log.some().debug('agave job id: %s -> %s', map_item['template']['output'], job['id'])
+        Log.some().debug(
+            '[step.%s]: agave job id: %s -> %s',
+            self._step['name'],
+            map_item['template']['output'],
+            job['id']
+        )
 
         # record job info
         map_item['run'][map_item['attempt']]['agave_job_id'] = job['id']
@@ -423,7 +434,9 @@ class AgaveStep(WorkflowStep):
 
                         # log hpc job id in
                         Log.some().debug(
-                            'hpc job id: %s -> %s', map_item['template']['output'],
+                            '[step.%s]: hpc job id: %s -> %s',
+                            self._step['name'],
+                            map_item['template']['output'],
                             match.group(1)
                         )
 

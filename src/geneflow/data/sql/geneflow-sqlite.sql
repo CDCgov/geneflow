@@ -67,6 +67,7 @@ CREATE TABLE step (
     template TEXT NOT NULL DEFAULT '',
     exec_context VARCHAR(256) NOT NULL DEFAULT 'local',
     exec_method VARCHAR(256) NOT NULL DEFAULT 'auto',
+    exec_parameters TEXT NOT NULL DEFAULT '',
     PRIMARY KEY (id)
 );
 
@@ -88,6 +89,7 @@ CREATE TABLE job (
     final_output TEXT NOT NULL DEFAULT '',
     exec_context TEXT NOT NULL DEFAULT '',
     exec_method TEXT NOT NULL DEFAULT '',
+    exec_parameters TEXT NOT NULL DEFAULT '',
     notifications TEXT NOT NULL DEFAULT '[]',
     PRIMARY KEY (id)
 );
