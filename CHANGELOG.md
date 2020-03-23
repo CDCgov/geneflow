@@ -1,6 +1,13 @@
 # Changelog
 
 
+## 2020/03/23 - v2.0.0-alpha.1: grid engine support
+
+1. Major enhancement: add support for Grid Engine (UGE, SGE, etc) execution.
+
+2. Add execution parameters options (in addition to context and method).
+
+
 ## 2020/03/16 - v1.13.6: bug fix release
 
 1. Fix bug: Non-required inputs to Agave jobs cannot be passed as empty strings.
