@@ -97,6 +97,9 @@ def main():
     # configure logging
     Log.config(args.log_level, args.log_file)
 
+    # display GeneFlow version
+    Log.some().info('GeneFlow %s', __version__)
+
     # call the appropriate command
     if not args.func(args):
         sys.exit(1)

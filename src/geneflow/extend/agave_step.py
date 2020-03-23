@@ -282,7 +282,9 @@ class AgaveStep(WorkflowStep):
             'archivePath': archive_path
         }
         Log.some().debug(
-            "agave app template:\n%s", pprint.pformat(app_template)
+                "[step.%s]: agave app template:\n%s",
+                self._step['name'],
+                pprint.pformat(app_template)
         )
 
         # delete archive path if it exists
@@ -310,7 +312,12 @@ class AgaveStep(WorkflowStep):
             return self._fatal(msg)
 
         # log agave job id
-        Log.some().debug('agave job id: %s -> %s', map_item['template']['output'], job['id'])
+        Log.some().debug(
+            '[step.%s]: agave job id: %s -> %s',
+            self._step['name'],
+            map_item['template']['output'],
+            job['id']
+        )
 
         # record job info
         map_item['run'][map_item['attempt']]['agave_job_id'] = job['id']
@@ -427,7 +434,9 @@ class AgaveStep(WorkflowStep):
 
                         # log hpc job id in
                         Log.some().debug(
-                            'hpc job id: %s -> %s', map_item['template']['output'],
+                            '[step.%s]: hpc job id: %s -> %s',
+                            self._step['name'],
+                            map_item['template']['output'],
                             match.group(1)
                         )
 

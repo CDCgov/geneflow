@@ -262,7 +262,12 @@ class GridengineStep(WorkflowStep):
         # add exeuction method
         args.append('--exec_method={}'.format(self._step['execution']['method']))
 
-        Log.a().debug('command: %s', args)
+        Log.a().debug(
+            '[step.%s]: command: %s -> %s',
+            self._step['name'],
+            map_item['template']['output'],
+            args
+        )
 
         # construct paths for logging stdout and stderr
         log_path = '{}/_log/gf-{}-{}-{}'.format(
@@ -300,7 +305,12 @@ class GridengineStep(WorkflowStep):
         job_id = self._gridengine['drmaa_session'].runJob(jt)
         self._gridengine['drmaa_session'].deleteJobTemplate(jt)
 
-        Log.a().debug('hpc job id: %s', job_id)
+        Log.a().debug(
+            '[step.%s]: hpc job id: %s -> %s',
+            self._step['name'],
+            map_item['template']['output'],
+            job_id
+        )
 
         # record job info
         map_item['run'][map_item['attempt']]['hpc_job_id'] = job_id
@@ -368,10 +378,29 @@ class GridengineStep(WorkflowStep):
         """
         # check if jobs are running, finished, or failed
         for map_item in self._map:
-            status = self._gridengine['drmaa_session'].jobStatus(
-                map_item['run'][map_item['attempt']]['hpc_job_id']
-            )
-            map_item['status'] = self._job_status_map[status]
+            if map_item['status'] != 'FINISHED' and map_item['status'] != 'FAILED':
+                # can only get job status if it has not already been disposed with "wait"
+                status = self._gridengine['drmaa_session'].jobStatus(
+                    map_item['run'][map_item['attempt']]['hpc_job_id']
+                )
+                map_item['status'] = self._job_status_map[status]
+
+                if map_item['status'] == 'FINISHED' or map_item['status'] == 'FAILED':
+                    # check exit status
+                    job_info = self._gridengine['drmaa_session'].wait(
+                        map_item['run'][map_item['attempt']]['hpc_job_id'],
+                        self._gridengine['drmaa_session'].TIMEOUT_NO_WAIT
+                    )
+                    Log.a().debug(
+                        '[step.%s]: exit status: %s -> %s',
+                        self._step['name'],
+                        map_item['template']['output'],
+                        job_info.exitStatus
+                    )
+                    if job_info.exitStatus > 0:
+                        # job actually failed
+                        map_item['status'] = 'FAILED'
+
             map_item['run'][map_item['attempt']]['status'] = map_item['status']
 
         self._update_status_db(self._status, '')
