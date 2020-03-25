@@ -117,26 +117,21 @@ WORKFLOW_SCHEMA = {
                     },
                     'execution': {
                         'type': 'dict',
-                        'default': {'context': 'local', 'method': 'auto'},
+                        'default': {'context': 'local', 'method': 'auto', 'parameters': {}},
                         'schema': {
                             'context': {
                                 'type': 'string',
                                 'default': 'local',
-                                'allowed': ['local', 'agave']
+                                'allowed': ['local', 'agave', 'gridengine']
                             },
                             'method': {
                                 'type': 'string',
-                                'default': 'auto',
-                                'allowed': [
-                                    'auto',
-                                    'package',
-                                    'cdc-shared-package',
-                                    'singularity',
-                                    'cdc-shared-singularity',
-                                    'docker',
-                                    'environment',
-                                    'module'
-                                ]
+                                'default': 'auto'
+                            },
+                            'parameters': {
+                                'type': 'dict',
+                                'allow_unknown': True,
+                                'default': {}
                             }
                         }
                     }
@@ -257,7 +252,8 @@ JOB_SCHEMA = {
             'type': 'dict',
             'default': {
                 'context': {'default': 'local'},
-                'method': {'default': 'auto'}
+                'method': {'default': 'auto'},
+                'parameters': {'default': {}}
             },
             'schema': {
                 'context': {
@@ -273,7 +269,7 @@ JOB_SCHEMA = {
                     'valueschema': {
                         'type': 'string',
                         'default': 'local',
-                        'allowed': ['local', 'agave']
+                        'allowed': ['local', 'agave', 'tapis', 'gridengine']
                     }
                 },
                 'method': {
@@ -288,17 +284,24 @@ JOB_SCHEMA = {
                     },
                     'valueschema': {
                         'type': 'string',
-                        'default': 'auto',
-                        'allowed': [
-                            'auto',
-                            'package',
-                            'cdc-shared-package',
-                            'singularity',
-                            'cdc-shared-singularity',
-                            'docker',
-                            'environment',
-                            'module'
-                        ]
+                        'default': 'auto'
+                    }
+                },
+                'parameters': {
+                    'type': 'dict',
+                    'default': {'default': {}},
+                    'allow_unknown': True,
+                    'schema': {
+                        'default': {
+                            'type': 'dict',
+                            'default': {},
+                            'allow_unknown': True
+                        }
+                    },
+                    'valueschema': {
+                        'type': 'dict',
+                        'default': {},
+                        'allow_unknown': True
                     }
                 }
             }
