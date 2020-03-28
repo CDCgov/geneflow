@@ -13,9 +13,11 @@ except ImportError: pass
 from git import Repo
 from git.exc import GitError
 import requests
+from slugify import slugify
 
 from geneflow.app_installer import AppInstaller
 from geneflow.data_manager import DataManager
+from geneflow.definition import Definition
 from geneflow.log import Log
 from geneflow.template_compiler import TemplateCompiler
 from geneflow.uri_parser import URIParser
@@ -85,8 +87,7 @@ class WorkflowInstaller:
         self._clean = clean
         self._make_apps = make_apps
 
-        self._apps_repo_path = None
-        self._apps_repo = None
+        self._workflow_yaml = None
 
         # agave-related member variables
         self._agave_wrapper = None
@@ -122,10 +123,15 @@ class WorkflowInstaller:
             Log.an().error('invalid workflow package at %s', self._path)
             return False
 
-        # load apps-repo
-        if not self._load_apps_repo():
-            Log.an().error('cannot load apps repo')
+        # load workflow definition
+        if not self._load_workflow_def():
+            Log.an().error('cannot load workflow definition from %s', self._workflow_yaml)
             return False
+
+        # load apps-repo
+        #if not self._load_apps_repo():
+        #    Log.an().error('cannot load apps repo')
+        #    return False
 
         # connect to agave
         if self._config and self._agave_params:
@@ -146,16 +152,37 @@ class WorkflowInstaller:
             Log.an().error('missing "workflow" directory in workflow package')
             return False
 
-        if not Path(package_path / 'workflow' / 'workflow.yaml').is_file():
+        self._workflow_yaml = Path(package_path / 'workflow' / 'workflow.yaml')
+
+        if not self._workflow_yaml.is_file():
             Log.an().error('missing workflow.yaml file in workflow package')
             return False
 
-        self._apps_repo_path = str(
-            Path(package_path / 'workflow' / 'apps-repo.yaml')
-        )
-        if not Path(self._apps_repo_path).is_file():
-            Log.an().error('missing apps-repo.yaml file in workflow package')
+        #self._apps_repo_path = str(
+        #    Path(package_path / 'workflow' / 'apps-repo.yaml')
+        #)
+        #if not Path(self._apps_repo_path).is_file():
+        #    Log.an().error('missing apps-repo.yaml file in workflow package')
+        #    return False
+
+        return True
+
+
+    def _load_workflow_def(self):
+
+        # load geneflow definition file
+        gf_def = Definition()
+        if not gf_def.load(str(self._workflow_yaml)):
+            Log.an().error('invalid geneflow definition: %s', self._workflow_yaml)
             return False
+
+        # make sure there is a workflow definition in the file
+        if not gf_def.workflows():
+            Log.an().error('no workflows in geneflow definition')
+            return False
+
+        # extract the workflow definition
+        self._workflow = next(iter(gf_def.workflows().values()))
 
         return True
 
@@ -255,17 +282,25 @@ class WorkflowInstaller:
         # create apps folder if not already there
         apps_path.mkdir(exist_ok=True)
 
-        for app in self._apps_repo['apps']:
-            if self._app_name == app['name'] or not self._app_name:
+        for app in self._workflow['apps']:
+            if self._app_name == app or not self._app_name:
 
-                Log.some().info('app:\n%s', pprint.pformat(app))
+                Log.some().info('app:\n%s', pprint.pformat(
+                    {
+                        'name': app,
+                        **self._workflow['apps'][app]
+                    }
+                ))
 
-                repo_path = apps_path / app['folder']
+                repo_path = apps_path / slugify(app)
 
                 # create AppInstaller instance
                 app_installer = AppInstaller(
                     str(repo_path),
-                    app,
+                    {
+                        'name': app,
+                        **self._workflow['apps'][app]
+                    },
                     self._app_asset,
                     self._copy_prefix
                 )
@@ -301,7 +336,7 @@ class WorkflowInstaller:
                     )
                     if not register_result:
                         Log.an().error(
-                            'cannot register app "%s" in agave', app['name']
+                            'cannot register app "%s" in agave', app
                         )
                         return False
 
@@ -321,7 +356,7 @@ class WorkflowInstaller:
                     ):
                         Log.an().error(
                             'cannot compile app "%s" definition from template',
-                            app['name']
+                            app
                         )
                         return False
 
@@ -333,7 +368,7 @@ class WorkflowInstaller:
                     ):
                         Log.an().error(
                             'cannot compile app "%s" definition from template',
-                            app['name']
+                            app
                         )
                         return False
 

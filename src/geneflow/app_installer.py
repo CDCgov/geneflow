@@ -7,6 +7,7 @@ import cerberus
 import shutil
 from git import Repo
 from git.exc import GitError
+from slugify import slugify
 import yaml
 
 from geneflow.data_manager import DataManager
@@ -111,7 +112,7 @@ class AppInstaller:
         Args:
             self: class instance
             path: local path to the app package
-            app: app information (git repo, tag, folder)
+            app: app information (name, git repo, version)
 
         Returns:
             None
@@ -168,9 +169,9 @@ class AppInstaller:
 
         # clone app's git repo into target location
         try:
-            if self._app['tag']:
+            if self._app['version']:
                 Repo.clone_from(
-                    self._app['repo'], str(self._path), branch=self._app['tag'],
+                    self._app['repo'], str(self._path), branch=self._app['version'],
                     config='http.sslVerify=false'
                 )
             else:
@@ -270,6 +271,8 @@ class AppInstaller:
                 None,
                 'app.yaml.j2.j2',
                 str(self._path / 'app.yaml.j2'),
+                slugify_name=slugify(self._config['name']),
+                slugify_version=slugify(self._config['version']),
                 **self._config
         ):
             Log.an().error('cannot compile GeneFlow app definition template')
@@ -296,6 +299,8 @@ class AppInstaller:
                 None,
                 'agave-app-def.json.j2.j2',
                 str(self._path / 'agave-app-def.json.j2'),
+                slugify_name=slugify(self._config['name']),
+                slugify_version=slugify(self._config['version']),
                 **self._config
         ):
             Log.an().error('cannot compile GeneFlow Agave app definition template')
@@ -329,7 +334,7 @@ class AppInstaller:
         if not TemplateCompiler.compile_template(
                 None,
                 'wrapper-script.sh.j2',
-                str(asset_path / '{}.sh'.format(self._config['name'])),
+                str(asset_path / '{}.sh'.format(slugify(self._config['name']))),
                 **self._config
         ):
             Log.an().error('cannot compile GeneFlow app wrapper script')
@@ -659,10 +664,11 @@ class AppInstaller:
 
         # delete app uri if it exists
         parsed_app_uri = URIParser.parse(
-            'agave://{}/{}/{}'.format(
+            'agave://{}/{}/{}-{}'.format(
                 agave_params['agave']['deploymentSystem'],
                 agave_params['agave']['appsDir'],
-                self._app['folder']
+                slugify(self._config['name']),
+                slugify(self._config['version'])
             )
         )
         Log.some().info(
