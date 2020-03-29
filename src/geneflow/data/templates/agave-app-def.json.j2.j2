@@ -9,7 +9,7 @@
   "parallelism": "SERIAL",
   "checkpointable": false,
   "executionSystem": "{{ '{{' }} agave.executionSystem {{ '}}' }}",
-  "deploymentPath": "{{ '{{' }} agave.appsDir {{ '}}' }}/{{ slugify_name }}-{{ slugify_version }}",
+  "deploymentPath": "{{ '{{' }} agave.appsDir {{ '}}' }}/{{ slugify_name }}-{{ version }}",
   "deploymentSystem": "{{ '{{' }} agave.deploymentSystem {{ '}}' }}",
   "templatePath": "{{ slugify_name }}.sh",
   "testPath": "test/test.sh",

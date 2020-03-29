@@ -7,7 +7,9 @@ import cerberus
 import shutil
 from git import Repo
 from git.exc import GitError
+import os
 from slugify import slugify
+import stat
 import yaml
 
 from geneflow.data_manager import DataManager
@@ -272,7 +274,6 @@ class AppInstaller:
                 'app.yaml.j2.j2',
                 str(self._path / 'app.yaml.j2'),
                 slugify_name=slugify(self._config['name']),
-                slugify_version=slugify(self._config['version']),
                 **self._config
         ):
             Log.an().error('cannot compile GeneFlow app definition template')
@@ -300,7 +301,6 @@ class AppInstaller:
                 'agave-app-def.json.j2.j2',
                 str(self._path / 'agave-app-def.json.j2'),
                 slugify_name=slugify(self._config['name']),
-                slugify_version=slugify(self._config['version']),
                 **self._config
         ):
             Log.an().error('cannot compile GeneFlow Agave app definition template')
@@ -325,20 +325,21 @@ class AppInstaller:
         asset_path = Path(self._path / 'assets')
         asset_path.mkdir(exist_ok=True)
 
-        Log.some().info(
-            'compiling %s',
-            str(asset_path / '{}.sh'.format(self._config['name']))
-        )
+        script_path = str(asset_path / '{}.sh'.format(slugify(self._config['name'])))
+        Log.some().info('compiling %s', script_path)
 
         # compile jinja2 template
         if not TemplateCompiler.compile_template(
                 None,
                 'wrapper-script.sh.j2',
-                str(asset_path / '{}.sh'.format(slugify(self._config['name']))),
+                script_path,
                 **self._config
         ):
             Log.an().error('cannot compile GeneFlow app wrapper script')
             return False
+
+        # make script executable by owner
+        os.chmod(script_path, stat.S_IRWXU)
 
         return True
 
@@ -359,17 +360,21 @@ class AppInstaller:
         test_path = Path(self._path / 'test')
         test_path.mkdir(exist_ok=True)
 
-        Log.some().info('compiling %s', str(test_path / 'test.sh'))
+        script_path = str(test_path / 'test.sh')
+        Log.some().info('compiling %s', script_path)
 
         # compile jinja2 template
         if not TemplateCompiler.compile_template(
                 None,
                 'test.sh.j2',
-                str(test_path / 'test.sh'),
+                script_path,
                 **self._config
         ):
             Log.an().error('cannot compile GeneFlow app test script')
             return False
+
+        # make script executable by owner
+        os.chmod(script_path, stat.S_IRWXU)
 
         return True
 
@@ -668,7 +673,7 @@ class AppInstaller:
                 agave_params['agave']['deploymentSystem'],
                 agave_params['agave']['appsDir'],
                 slugify(self._config['name']),
-                slugify(self._config['version'])
+                self._config['version']
             )
         )
         Log.some().info(

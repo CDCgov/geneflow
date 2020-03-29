@@ -30,7 +30,7 @@ parameters:
 definition:
 {{ '{%' }} if agave {{ '%}' }}
   agave:
-    agave_app_id: {{ '{{' }} agave.appsPrefix {{ '}}' }}-{{ slugify_name }}-{{ slugify_version }}{{ '{{' }} revision {{ '}}' }}
+    agave_app_id: {{ '{{' }} agave.appsPrefix {{ '}}' }}-{{ slugify_name }}-{{ version }}{{ '{{' }} revision {{ '}}' }}
 {{ '{%' }} endif {{ '%}' }}
   local:
     script: {{ slugify_name }}.sh

@@ -285,12 +285,12 @@ class WorkflowInstaller:
         for app in self._workflow['apps']:
             if self._app_name == app or not self._app_name:
 
-                Log.some().info('app:\n%s', pprint.pformat(
-                    {
-                        'name': app,
-                        **self._workflow['apps'][app]
-                    }
-                ))
+                Log.some().info(
+                    'app: %s:%s [%s]',
+                    app,
+                    self._workflow['apps'][app]['repo'],
+                    self._workflow['apps'][app]['version']
+                )
 
                 repo_path = apps_path / slugify(app)
 
