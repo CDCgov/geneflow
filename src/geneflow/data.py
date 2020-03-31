@@ -43,6 +43,7 @@ class WorkflowEntity(Base):
     inputs = Column(Text, default='')
     parameters = Column(Text, default='')
     final_output = Column(Text, default='')
+    apps = Column(Text, default='')
     public = Column(Boolean, default=False)
     enable = Column(Boolean, default=True)
     created = Column(DateTime, default=datetime.datetime.now)
@@ -436,6 +437,7 @@ class DataSource:
                 WorkflowEntity.inputs,
                 WorkflowEntity.parameters,
                 WorkflowEntity.final_output,
+                WorkflowEntity.apps,
                 WorkflowEntity.public,
                 WorkflowEntity.enable
             ).\
@@ -454,8 +456,9 @@ class DataSource:
                     'inputs': json.loads(row[7]),
                     'parameters': json.loads(row[8]),
                     'final_output': json.loads(row[9]),
-                    'public': row[10],
-                    'enable': row[11],
+                    'apps': json.loads(row[10]),
+                    'public': row[11],
+                    'enable': row[12],
                     'steps': {}
                 } for row in result
             ]
@@ -630,6 +633,7 @@ class DataSource:
                 inputs=data['inputs'],
                 parameters=data['parameters'],
                 final_output=data['final_output'],
+                apps=data['apps'],
                 public=data['public'],
                 enable=data['enable'],
                 created=None,
@@ -1832,7 +1836,7 @@ class DataSource:
 
     def add_linked_apps(self, workflow_dict, base_path):
         """
-        Add apps referenced relatively from workflow defincition.
+        Add apps referenced relatively from workflow definition.
 
         Update workflow_dict to include new app IDs.
 
@@ -1854,10 +1858,11 @@ class DataSource:
                     # app not yet loaded
 
                     # import app definition
-                    if not os.path.isabs(step['app']):
-                        app_path = os.path.join(base_path, step['app'])
-                    else:
-                        app_path = step['app']
+                    #if not os.path.isabs(step['app']):
+                    #    app_path = os.path.join(base_path, step['app'])
+                    #else:
+                    #    app_path = step['app']
+                    app_path = os.path.join(base_path, 'apps', step['app'], 'app.yaml')
 
                     apps = self.import_apps_from_def(app_path)
                     if not apps:
@@ -2149,6 +2154,7 @@ class DataSource:
                 'description'       : valid_def['description'],
                 'username'          : valid_def['username'],
                 'inputs'            : json.dumps(valid_def['inputs']),
+                'apps'              : json.dumps(valid_def['apps']),
                 'repo_uri'          : valid_def['repo_uri'],
                 'documentation_uri' : valid_def['documentation_uri'],
                 'parameters'        : json.dumps(valid_def['parameters']),
@@ -2308,6 +2314,7 @@ class DataSource:
                     'inputs':            json.dumps(valid_def['inputs']),
                     'parameters':        json.dumps(valid_def['parameters']),
                     'final_output':      json.dumps(valid_def['final_output']),
+                    'apps':              json.dumps(valid_def['apps']),
                     'public':            valid_def['public'],
                     'enable':            valid_def['enable'],
                     'version':           valid_def['version']

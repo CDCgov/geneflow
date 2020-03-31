@@ -324,8 +324,8 @@ class WorkflowDAG:
         } | self._data_contexts:
 
             self._context_uris['inputs'][context] = {}
-            self._context_uris['steps'][context] = {}
             self._parsed_context_uris['inputs'][context] = {}
+            self._context_uris['steps'][context] = {}
             self._parsed_context_uris['steps'][context] = {}
 
             for node_name in self._topo_sort:
@@ -390,7 +390,9 @@ class WorkflowDAG:
                         self._parsed_context_uris['inputs'][context]\
                             [node['name']] = switched_uri
 
-                else: # node['type'] == 'step'
+            for node_name in self._topo_sort:
+
+                if node['type'] == 'step':
                     self._context_uris['steps'][context][node['name']]\
                         = '{}/{}'.format(
                             self._parsed_job_work_uri[context]['chopped_uri'],
