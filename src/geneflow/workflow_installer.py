@@ -128,11 +128,6 @@ class WorkflowInstaller:
             Log.an().error('cannot load workflow definition from %s', self._workflow_yaml)
             return False
 
-        # load apps-repo
-        #if not self._load_apps_repo():
-        #    Log.an().error('cannot load apps repo')
-        #    return False
-
         # connect to agave
         if self._config and self._agave_params:
             if self._config.get('agave') and self._agave_params.get('agave'):
@@ -157,13 +152,6 @@ class WorkflowInstaller:
         if not self._workflow_yaml.is_file():
             Log.an().error('missing workflow.yaml file in workflow package')
             return False
-
-        #self._apps_repo_path = str(
-        #    Path(package_path / 'workflow' / 'apps-repo.yaml')
-        #)
-        #if not Path(self._apps_repo_path).is_file():
-        #    Log.an().error('missing apps-repo.yaml file in workflow package')
-        #    return False
 
         return True
 

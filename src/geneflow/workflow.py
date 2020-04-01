@@ -478,9 +478,6 @@ class Workflow:
                 Contexts.mapping[exec_context]['data_scheme']
                 for exec_context in self._exec_contexts
         }:
-        #    | {
-        #        other_context for other_context in self._job['work_uri']
-        #}:
             # work_uri must be set for each exec_context
             if context not in self._job['work_uri']:
                 msg = 'missing work_uri for context: {}'.format(context)
@@ -640,7 +637,6 @@ class Workflow:
 
         """
         # create work URIs. a work URI is required for each workflow context
-        # for context in self._job['work_uri']:
         for context in {
                 Contexts.mapping[exec_context]['data_scheme']
                 for exec_context in self._exec_contexts

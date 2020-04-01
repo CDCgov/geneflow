@@ -1,7 +1,6 @@
 """This module contains the GeneFlow WorkflowDAG class."""
 
 import networkx as nx
-import pprint
 import regex as re
 from slugify import slugify
 
