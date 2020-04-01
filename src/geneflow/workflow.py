@@ -478,6 +478,9 @@ class Workflow:
                 Contexts.mapping[exec_context]['data_scheme']
                 for exec_context in self._exec_contexts
         }:
+        #    | {
+        #        other_context for other_context in self._job['work_uri']
+        #}:
             # work_uri must be set for each exec_context
             if context not in self._job['work_uri']:
                 msg = 'missing work_uri for context: {}'.format(context)
@@ -508,6 +511,7 @@ class Workflow:
                 return self._fatal(msg)
 
             self._parsed_job_work_uri[context] = parsed_job_work_uri
+
 
         # validate output URI
         parsed_uri = URIParser.parse(self._job['output_uri'])

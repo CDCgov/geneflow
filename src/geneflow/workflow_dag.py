@@ -1,6 +1,7 @@
 """This module contains the GeneFlow WorkflowDAG class."""
 
 import networkx as nx
+import pprint
 import regex as re
 from slugify import slugify
 
@@ -325,8 +326,6 @@ class WorkflowDAG:
 
             self._context_uris['inputs'][context] = {}
             self._parsed_context_uris['inputs'][context] = {}
-            self._context_uris['steps'][context] = {}
-            self._parsed_context_uris['steps'][context] = {}
 
             for node_name in self._topo_sort:
 
@@ -390,8 +389,17 @@ class WorkflowDAG:
                         self._parsed_context_uris['inputs'][context]\
                             [node['name']] = switched_uri
 
+        for context in {
+                Contexts.get_data_scheme_of_exec_context(con)
+                for con in self._exec_contexts
+        }:
+
+            self._context_uris['steps'][context] = {}
+            self._parsed_context_uris['steps'][context] = {}
+
             for node_name in self._topo_sort:
 
+                node = self._graph.nodes[node_name]
                 if node['type'] == 'step':
                     self._context_uris['steps'][context][node['name']]\
                         = '{}/{}'.format(
@@ -492,7 +500,7 @@ class WorkflowDAG:
                     type='step',
                     step=step,
                     contexts=contexts,
-                    source_context=source_context,
+                    source_context=source_data_context,
                     exec_context=step['execution']['context'],
                     node=None
                 )
@@ -652,7 +660,6 @@ class WorkflowDAG:
         for node_name in self._topo_sort:
             node = self._graph.nodes[node_name]
             if node['type'] == 'step':
-
                 # update source context URI
                 try:
                     node['contexts'][node['source_context']]\
