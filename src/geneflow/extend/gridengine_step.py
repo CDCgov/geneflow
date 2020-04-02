@@ -4,11 +4,11 @@
 import drmaa
 import os
 from slugify import slugify
+import shutil
 
 from geneflow.log import Log
 from geneflow.workflow_step import WorkflowStep
 from geneflow.data_manager import DataManager
-from geneflow.shell_wrapper import ShellWrapper
 from geneflow.uri_parser import URIParser
 
 
@@ -234,9 +234,13 @@ class GridengineStep(WorkflowStep):
                     = self._app['parameters'][param_key]['default']
 
         # get full path of wrapper script
-        path = ShellWrapper.invoke(
-            'which {}'.format(self._app['definition']['local']['script'])
-        ).decode('utf-8')
+        path = shutil.which(self._app['definition']['local']['script'])
+        if not path:
+            msg = 'wrapper script not found in path: %s'.format(
+                self._app['definition']['local']['script']
+            )
+            Log.an().error(msg)
+            return self._fatal(msg)
 
         # construct argument list for wrapper script
         args = [path]
@@ -266,7 +270,7 @@ class GridengineStep(WorkflowStep):
             '[step.%s]: command: %s -> %s',
             self._step['name'],
             map_item['template']['output'],
-            args
+            ' '.join(args)
         )
 
         # construct paths for logging stdout and stderr
