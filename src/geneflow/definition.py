@@ -77,6 +77,19 @@ WORKFLOW_SCHEMA = {
         'final_output': {
             'type': 'list', 'schema': {'type': 'string'}, 'default': []
         },
+        'apps': {
+            'type': 'dict',
+            'required': True,
+            'valueschema': {
+                'type': 'dict',
+                'required': True,
+                'schema': {
+                    'repo': {'type': 'string', 'required': True},
+                    'version': {'type': 'string', 'nullable': True, 'default': None},
+                    'asset': {'type': 'string', 'nullable': True, 'default': None}
+                }
+            }
+        },
         'steps': {
             'type': 'dict',
             'required': True,

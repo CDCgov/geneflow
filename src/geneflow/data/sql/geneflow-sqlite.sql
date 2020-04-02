@@ -20,6 +20,7 @@ CREATE TABLE workflow (
     inputs TEXT NOT NULL DEFAULT '',
     parameters TEXT NOT NULL DEFAULT '',
     final_output TEXT NOT NULL DEFAULT '',
+    apps TEXT NOT NULL DEFAULT '',
     public TINYINT NOT NULL DEFAULT 0,
     enable TINYINT NOT NULL DEFAULT 1,
     created TIMESTAMP DEFAULT '0000-00-00 00:00:00',
