@@ -38,7 +38,7 @@ def init_subparser(subparsers):
     parser.set_defaults(func=run_pending)
 
 
-def run_pending(args):
+def run_pending(args, other_args):
     """
     Run any jobs in database in the PENDING state.
 

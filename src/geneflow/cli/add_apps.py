@@ -31,7 +31,7 @@ def init_subparser(subparsers):
     parser.set_defaults(func=add_apps)
 
 
-def add_apps(args):
+def add_apps(args, other_args):
     """
     Add GeneFlow apps to database.
 

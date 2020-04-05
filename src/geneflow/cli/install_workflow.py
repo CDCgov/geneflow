@@ -162,7 +162,7 @@ def init_subparser(subparsers):
     parser.set_defaults(func=install_workflow)
 
 
-def install_workflow(args):
+def install_workflow(args, other_args):
     """
     Install a GeneFlow workflow.
 

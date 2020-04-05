@@ -60,7 +60,7 @@ def resolve_workflow_path(workflow_identifier):
     return False
 
 
-def help_func(args):
+def help_func(args, other_args):
     """
     GeneFlow workflow help.
 

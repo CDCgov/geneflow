@@ -38,7 +38,7 @@ def init_subparser(subparsers):
     parser.set_defaults(func=migrate_db)
 
 
-def migrate_db(args):
+def migrate_db(args, other_args):
     """
     Migrate SQL DB schema. Currently only works for MySQL databases.
 

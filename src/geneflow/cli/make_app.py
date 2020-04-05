@@ -40,7 +40,7 @@ def init_subparser(subparsers):
     parser.set_defaults(func=make_app)
 
 
-def make_app(args):
+def make_app(args, other_args):
     """
     Make app files from templates.
 

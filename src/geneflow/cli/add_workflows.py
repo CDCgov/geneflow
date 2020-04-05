@@ -31,7 +31,7 @@ def init_subparser(subparsers):
     parser.set_defaults(func=add_workflows)
 
 
-def add_workflows(args):
+def add_workflows(args, other_args):
     """
     Add GeneFlow workflows to database.
 

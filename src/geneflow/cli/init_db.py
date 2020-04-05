@@ -26,7 +26,7 @@ def init_subparser(subparsers):
     parser.set_defaults(func=init_db)
 
 
-def init_db(args):
+def init_db(args, other_args):
     """
     Initialize SQLite DB schema.
 

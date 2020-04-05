@@ -119,7 +119,7 @@ def apply_job_modifiers(jobs_dict, job_mods):
             set_dict_key_list(job, keys, val)
 
 
-def run(args):
+def run(args, other_args):
     """
     Run GeneFlow workflow engine.
 

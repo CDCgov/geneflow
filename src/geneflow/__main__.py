@@ -71,8 +71,8 @@ def parse_args():
     geneflow.cli.run_pending.init_subparser(subparsers)
 
     # parse arguments
-    args = parser.parse_args()
-    if not args.func:
+    args = parser.parse_known_args()
+    if not args[0].func:
         parser.print_help()
         return False
 
@@ -95,13 +95,13 @@ def main():
         sys.exit(1)
 
     # configure logging
-    Log.config(args.log_level, args.log_file)
+    Log.config(args[0].log_level, args[0].log_file)
 
-    # display GeneFlow version
+    # display GeneFlo
     Log.some().info('GeneFlow %s', __version__)
 
     # call the appropriate command
-    if not args.func(args):
+    if not args[0].func(args=args[0], other_args=args[1]):
         sys.exit(1)
 
     sys.exit(0)
