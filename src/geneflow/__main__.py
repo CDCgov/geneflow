@@ -100,7 +100,7 @@ def main():
     # configure logging
     Log.config(args[0].log_level, args[0].log_file)
 
-    # display GeneFlo
+    # display GeneFlow version
     Log.some().info('GeneFlow %s', __version__)
 
     # call the appropriate command
