@@ -18,6 +18,8 @@ def init_subparser(subparsers):
     )
     parser.set_defaults(func=help_func)
 
+    return parser
+
 
 def resolve_workflow_path(workflow_identifier):
     """
@@ -60,7 +62,7 @@ def resolve_workflow_path(workflow_identifier):
     return False
 
 
-def help_func(args, other_args):
+def help_func(args, other_args, subparser=None):
     """
     GeneFlow workflow help.
 

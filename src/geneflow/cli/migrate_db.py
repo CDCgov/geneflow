@@ -24,7 +24,7 @@ def init_subparser(subparsers):
         'migrate-db', help='migrate database'
     )
     parser.add_argument(
-        '-c', '--config_file',
+        '-c', '--config',
         type=str,
         required=True,
         help='geneflow config file path'
@@ -37,13 +37,15 @@ def init_subparser(subparsers):
     )
     parser.set_defaults(func=migrate_db)
 
+    return parser
 
-def migrate_db(args, other_args):
+
+def migrate_db(args, other_args, subparser=None):
     """
     Migrate SQL DB schema. Currently only works for MySQL databases.
 
     Args:
-        args.config_file: GeneFlow config file path.
+        args.config: GeneFlow config file path.
         args.environment: Config environment.
 
     Returns:
@@ -51,12 +53,12 @@ def migrate_db(args, other_args):
         On failure: False.
 
     """
-    config_file = args.config_file
+    config = args.config
     environment = args.environment
 
     cfg = Config()
-    if not cfg.load(config_file):
-        Log.an().error('cannot load config file: %s', config_file)
+    if not cfg.load(config):
+        Log.an().error('cannot load config file: %s', config)
         return False
 
     config_dict = cfg.config(environment)

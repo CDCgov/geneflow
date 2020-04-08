@@ -44,31 +44,34 @@ def parse_args():
 
     # shared arguments
     parser.add_argument(
-        '--log_level',
+        '--log-level',
         type=str,
         default='info',
+        dest='log_level',
         help='logging level'
     )
     parser.add_argument(
-        '--log_file',
+        '--log-file',
         type=str,
         default=None,
+        dest='log_file',
         help='log file'
     )
 
     parser.set_defaults(func=None)
-    subparsers = parser.add_subparsers(help='Functions')
+    subparsers = parser.add_subparsers(help='Functions', dest='command')
+    subparser_dict = {}
 
     # configure arguments for sub-commands
-    geneflow.cli.add_apps.init_subparser(subparsers)
-    geneflow.cli.add_workflows.init_subparser(subparsers)
-    geneflow.cli.help.init_subparser(subparsers)
-    geneflow.cli.init_db.init_subparser(subparsers)
-    geneflow.cli.install_workflow.init_subparser(subparsers)
-    geneflow.cli.make_app.init_subparser(subparsers)
-    geneflow.cli.migrate_db.init_subparser(subparsers)
-    geneflow.cli.run.init_subparser(subparsers)
-    geneflow.cli.run_pending.init_subparser(subparsers)
+    subparser_dict['add-apps'] = geneflow.cli.add_apps.init_subparser(subparsers)
+    subparser_dict['add-workflows'] = geneflow.cli.add_workflows.init_subparser(subparsers)
+    subparser_dict['help'] = geneflow.cli.help.init_subparser(subparsers)
+    subparser_dict['init-db'] = geneflow.cli.init_db.init_subparser(subparsers)
+    subparser_dict['install-workflow'] = geneflow.cli.install_workflow.init_subparser(subparsers)
+    subparser_dict['make-app'] = geneflow.cli.make_app.init_subparser(subparsers)
+    subparser_dict['migrate-db'] = geneflow.cli.migrate_db.init_subparser(subparsers)
+    subparser_dict['run'] = geneflow.cli.run.init_subparser(subparsers)
+    subparser_dict['run-pending'] = geneflow.cli.run_pending.init_subparser(subparsers)
 
     # parse arguments
     args = parser.parse_known_args()
@@ -76,7 +79,7 @@ def parse_args():
         parser.print_help()
         return False
 
-    return args
+    return args, subparser_dict[args[0].command]
 
 
 def main():
@@ -90,7 +93,7 @@ def main():
         Nothing.
 
     """
-    args = parse_args()
+    args, subparser = parse_args()
     if not args:
         sys.exit(1)
 
@@ -101,7 +104,11 @@ def main():
     Log.some().info('GeneFlow %s', __version__)
 
     # call the appropriate command
-    if not args[0].func(args=args[0], other_args=args[1]):
+    if not args[0].func(
+            args=args[0],
+            other_args=args[1],
+            subparser=subparser
+    ):
         sys.exit(1)
 
     sys.exit(0)

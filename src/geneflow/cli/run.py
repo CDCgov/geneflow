@@ -2,6 +2,7 @@
 
 
 import os
+import argparse
 from pathlib import Path
 from multiprocessing import Pool
 from functools import partial
@@ -19,23 +20,59 @@ def init_subparser(subparsers):
     """Initialize the run CLI subparser."""
     parser = subparsers.add_parser('run', help='run a GeneFlow workflow')
     parser.add_argument(
-        'workflow',
+        'workflow_path',
         type=str,
         help='GeneFlow workflow definition or package directory'
     )
     parser.add_argument(
-        '-j', '--job_yaml',
+        '-j', '--job',
         type=str,
         default=None,
+        dest='job_path',
         help='geneflow definition yaml for job(s)'
     )
     parser.add_argument(
-        '-d', '--data',
+        '-o', '--output',
         type=str,
-        action='append',
-        help='job definition modifier'
+        required=True,
+        help='output folder'
     )
+    parser.add_argument(
+        '-n', '--name',
+        type=str,
+        default='geneflow-job',
+        help='name of job'
+    )
+    parser.add_argument(
+        '--exec-context', '--ec',
+        type=str,
+        dest='exec_context',
+        action='append',
+        help='execution contexts'
+    )
+    parser.add_argument(
+        '--exec-method', '--em',
+        type=str,
+        dest='exec_method',
+        action='append',
+        help='execution methods'
+    )
+    parser.add_argument(
+        '--exec-param', '--ep',
+        type=str,
+        dest='exec_param',
+        action='append',
+        help='execution parameters'
+    )
+    #parser.add_argument(
+    #    '-d', '--data',
+    #    type=str,
+    #    action='append',
+    #    help='job definition modifier'
+    #)
     parser.set_defaults(func=run)
+
+    return parser
 
 
 def resolve_workflow_path(workflow_identifier):
@@ -119,34 +156,37 @@ def apply_job_modifiers(jobs_dict, job_mods):
             set_dict_key_list(job, keys, val)
 
 
-def run(args, other_args):
+def run(args, other_args, subparser):
     """
     Run GeneFlow workflow engine.
 
     Args:
-        args.workflow: workflow definition or package directory.
-        args.job_yaml: job definition.
+        args.workflow_path: workflow definition or package directory.
+        args.job: path to job definition
 
     Returns:
         On success: True.
         On failure: False.
 
     """
+
+    Log.some().debug('args: %s, other_args: %s', args, other_args)
+
     # get absolute path to workflow
-    workflow_yaml = resolve_workflow_path(args.workflow)
-    if workflow_yaml:
-        Log.some().info('workflow definition found: %s', workflow_yaml)
+    workflow_path = resolve_workflow_path(args.workflow_path)
+    if workflow_path:
+        Log.some().info('workflow definition found: %s', workflow_path)
     else:
-        Log.an().error('cannot find workflow definition: %s', args.workflow)
+        Log.an().error('cannot find workflow definition: %s', args.workflow_path)
         return False
 
     # get absolute path to job file if provided
-    job_yaml = None
-    if args.job_yaml:
-        job_yaml = Path(args.job_yaml).absolute()
+    job_path = None
+    if args.job_path:
+        job_path = Path(args.job_path).absolute()
 
     # setup environment
-    env = Environment(workflow_path=workflow_yaml)
+    env = Environment(workflow_path=workflow_path)
     if not env.initialize():
         Log.an().error('cannot initialize geneflow environment')
         return False
@@ -164,13 +204,13 @@ def run(args, other_args):
         Log.an().error('data source initialization error [%s]', str(err))
         return False
 
-    defs = data_source.import_definition(workflow_yaml)
+    defs = data_source.import_definition(workflow_path)
     if not defs:
-        Log.an().error('workflow definition load failed: %s', workflow_yaml)
+        Log.an().error('workflow definition load failed: %s', workflow_path)
         return False
 
     if not defs['workflows']:
-        Log.an().error('workflow definition load failed: %s', workflow_yaml)
+        Log.an().error('workflow definition load failed: %s', workflow_path)
         return False
 
     data_source.commit()
@@ -183,8 +223,8 @@ def run(args, other_args):
     # load job definition if provided
     jobs_dict = {}
     gf_def = Definition()
-    if job_yaml:
-        if not gf_def.load(job_yaml):
+    if job_path:
+        if not gf_def.load(job_path):
             Log.an().error('Job definition load failed')
             return False
         jobs_dict = gf_def.jobs()
@@ -200,9 +240,14 @@ def run(args, other_args):
             }
         }
 
-    # override with cli parameters
-    if args.data:
-        apply_job_modifiers(jobs_dict, args.data)
+    # override with known cli parameters
+    apply_job_modifiers(
+        jobs_dict,
+        [
+            'name={}'.format(args.name),
+            'output_uri={}'.format(args.output)
+        ]
+    )
 
     # insert workflow name, if not provided
     workflow_name = next(iter(defs['workflows']))
@@ -220,6 +265,35 @@ def run(args, other_args):
             workflow_id
         )
         return False
+
+    # parse unknown args
+    dynamic_parser = argparse.ArgumentParser()
+
+    for input_key in workflow_dict['inputs']:
+        dynamic_parser.add_argument(
+            '--in.{}'.format(input_key),
+            dest='inputs.{}'.format(input_key),
+            required=False,
+            default=workflow_dict['inputs'][input_key]['default']
+        )
+    for param_key in workflow_dict['parameters']:
+        dynamic_parser.add_argument(
+            '--param.{}'.format(param_key),
+            dest='parameters.{}'.format(param_key),
+            required=False,
+            default=workflow_dict['parameters'][param_key]['default']
+        )
+
+    dynamic_args = dynamic_parser.parse_args(other_args)
+    Log.some().debug('dynamic args: %s', dynamic_args)
+
+    apply_job_modifiers(
+        jobs_dict,
+        [
+            '{}={}'.format(dynamic_arg, getattr(dynamic_args, dynamic_arg))
+            for dynamic_arg in vars(dynamic_args)
+        ]
+    )
 
     for job in jobs_dict.values():
         if 'inputs' not in job:

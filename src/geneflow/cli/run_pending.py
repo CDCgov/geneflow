@@ -18,7 +18,7 @@ def init_subparser(subparsers):
         'run-pending', help='run pending workflow jobs'
     )
     parser.add_argument(
-        '-c', '--config_file',
+        '-c', '--config',
         type=str,
         required=True,
         help='geneflow config file path'
@@ -30,20 +30,23 @@ def init_subparser(subparsers):
         help='environment'
     )
     parser.add_argument(
-        '--log_location',
+        '--log-location',
         type=str,
         required=True,
+        dest='log_location',
         help='log location'
     )
     parser.set_defaults(func=run_pending)
 
+    return parser
 
-def run_pending(args, other_args):
+
+def run_pending(args, other_args, subparser=None):
     """
     Run any jobs in database in the PENDING state.
 
     Args:
-        args.config_file: GeneFlow config file path.
+        args.config: GeneFlow config file path.
         args.environment: Config environment.
 
     Returns:
@@ -51,14 +54,14 @@ def run_pending(args, other_args):
         On failure: False.
 
     """
-    config_file = args.config_file
+    config = args.config
     environment = args.environment
     log_location = args.log_location
 
     # load config file
     cfg = Config()
-    if not cfg.load(config_file):
-        Log.an().error('cannot load config file: %s', config_file)
+    if not cfg.load(config):
+        Log.an().error('cannot load config file: %s', config)
         return False
 
     config_dict = cfg.config(environment)
