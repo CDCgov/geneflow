@@ -1,6 +1,11 @@
 # Changelog
 
 
+## 2020/04/08 - v2.0.0-alpha.2: simplify CLI arguments
+
+1. Simplify and standardize CLI arguments
+
+
 ## 2020/04/01 - v2.0.0-alpha.1: grid engine support
 
 1. Major enhancement: add support for Grid Engine (UGE, SGE, etc) execution.
