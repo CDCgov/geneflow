@@ -509,6 +509,7 @@ class Workflow:
 
             self._parsed_job_work_uri[context] = parsed_job_work_uri
 
+
         # validate output URI
         parsed_uri = URIParser.parse(self._job['output_uri'])
         if not parsed_uri:
@@ -636,7 +637,10 @@ class Workflow:
 
         """
         # create work URIs. a work URI is required for each workflow context
-        for context in self._job['work_uri']:
+        for context in {
+                Contexts.mapping[exec_context]['data_scheme']
+                for exec_context in self._exec_contexts
+        }:
             if not DataManager.mkdir(
                     parsed_uri=self._parsed_job_work_uri[context],
                     recursive=True,

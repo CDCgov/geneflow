@@ -1,5 +1,5 @@
 {
-  "name": "{{ '{{' }} agave.appsPrefix {{ '}}' }}-{{ name }}",
+  "name": "{{ '{{' }} agave.appsPrefix {{ '}}' }}-{{ slugify_name }}",
   "version": "{{ version }}",
   "label": "{{ description }}",
   "defaultNodeCount": 1,
@@ -9,9 +9,9 @@
   "parallelism": "SERIAL",
   "checkpointable": false,
   "executionSystem": "{{ '{{' }} agave.executionSystem {{ '}}' }}",
-  "deploymentPath": "{{ '{{' }} agave.appsDir {{ '}}' }}/{{ name }}-{{ version }}",
+  "deploymentPath": "{{ '{{' }} agave.appsDir {{ '}}' }}/{{ slugify_name }}-{{ version }}",
   "deploymentSystem": "{{ '{{' }} agave.deploymentSystem {{ '}}' }}",
-  "templatePath": "{{ name }}.sh",
+  "templatePath": "{{ slugify_name }}.sh",
   "testPath": "test/test.sh",
   "inputs": [
     {% for key, value in inputs.items() %}

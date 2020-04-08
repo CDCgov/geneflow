@@ -17,7 +17,7 @@ def init_subparser(subparsers):
         help='geneflow definition yaml with workflows'
     )
     parser.add_argument(
-        '-c', '--config_file',
+        '-c', '--config',
         type=str,
         required=True,
         help='geneflow config file path'
@@ -30,14 +30,16 @@ def init_subparser(subparsers):
     )
     parser.set_defaults(func=add_workflows)
 
+    return parser
 
-def add_workflows(args):
+
+def add_workflows(args, other_args, subparser=None):
     """
     Add GeneFlow workflows to database.
 
     Args:
         args.workflow_yaml: GeneFlow definition with workflows.
-        args.config_file: GeneFlow config file path.
+        args.config: GeneFlow config file path.
         args.environment: Config environment.
 
     Returns:
@@ -46,13 +48,13 @@ def add_workflows(args):
 
     """
     workflow_yaml = args.workflow_yaml
-    config_file = args.config_file
+    config = args.config
     environment = args.environment
 
     # load config file
     cfg = Config()
-    if not cfg.load(config_file):
-        Log.an().error('cannot load config file: %s', config_file)
+    if not cfg.load(config):
+        Log.an().error('cannot load config file: %s', config)
         return False
 
     config_dict = cfg.config(environment)

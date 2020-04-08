@@ -63,6 +63,7 @@ setup(
                        'data/migrations/20180821-01.py',
                        'data/migrations/20180907-01.py',
                        'data/migrations/20200228-01.py',
+                       'data/migrations/20200401-01.py',
                        'data/templates/app.yaml.j2.j2',
                        'data/templates/agave-app-def.json.j2.j2',
                        'data/templates/wrapper-script.sh.j2',

@@ -1,11 +1,18 @@
 # Changelog
 
 
-## 2020/03/23 - v2.0.0-alpha.1: grid engine support
+## 2020/04/08 - v2.0.0-alpha.2: simplify CLI arguments
+
+1. Simplify and standardize CLI arguments
+
+
+## 2020/04/01 - v2.0.0-alpha.1: grid engine support
 
 1. Major enhancement: add support for Grid Engine (UGE, SGE, etc) execution.
 
 2. Add execution parameters options (in addition to context and method).
+
+3. Remove apps-repo.yaml file and add a required "apps" section to the workflow definition.
 
 
 ## 2020/03/16 - v1.13.6: bug fix release
