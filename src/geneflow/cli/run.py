@@ -64,12 +64,6 @@ def init_subparser(subparsers):
         action='append',
         help='execution parameters'
     )
-    #parser.add_argument(
-    #    '-d', '--data',
-    #    type=str,
-    #    action='append',
-    #    help='job definition modifier'
-    #)
     parser.set_defaults(func=run)
 
     return parser
@@ -169,9 +163,6 @@ def run(args, other_args, subparser):
         On failure: False.
 
     """
-
-    Log.some().debug('args: %s, other_args: %s', args, other_args)
-
     # get absolute path to workflow
     workflow_path = resolve_workflow_path(args.workflow_path)
     if workflow_path:
@@ -249,14 +240,14 @@ def run(args, other_args, subparser):
         ]
     )
 
-    # insert workflow name, if not provided
+    # insert workflow name into job, if not provided
     workflow_name = next(iter(defs['workflows']))
     for job in jobs_dict.values():
         if 'workflow_name' not in job:
             job['workflow_name'] = workflow_name
 
-    # extract workflow defaults for inputs and parameters if not provided
-    # in job definition
+    # get workflow definition back from database to ensure
+    # that it's a valid definition
     workflow_id = next(iter(defs['workflows'].values()))
     workflow_dict = data_source.get_workflow_def_by_id(workflow_id)
     if not workflow_dict:
@@ -266,7 +257,7 @@ def run(args, other_args, subparser):
         )
         return False
 
-    # parse unknown args
+    # parse dynamic args. these are determined from workflow definition
     dynamic_parser = argparse.ArgumentParser()
 
     for input_key in workflow_dict['inputs']:
@@ -285,8 +276,8 @@ def run(args, other_args, subparser):
         )
 
     dynamic_args = dynamic_parser.parse_args(other_args)
-    Log.some().debug('dynamic args: %s', dynamic_args)
 
+    # add inputs and parameters to job definition
     apply_job_modifiers(
         jobs_dict,
         [
@@ -295,6 +286,22 @@ def run(args, other_args, subparser):
         ]
     )
 
+    # add execution options to job definition
+    apply_job_modifiers(
+        jobs_dict,
+        [
+            'execution.context.{}={}'.format(*exec_arg.split(':', 1)[0:2])
+            for exec_arg in args.exec_context
+        ]+[
+            'execution.method.{}={}'.format(*exec_arg.split(':', 1)[0:2])
+            for exec_arg in args.exec_method
+        ]+[
+            'execution.parameters.{}={}'.format(*exec_arg.split(':', 1)[0:2])
+            for exec_arg in args.exec_param
+        ]
+    )
+
+    # get default values from workflow definition
     for job in jobs_dict.values():
         if 'inputs' not in job:
             job['inputs'] = {}
