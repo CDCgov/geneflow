@@ -36,10 +36,11 @@ def init_subparser(subparsers):
         help='URL of git repo from which to clone workflow'
     )
     parser.add_argument(
-        '--git_branch',
+        '--git-branch',
         type=str,
         required=False,
         default=None,
+        dest='git_branch',
         help='git tag or branch to clone'
     )
     parser.add_argument(
@@ -78,9 +79,10 @@ def init_subparser(subparsers):
     )
     parser.set_defaults(clean=False)
     parser.add_argument(
-        '--make_apps', action='store_true',
+        '--make-apps', action='store_true',
         required=False,
         default=None,
+        dest='make_apps',
         help='Auto-generate app files during install'
     )
     parser.set_defaults(make_apps=False)
@@ -99,70 +101,81 @@ def init_subparser(subparsers):
         help='config environment'
     )
     parser.add_argument(
-        '--agave_params',
+        '--agave-params',
         type=str,
         required=False,
         default=None,
+        dest='agave_params',
         help='Agave params file for registration'
     )
     parser.add_argument(
-        '--agave_username',
+        '--agave-username',
         type=str,
         required=False,
         default=None,
+        dest='agave_username',
         help='Agave username to impersonate'
     )
     parser.add_argument(
-        '--agave_apps_prefix',
+        '--agave-apps-prefix',
         type=str,
         required=False,
         default=None,
+        dest='agave_apps_prefix',
         help='App name prefix for Agave registration'
     )
     parser.add_argument(
-        '--agave_execution_system',
+        '--agave-execution-system',
         type=str,
         required=False,
         default=None,
+        dest='agave_execution_system',
         help='Execution system for Agave registration'
     )
     parser.add_argument(
-        '--agave_deployment_system',
+        '--agave-deployment-system',
         type=str,
         required=False,
         default=None,
+        dest='agave_deployment_system',
         help='Deployment system for Agave registration'
     )
     parser.add_argument(
-        '--agave_apps_dir',
+        '--agave-apps-dir',
         type=str,
         required=False,
         default=None,
+        dest='agave_apps_dir',
         help='Apps directory for Agave registration'
     )
     parser.add_argument(
-        '--agave_test_data_dir',
+        '--agave-test-data-dir',
         type=str,
         required=False,
         default=None,
+        dest='agave_test_data_dir',
         help='Test data directory for Agave registration'
     )
     parser.add_argument(
-        '--agave_publish', action='store_true',
+        '--agave-publish', action='store_true',
         required=False,
+        dest='agave_publish',
         help='Publish Agave app'
     )
     parser.add_argument(
-        '--agave_test_data', action='store_true',
+        '--agave-test-data', action='store_true',
         required=False,
+        dest='agave_test_data',
         help='Upload Agave test data'
     )
     parser.set_defaults(agave_publish=False)
     parser.set_defaults(agave_test_data=False)
     parser.set_defaults(func=install_workflow)
 
+    return parser
 
-def install_workflow(args):
+
+def install_workflow(args, other_args, subparser=None):
     """
     Install a GeneFlow workflow.
 
