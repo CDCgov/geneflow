@@ -1,9 +1,11 @@
 # Changelog
 
 
-## 2020/04/02 - v1.13.7: bug fix release
+## 2020/04/15 - v1.13.7: bug fix release
 
 1. Fix bug: Run pending jobs CLI does not change status of pending jobs fast enough.
+
+2. Fix bug: App version numbers with invalid characters cause Agave registration to fail.
 
 
 ## 2020/03/16 - v1.13.6: bug fix release
