@@ -87,6 +87,15 @@ def run_pending(args):
         'pending jobs found:\n%s', pprint.pformat(pending_jobs)
     )
 
+    # set job status to QUEUED to minimize the chance that another
+    # process will try to run it
+    for job in pending_jobs:
+        if not data_source.update_job_status(job['id'], 'QUEUED', ''):
+            Log.a().warning('cannot update job status in data source')
+            data_source.rollback()
+        data_source.commit()
+
+    # create a thread pool to run at most 5 jobs concurrently
     pool = Pool(min(5, len(pending_jobs)))
     jobs = [
         {
