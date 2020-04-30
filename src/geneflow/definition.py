@@ -26,6 +26,7 @@ WORKFLOW_SCHEMA = {
         'version': {'type': 'string', 'required': True},
         'public': {'type': 'boolean', 'default': False},
         'enable': {'type': 'boolean', 'default': True},
+        'test': {'type': 'boolean', 'default': False},
         'username': {'type': 'string', 'default': 'user'},
         'inputs': {
             'type': 'dict',
