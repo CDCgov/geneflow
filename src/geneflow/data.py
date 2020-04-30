@@ -45,6 +45,7 @@ class WorkflowEntity(Base):
     final_output = Column(Text, default='')
     public = Column(Boolean, default=False)
     enable = Column(Boolean, default=True)
+    test = Column(Boolean, default=False)
     created = Column(DateTime, default=datetime.datetime.now)
     modified = Column(DateTime, default=datetime.datetime.now)
 
@@ -431,7 +432,8 @@ class DataSource:
                 WorkflowEntity.parameters,
                 WorkflowEntity.final_output,
                 WorkflowEntity.public,
-                WorkflowEntity.enable
+                WorkflowEntity.enable,
+                WorkflowEntity.test
             ).\
                 filter(WorkflowEntity.id == workflow_id).\
                 all()
@@ -450,6 +452,7 @@ class DataSource:
                     'final_output': json.loads(row[9]),
                     'public': row[10],
                     'enable': row[11],
+                    'test': row[12],
                     'steps': {}
                 } for row in result
             ]
@@ -626,6 +629,7 @@ class DataSource:
                 final_output=data['final_output'],
                 public=data['public'],
                 enable=data['enable'],
+                test=data['test'],
                 created=None,
                 modified=None
             ))
@@ -2145,6 +2149,7 @@ class DataSource:
                 'final_output'      : json.dumps(valid_def['final_output']),
                 'public'            : valid_def['public'],
                 'enable'            : valid_def['enable'],
+                'test'              : valid_def['test'],
                 'version'           : valid_def['version']
             })
             if not workflow_id:
@@ -2300,6 +2305,7 @@ class DataSource:
                     'final_output':      json.dumps(valid_def['final_output']),
                     'public':            valid_def['public'],
                     'enable':            valid_def['enable'],
+                    'test':              valid_def['test'],
                     'version':           valid_def['version']
                 }
         ):
