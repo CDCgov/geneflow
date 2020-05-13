@@ -1,6 +1,13 @@
 # Changelog
 
 
+## 2020/05/20 - v1.13.8: bug fix release
+
+1. Fix bug: Update dependency versions in requirements file.
+
+2. Add "test" field to workflow table for workflow debugging.
+
+
 ## 2020/04/15 - v1.13.7: bug fix release
 
 1. Fix bug: Run pending jobs CLI does not change status of pending jobs fast enough.
